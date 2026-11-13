@@ -28,6 +28,9 @@ with zipfile.ZipFile(apk) as archive:
                 loads = [line.split() for line in headers.splitlines() if line.strip().startswith('LOAD ')]
                 assert loads and all(int(fields[-1],16) >= 16384 for fields in loads), (name,headers)
     assert not any(n.startswith('META-INF/') and n.endswith(('.RSA','.DSA','.EC')) for n in names), 'Ordinary builds must stay unsigned'
+    with apk.open('rb') as binary:
+        binary.seek(archive.start_dir - 16)
+        assert binary.read(16) != b'APK Sig Block 42', 'Unsigned review APK has a v2/v3 signing block'
     assert 'classes.dex' in names
     # Generation must happen before committing profiles; never manufacture a profile.
     if Path('app/src/main/baseline-prof.txt').is_file():

@@ -75,3 +75,14 @@ performance/power budgets and no unresolved calculation/data-loss defects. Keep 
 evidence row honest. Only then prepare a concrete release approval request with
 commit/tag, artifact hashes, certificate, changelog, store text and unresolved risks.
 No script in this repository uploads to a store, signs production or merges PRs.
+
+## Executed unsigned reproducibility evidence
+
+Source `957230dd55ce109dde05f69416c7c2b7c348fe38` passed both clean release workers,
+release lint, privacy/license/native-alignment/profile/budget checks and exact-byte
+comparison in [run 43509300940](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43509300940).
+Both APKs were 11,042,687 bytes (10.5 MiB), SHA-256
+`4106456083b7083ce6ec645f9356afcedb4cb8033614a7b1c944f8c3128a77f8`.
+The source/review kit and hashes are retained as commit-labeled Actions artifacts.
+This unsigned internal build is not a reviewed public release or production certificate.
+Later source changes require their own matching evidence.

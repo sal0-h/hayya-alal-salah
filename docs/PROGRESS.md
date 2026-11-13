@@ -42,8 +42,11 @@ Expanded CI at `f2a5a25`: [run 43502522662](https://github.com/sal0-h/hayya-alal
 The build, dedicated QA signer, full 592-image capture matrix and API26/31/33
 integration jobs passed. The API37 ordinary integration suite also passed; its job
 failed afterward in the locked-reboot probe parser, which mistook printed Intent
-braces for JSON. `d90c684` fixes parsing; Direct Boot delivery is still unverified
-until the rerun succeeds. Do not mark the whole run green.
+braces for JSON. `d90c684` fixed parsing and its API37 job verified `unlocked=false`, active Fajr,
+bundled fallback and actual active alarm audio, then passed original-record/import
+preservation after unlock. `8087095` subsequently passed the entire hardening push
+[run 43506421797](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43506421797).
+This is emulator evidence, not Samsung/OEM/overnight acceptance.
 
 Each ordinary API suite executed 11 tests, including actual idle-capable AlarmManager
 delivery and stale/duplicate rejection, plus authenticated original-zone actions on
@@ -56,19 +59,29 @@ its isolated fixture installation and explicitly rejects empty/incomplete report
 
 Current performance branch: Macrobenchmark journeys/three-year seed, actual profile
 generation workflow, useful-data reporting and settled memory/alarm capture are
-implemented. Both variants compile, but profile/metrics execution remains pending.
-A real run exposed an uncompiled synthetic receiver in AGP’s Java source directory;
-the source now uses the Kotlin directory set and a DEX-content check verifies it.
-No generated profile or measured performance is claimed yet. A second clean worker
-workflow and concrete unsigned release-review kit are implemented, not yet run.
+implemented. Real profile generation (two tests) and all five optimized performance/
+memory tests passed at `d11e566`, [run 43504979193](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43504979193).
+Human profiles and raw evidence are committed; the optimized APK contained the binary
+profile. Emulator Today PSS was 72.1 MiB with three years of synthetic records; no
+startup improvement or physical budget acceptance is claimed. See PERFORMANCE.md.
+Two independent clean production-identity builds at `957230d` passed release lint,
+privacy/license/native-alignment/profile/budget checks and produced byte-identical
+unsigned APKs (11,042,687 bytes); source, bundle, mapping and review kits are retained
+by [run 43509300940](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43509300940).
+Later source changes still need their own CI evidence.
 
 Local tests now total 21 core + one vendored fixture. Six frozen published AlAdhan
 seasonal references (36 event times) differ by at most one minute; exact methods,
 coordinates, source URLs/checksums, deltas and limitations are in
 CALCULATION_FIXTURES.md. This is not local religious-authority signoff. Regional
 presets are suggestions for comparison only; nothing automatically changes the
-chosen calculation method. New widget host, native Focus/Fajr/keyboard visual and
-release-reproducibility checks are being executed next. No physical test has run.
+chosen calculation method. The 640-image full shell plus native Focus/Fajr/keyboard matrix passed at `d11e566`.
+Actual widget binding/render/reset passed API26; newer APIs rendered all six rows but
+the test raced asynchronous resize updates before scrolling. The scrolling fixture
+is fixed; 32 additional four-language/theme/font widget captures and the current
+13-test integration suites are being executed. Full reset/import deletion now has
+explicit file-failure reporting and a real deletion fixture (local compile/lint pass;
+API26 execution passed in the 13-test suite). No physical test has run.
 Direct Boot configuration includes minimal language/appearance preferences, never
 coordinates, records or pause intervals. Synthetic components remain absent from
 QA/release; only isolated benchmark builds are shell-profileable.
@@ -82,7 +95,8 @@ QA/release; only isolated benchmark builds are shell-profileable.
   clipping, insets, RTL, labels and accessibility semantics.
 - Review new frozen seasonal/provider comparisons and retain local-authority review as an external gate.
 - Macrobenchmark journeys, generated Baseline Profiles, three-year seeded history,
-  release-like profiling and reproducible release checks. No performance figures yet.
+  release-like profiling and reproducible release checks for the final source head.
+  First emulator metrics and unsigned reproducibility evidence are committed.
 - Execute final privacy/license/reproducibility checks; review prepared contributor, privacy,
   signing/update, four-language store drafts and disabled F-Droid recipe. No publication.
 
