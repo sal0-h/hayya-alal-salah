@@ -1,7 +1,7 @@
-name: Performance and reproducibility
+name: Performance profiles and emulator metrics
 on:
   push:
-    paths: ['app/**', 'core/**', 'praytimes/**', 'benchmark/**', 'gradle/**', 'build.gradle.kts', 'scripts/performance_ci.sh', 'scripts/merge_profiles.py', '.github/workflows/performance.yml']
+    paths: ['app/**', 'core/**', 'praytimes/**', 'benchmark/**', 'gradle/**', 'build.gradle.kts', 'settings.gradle.kts', 'scripts/performance_ci.sh', 'scripts/merge_profiles.py', '.github/workflows/performance.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -59,6 +59,7 @@ jobs:
           name: profiles-and-emulator-metrics-${{ github.sha }}
           include-hidden-files: true
           path: |
+            build/reports/dependency-verification/
             app/src/main/baseline-prof.txt
             app/src/main/startup-prof.txt
             benchmark/build/outputs/connected_android_test_additional_output/
