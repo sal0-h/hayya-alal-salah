@@ -30,7 +30,7 @@ class AppearanceCaptureTest {
         try {
             for (width in listOf("phone","tablet")) {
                 shell(if (width == "phone") "wm size 840x1960" else "wm size 1800x2400")
-                val routes = if (width == "phone") listOf("today","history","settings","onboarding","location","calculation","alerts","fajr","focus","qibla","pause","appearance","privacy","credits","record","date","focus-consent","privacy-confirm","polar")
+                val routes = if (width == "phone") listOf("today","history","settings","onboarding","location","calculation","alerts","fajr","focus","qibla","pause","appearance","privacy","credits","record","date","focus-consent","privacy-confirm","polar","focus-overlay","ringing","ringing-keyboard")
                     else listOf("today","history","settings")
                 for (scale in listOf(1,2)) {
                     shell("settings put system font_scale $scale"); Thread.sleep(600)
@@ -46,7 +46,7 @@ class AppearanceCaptureTest {
                             check(activity.fullyDrawnReporter.isFullyDrawnReported) { "Fixture did not finish drawing: $route" }
                             instrumentation.waitForIdleSync(); Thread.sleep(200)
                             check(kotlin.math.abs(activity.resources.configuration.fontScale - scale) < 0.05) { "Actual system font scale did not update" }
-                            val trigger = when (route) { "date" -> "history-date"; "focus-consent" -> "focus-permission"; "privacy-confirm" -> "privacy-delete"; else -> null }
+                            val trigger = when (route) { "date" -> "history-date"; "focus-consent" -> "focus-permission"; "privacy-confirm" -> "privacy-delete"; "ringing-keyboard" -> "alarm-answer"; else -> null }
                             if (trigger != null) {
                                 fun find(node: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
                                     if (node == null || node.viewIdResourceName == trigger) return node
@@ -68,7 +68,7 @@ class AppearanceCaptureTest {
                                 checkNotNull(node).performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK)
                                 instrumentation.waitForIdleSync(); Thread.sleep(200)
                             }
-                            for (position in if (width == "phone" && route !in listOf("record","date","focus-consent","privacy-confirm")) listOf("top","bottom") else listOf("top")) {
+                            for (position in if (width == "phone" && route !in listOf("record","date","focus-consent","privacy-confirm","focus-overlay","ringing","ringing-keyboard")) listOf("top","bottom") else listOf("top")) {
                                 if (position == "bottom") { instrumentation.runOnMainSync { activity.bottom() }; instrumentation.waitForIdleSync(); Thread.sleep(100) }
                                 var active = instrumentation.uiAutomation.windows.firstOrNull { it.isActive }
                                 val windowDeadline = android.os.SystemClock.uptimeMillis() + 5000
