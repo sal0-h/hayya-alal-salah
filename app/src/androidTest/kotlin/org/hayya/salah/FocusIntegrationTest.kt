@@ -82,7 +82,7 @@ class FocusIntegrationTest {
             assertTrue(checkNotNull(bypass).performAction(AccessibilityNodeInfo.ACTION_CLICK))
             overlay(false)
             assertNull(app.repository.snapshot().records[window.target])
-            assertEquals(window.target,app.settings.preferences.first().focus.bypass?.target)
+            withTimeout(5000) { app.settings.preferences.first { it.focus.bypass?.target == window.target } }
             phase = "clear bypass"; app.settings.update { it.copy(focus = it.focus.copy(bypass = null)) }; overlay(true)
             phase = "own app exclusion"; shell("am start -W -n ${context.packageName}/org.hayya.salah.MainActivity"); overlay(false)
             launchTarget(); overlay(true)
