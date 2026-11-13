@@ -94,13 +94,14 @@ import java.time.LocalDate
         if (AlertNotifications.ready(context, false)) context.getSystemService(NotificationManager::class.java).notify("test", 1,
             NotificationCompat.Builder(context, AlertNotifications.PRAYERS).setSmallIcon(R.drawable.ic_notification).setContentTitle(testLabel).setAutoCancel(true).build())
     }) { Text(stringResource(R.string.alert_test)) }
-    AudioLibrary(history, update)
+    AudioLibrary(history)
 }
-@Composable internal fun AudioLibrary(history: HistorySnapshot?, update: PreferencesUpdate) {
+@Composable internal fun AudioLibrary(history: HistorySnapshot?) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf(false) }
+    var deletionError by remember { mutableStateOf(false) }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) scope.launch {
             busy = true; error = false
@@ -111,12 +112,17 @@ import java.time.LocalDate
     OutlinedButton(onClick = { picker.launch(arrayOf("audio/*")) }, enabled = !busy) { Text(stringResource(R.string.import_audio)) }
     if (busy) LoadingIndicator()
     if (error) Text(stringResource(R.string.import_error), color = MaterialTheme.colorScheme.error)
+    if (deletionError) Text(stringResource(R.string.audio_delete_error),color = MaterialTheme.colorScheme.error)
     history?.audio.orEmpty().forEach { audio ->
         Text(audio.name)
-        TextButton(onClick = {
-            update { prefs -> prefs.copy(alerts = prefs.alerts.mapValues { (_, alert) -> if (alert.sound == audio.id) alert.copy(sound = "builtin_adhan") else alert },
-                fajr = if (prefs.fajr.sound == audio.id) prefs.fajr.copy(sound = "builtin_fajr") else prefs.fajr) }
-            scope.launch { context.appContainer.repository.deleteAudio(audio.id); context.filesDir.resolve("audio").resolve(audio.fileName).delete() }
+        TextButton(enabled = !busy,onClick = {
+            scope.launch {
+                busy = true; deletionError = false
+                try { context.appContainer.removeImportedAudio(audio) }
+                catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+                catch (_: Exception) { deletionError = true }
+                finally { busy = false }
+            }
         }) { Text(stringResource(R.string.remove)) }
     }
 }
