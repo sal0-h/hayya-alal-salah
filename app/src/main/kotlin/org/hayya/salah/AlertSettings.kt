@@ -109,7 +109,7 @@ import java.time.LocalDate
     }
     Text(stringResource(R.string.import_note))
     OutlinedButton(onClick = { picker.launch(arrayOf("audio/*")) }, enabled = !busy) { Text(stringResource(R.string.import_audio)) }
-    if (busy) CircularProgressIndicator()
+    if (busy) LoadingIndicator()
     if (error) Text(stringResource(R.string.import_error), color = MaterialTheme.colorScheme.error)
     history?.audio.orEmpty().forEach { audio ->
         Text(audio.name)

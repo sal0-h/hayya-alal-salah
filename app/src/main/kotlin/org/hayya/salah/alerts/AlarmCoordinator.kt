@@ -53,7 +53,7 @@ object AlarmCoordinator {
         }
         val app = context.appContainer
         val prefs = app.settings.preferences.first()
-        DeliveryLocale.save(context, prefs.language)
+        DeliveryLocale.save(context, prefs)
         val history = app.repository.snapshot()
         val now = Instant.now()
         val place = prefs.place

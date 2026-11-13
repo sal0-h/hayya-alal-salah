@@ -21,6 +21,11 @@ import org.hayya.salah.*
 import org.hayya.salah.R
 
 class RingingActivity : ComponentActivity() {
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        org.hayya.salah.focus.PrayerFocusService.onOwnWindowFocus(hasFocus,window.decorView)
+    }
+
     override fun attachBaseContext(base: android.content.Context) { super.attachBaseContext(DeliveryLocale.context(base)) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +34,8 @@ class RingingActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val active by AlarmPlayback.current.collectAsState()
-            HayyaTheme {
+            val appearance = remember { DeliveryLocale.appearance(this@RingingActivity) }
+            HayyaTheme(appearance) {
                 Surface(Modifier.fillMaxSize()) {
                     Scaffold(bottomBar = {
                         if (active?.isFajr == true) OutlinedButton(onClick = { AlarmPlayback.stop(this@RingingActivity); finish() },
@@ -49,8 +55,8 @@ class RingingActivity : ComponentActivity() {
                             var incorrect by remember(entry.token) { mutableStateOf(false) }
                             if (progress < questions.size) {
                                 val q = questions[progress]
-                                Text(stringResource(R.string.question_progress, progress + 1, questions.size))
-                                Text("${q.left} ${if (q.multiply) "×" else "+"} ${q.right} = ?", style = MaterialTheme.typography.headlineMedium)
+                                Text(stringResource(R.string.question_progress, numberLabel(progress + 1), numberLabel(questions.size)))
+                                Text("${numberLabel(q.left)} ${if (q.multiply) "×" else "+"} ${numberLabel(q.right)} = ?", style = MaterialTheme.typography.headlineMedium)
                                 OutlinedTextField(answer, { answer = it; incorrect = false }, label = { Text(stringResource(R.string.answer)) },
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), isError = incorrect, modifier = Modifier.fillMaxWidth())
                                 Button(onClick = {

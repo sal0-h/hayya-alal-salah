@@ -45,6 +45,7 @@ import java.time.format.FormatStyle
 
 internal val LocalAppearance = staticCompositionLocalOf { AppearancePreferences() }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable internal fun HayyaTheme(appearance: AppearancePreferences = AppearancePreferences(), content: @Composable () -> Unit) {
     val scheme = if (appearance.theme == ThemePreference.DARK || (appearance.theme == ThemePreference.SYSTEM && isSystemInDarkTheme())) darkColorScheme(
         background = Color(0xFF101D26), surface = Color(0xFF101D26),
@@ -77,6 +78,15 @@ internal val LocalAppearance = staticCompositionLocalOf { AppearancePreferences(
         labelSmall = base.labelSmall.copy(fontFamily = family),
     )
     val dark = appearance.theme == ThemePreference.DARK || (appearance.theme == ThemePreference.SYSTEM && isSystemInDarkTheme())
+    val view = androidx.compose.ui.platform.LocalView.current
+    SideEffect {
+        val activity = view.context as? android.app.Activity
+        activity?.window?.let { window ->
+            androidx.core.view.WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = !dark; isAppearanceLightNavigationBars = !dark
+            }
+        }
+    }
     val accent = when (appearance.palette) {
         Palette.TEAL -> scheme.primary
         Palette.INK -> if (dark) Color(0xFFA6C8FF) else Color(0xFF204D86)
@@ -85,7 +95,8 @@ internal val LocalAppearance = staticCompositionLocalOf { AppearancePreferences(
     val colors = scheme.copy(primary = accent, secondary = accent,
         secondaryContainer = androidx.compose.ui.graphics.lerp(scheme.background, accent, .14f),
         onSecondaryContainer = scheme.onSurface)
-    CompositionLocalProvider(LocalAppearance provides appearance) {
+    CompositionLocalProvider(LocalAppearance provides appearance,
+        LocalRippleConfiguration provides if (appearance.reducedMotion) null else LocalRippleConfiguration.current) {
         MaterialTheme(colorScheme = colors, typography = typography, content = content)
     }
 }
@@ -148,4 +159,13 @@ internal fun decimalStyle(locale: java.util.Locale, numerals: NumeralPreference)
 internal fun normalizeNumber(text: String): String = buildString {
     text.trim().forEach { c -> append(when { Character.digit(c, 10) >= 0 -> '0' + Character.digit(c, 10)
         c == '−' -> '-'; c == '٫' || c == ',' -> '.'; else -> c }) }
+}
+
+@Composable internal fun foregroundInstant(clock: java.time.Clock): java.time.Instant {
+    var now by remember { mutableStateOf(clock.instant()) }
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(lifecycle, clock) { lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        while (true) { now = clock.instant(); delay(30_000) }
+    } }
+    return now
 }

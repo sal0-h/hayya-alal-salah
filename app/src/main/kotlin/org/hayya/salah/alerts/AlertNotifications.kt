@@ -62,9 +62,12 @@ object AlertNotifications {
             if (Build.VERSION.SDK_INT < 34 || context.getSystemService(NotificationManager::class.java).canUseFullScreenIntent())
                 builder.setFullScreenIntent(ringing(context, entry), true)
         } else {
-            val action = NotificationCompat.Action.Builder(0, strings.getString(R.string.record_on_time), onTime(context, entry))
-            if (Build.VERSION.SDK_INT >= 31) action.setAuthenticationRequired(true)
-            builder.addAction(action.build()).addAction(0, strings.getString(R.string.record_prayer), open(context, entry))
+            if (Build.VERSION.SDK_INT >= 31) {
+                val action = NotificationCompat.Action.Builder(0, strings.getString(R.string.record_on_time), onTime(context, entry))
+                    .setAuthenticationRequired(true).build()
+                builder.addAction(action)
+            }
+            builder.addAction(0, strings.getString(R.string.record_prayer), open(context, entry))
             if (playing) builder.addAction(0, strings.getString(R.string.stop_audio), AlarmPlayback.stopPending(context))
         }
         return builder.build()

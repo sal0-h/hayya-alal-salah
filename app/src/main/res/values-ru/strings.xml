@@ -16,7 +16,7 @@
     <string name="save_error">Не удалось сохранить настройки. Попробуйте ещё раз.</string>
     <string name="privacy">Настройки остаются на этом устройстве. Нет аккаунтов и сетевых запросов. Удаление приложения удаляет сохранённые данные.</string>
     <string name="next_prayer">СЛЕДУЮЩАЯ МОЛИТВА</string>
-    <string name="remaining">Через %1$d ч %2$d мин</string>
+    <string name="remaining">Через %1$s ч %2$s мин</string>
     <string name="fajr">Фаджр</string>
     <string name="sunrise">Восход</string>
     <string name="dhuhr">Зухр</string>
@@ -53,12 +53,12 @@
     <string name="choose_date">Выбрать дату</string>
     <string name="previous_month">Предыдущий месяц</string>
     <string name="next_month">Следующий месяц</string>
-    <string name="streak_daily">Подтверждённая серия дней: %1$d</string>
-    <string name="streak_prayer">Серия вовремя: %1$d</string>
+    <string name="streak_daily">Подтверждённая серия дней: %1$s</string>
+    <string name="streak_prayer">Серия вовремя: %1$s</string>
     <string name="streak_unknown">Предыдущая непрерывность не подтверждена. Неотмеченные молитвы не считаются пропущенными.</string>
     <string name="statistics">Статистика и локальные итоги</string>
-    <string name="recorded_coverage">Полнота отметок: %1$d / %2$d</string>
-    <string name="on_time_recorded">Вовремя среди отмеченных: %1$d / %2$d</string>
+    <string name="recorded_coverage">Полнота отметок: %1$s / %2$s</string>
+    <string name="on_time_recorded">Вовремя среди отмеченных: %1$s / %2$s</string>
     <string name="period_last_30">Последние 30 завершённых дней</string>
     <string name="pause">Пауза</string>
     <string name="pause_explanation">Укажите даты вручную. Оповещения и Focus на это время отключаются. Существующие отметки сохраняются. Без прогнозирования цикла.</string>
@@ -136,7 +136,7 @@
     <string name="dismiss_not_record">Остановка будильника не отмечает намаз.</string>
     <string name="alarm_finished">Будильник уже не звонит.</string>
     <string name="close">Закрыть</string>
-    <string name="question_progress">Задание %1$d / %2$d</string>
+    <string name="question_progress">Задание %1$s / %2$s</string>
     <string name="answer">Ответ</string>
     <string name="check_answer">Проверить ответ</string>
     <string name="stop_alarm">Остановить будильник</string>
@@ -197,4 +197,6 @@
     <string name="widget_daily_description">Расписание намазов</string>
     <string name="zone_not_supported">Эта версия Android не распознаёт предложенный пояс. Обновите системные данные часовых поясов или выберите подходящий пояс IANA вручную.</string>
     <string name="location_permission_needed">Автообновлению нужно разрешение местоположения. Предоставьте его кнопкой определения места или оставьте ручной режим.</string>
+    <string name="focus_service_inactive">Режим неактивен, пока его служба не включена в специальных возможностях Android.</string>
+    <string name="loading">Загрузка…</string>
 </resources>

@@ -80,6 +80,7 @@ class AlarmPlayback : Service() {
                     }.build()
                 focus = request
                 if (audio.requestAudioFocus(request) != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) { stopSelf(); return@launch }
+                bundledSource = file == null
                 audioGranted = true
                 val media = MediaPlayer()
                 player = media
@@ -108,6 +109,7 @@ class AlarmPlayback : Service() {
     }
     override fun onDestroy() {
         val entry = active
+        bundledSource = false
         unregisterReceiver(soundPolicy)
         state.value = null; serviceScope.cancel(); handler.removeCallbacks(timeout); releasePlayer()
         stopForeground(STOP_FOREGROUND_REMOVE)
@@ -121,6 +123,7 @@ class AlarmPlayback : Service() {
         private val state = MutableStateFlow<AlarmEntry?>(null)
         val current = state.asStateFlow()
         val active get() = state.value
+        internal var bundledSource = false
         fun start(context: Context, entry: AlarmEntry) {
             try { ContextCompat.startForegroundService(context, Intent(context, AlarmPlayback::class.java).putExtra("event", entry.json().toString())) }
             catch (_: IllegalStateException) { AlertNotifications.show(context, entry) }
