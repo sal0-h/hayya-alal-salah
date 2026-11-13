@@ -203,4 +203,5 @@
     <string name="calendar_scroll_hint">Прокрутите календарь по горизонтали, чтобы увидеть все дни. Также можно выбрать дату выше.</string>
     <string name="reset_error">Удаление не завершено. Повторите полный сброс или очистите хранилище приложения в настройках Android.</string>
     <string name="audio_delete_error">Не удалось удалить аудиофайл. Повторите попытку.</string>
+    <string name="widget_estimated">Оценка %1$s°</string>
 </resources>

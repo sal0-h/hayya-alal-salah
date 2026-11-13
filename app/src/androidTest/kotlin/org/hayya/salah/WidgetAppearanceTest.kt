@@ -66,7 +66,7 @@ class WidgetAppearanceTest {
                         currentActivity.setContentView(root)
                         for ((index,id) in ids.withIndex()) {
                             val view = checkNotNull(host).createView(currentActivity,id,checkNotNull(manager.getAppWidgetInfo(id))); views += view
-                            root.addView(view,LinearLayout.LayoutParams(-1,dp(if (index == 0) 180 else 350)))
+                            root.addView(view,LinearLayout.LayoutParams(dp(if (index == 0) 180 else 280),dp(if (index == 0) 180 else 350)))
                             manager.updateAppWidgetOptions(id,Bundle().apply {
                                 putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH,280); putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH,280)
                                 putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT,if (index == 0) 180 else 350)
@@ -85,7 +85,21 @@ class WidgetAppearanceTest {
                     check(kotlin.math.abs(currentActivity.resources.configuration.fontScale-scale) < .05)
                     for (position in listOf("top","bottom")) {
                         instrumentation.runOnMainSync { views[1].findViewById<ListView>(R.id.widget_rows).setSelection(if (position == "top") 0 else 5) }
-                        instrumentation.waitForIdleSync(); delay(300)
+                        withTimeout(5000) {
+                            var scrolled = false
+                            while (!scrolled) {
+                                instrumentation.runOnMainSync {
+                                    val list = views[1].findViewById<ListView>(R.id.widget_rows)
+                                    scrolled = if (position == "top") list.firstVisiblePosition == 0 else list.lastVisiblePosition == 5
+                                    if (!scrolled) list.setSelection(if (position == "top") 0 else 5)
+                                }
+                                if (!scrolled) delay(100)
+                            }
+                        }
+                        instrumentation.waitForIdleSync(); delay(200)
+                        val deadline = SystemClock.uptimeMillis()+5000
+                        while (instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString() != context.packageName && SystemClock.uptimeMillis() < deadline) delay(100)
+                        check(instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString() == context.packageName) { "System dialog covered the widget fixture" }
                         val bitmap = checkNotNull(instrumentation.uiAutomation.takeScreenshot())
                         directory.resolve("widgets-$language-${scale}x-${if(dark) "dark" else "light"}-$position.png").outputStream().use { check(bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG,100,it)) }; bitmap.recycle()
                     }

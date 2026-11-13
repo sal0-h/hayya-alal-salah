@@ -203,4 +203,5 @@
     <string name="calendar_scroll_hint">مرّر التقويم أفقيًا لرؤية جميع الأيام. يمكنك أيضًا اختيار تاريخ من الزر أعلاه.</string>
     <string name="reset_error">لم يكتمل الحذف. أعد المحاولة أو امسح تخزين التطبيق من إعدادات أندرويد.</string>
     <string name="audio_delete_error">تعذّر حذف الملف الصوتي. حاول مرة أخرى.</string>
+    <string name="widget_estimated">تقديري %1$s°</string>
 </resources>

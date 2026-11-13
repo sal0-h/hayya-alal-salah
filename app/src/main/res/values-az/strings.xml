@@ -203,4 +203,5 @@
     <string name="calendar_scroll_hint">Bütün günləri görmək üçün təqvimi yana sürüşdürün. Yuxarıdan tarix də seçə bilərsiniz.</string>
     <string name="reset_error">Silinmə tamamlanmadı. Tam sıfırlamanı təkrarlayın və ya Android ayarlarında tətbiq yaddaşını təmizləyin.</string>
     <string name="audio_delete_error">Audio faylı silinmədi. Yenidən cəhd edin.</string>
+    <string name="widget_estimated">Təxmini %1$s°</string>
 </resources>
