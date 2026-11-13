@@ -11,6 +11,7 @@ import android.view.accessibility.AccessibilityEvent
 import android.widget.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import org.hayya.core.*
 import org.hayya.salah.*
 import org.hayya.salah.R
@@ -85,8 +86,19 @@ class PrayerFocusService : AccessibilityService() {
                 sessionBypass = bypass
                 hide() // Emergency control works immediately, including if persistent storage fails.
                 scope.launch {
-                    runCatching { appContainer.settings.update { it.copy(focus = it.focus.copy(bypass = bypass)) } }
-                        .onSuccess { if (sessionBypass == bypass) sessionBypass = null }
+                    try {
+                        appContainer.settings.update { it.copy(focus = it.focus.copy(bypass = bypass)) }
+                        // The preference observer can run before this continuation, including
+                        // a later explicit bypass reset. Refresh from the latest committed value
+                        // when handing off the immediate in-memory emergency escape.
+                        val latest = appContainer.settings.preferences.first()
+                        if (sessionBypass == bypass) {
+                            config = latest
+                            sessionBypass = null
+                            refresh()
+                        }
+                    } catch (cancelled: CancellationException) { throw cancelled }
+                    catch (_: Exception) { /* Keep the immediate escape until its normal expiry. */ }
                 }
             })
         try {
