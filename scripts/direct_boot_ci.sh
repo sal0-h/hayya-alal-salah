@@ -25,7 +25,7 @@ adb shell locksettings set-pin 2468
 adb reboot
 adb wait-for-device
 python3 - <<'PY'
-import json,subprocess,time
+import json,re,subprocess,time
 from pathlib import Path
 report=Path('app/build/reports/integration')
 deadline=time.monotonic()+300
@@ -33,9 +33,16 @@ last=''
 while time.monotonic()<deadline:
     result=subprocess.run(['adb','shell','am','broadcast','--include-stopped-packages','--receiver-foreground','-n','org.hayya.salah.dev/org.hayya.salah.DebugAlarmProbe','-a','org.hayya.salah.DEBUG_ALARM_PROBE'],capture_output=True,text=True,timeout=20)
     last=result.stdout+result.stderr
-    start,end=last.find('{'),last.rfind('}')
-    if start>=0:
-        state=json.loads(last[start:end+1])
+    # am prints Intent { ... } before the JSON result. Decode a JSON object only.
+    state=None
+    for match in re.finditer(r'\{\s*"',last):
+        try:
+            state,_=json.JSONDecoder().raw_decode(last[match.start():])
+            break
+        except json.JSONDecodeError:
+            continue
+    (report/'direct-boot-last-probe.txt').write_text(last)
+    if state is not None:
         assert not state['unlocked'], 'Emulator unlocked before the Direct Boot check'
         if state['fajrActive'] and state['bundled'] and state['alarmAudioActive']:
             (report/'direct-boot-locked.json').write_text(json.dumps(state,indent=2)+'\n')
