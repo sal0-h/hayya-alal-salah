@@ -1,0 +1,6 @@
+Geographic names, coordinates, country and time-zone identifiers: GeoNames.
+https://www.geonames.org/
+Source cities15000.zip, retrieved 2026-11-13.
+Creative Commons Attribution 4.0 International: https://creativecommons.org/licenses/by/4.0/
+Modified: filtered/reordered columns and bounded Latin/Cyrillic/Arabic aliases for
+a compact offline search index. No endorsement is implied.

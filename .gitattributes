@@ -4,3 +4,6 @@ gradlew.bat text eol=crlf
 *.ttf binary
 # Preserve upstream font license files byte-for-byte, including their whitespace.
 licenses/plex-*-OFL.txt -text -whitespace
+# Generated upstream datasets; an empty final TSV cell is intentional.
+app/src/main/assets/geography/cities.tsv linguist-generated=true whitespace=-blank-at-eol
+core/src/main/resources/geography/timezone-tree.txt linguist-generated=true

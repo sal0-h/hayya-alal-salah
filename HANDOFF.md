@@ -10,7 +10,8 @@ Salman approved implementation on 2026-11-12. Do not restart the product intervi
 
 ## Actual implementation state
 
-Active branch: `implement/calculation-tracking`, stacked on draft foundation PR #1.
+Active branch: `implement/location-qibla-widgets`, stacked on draft alerts PR #3,
+which is stacked on tracking PR #2 and foundation PR #1.
 The draft is an internal checkpoint. Salman explicitly requires autonomous continuation
 through **all** server-implementable milestones; do not stop at a runnable slice,
 wait for a merge/device test, or ask for another go-ahead. Physical QA remains an
@@ -25,7 +26,11 @@ never commit it. Dedicated QA secrets are configured in repository Actions setti
 
 Foundation clean CI, signed QA delivery and representative Today screenshots passed
 at `7d1a109`. Calculation controls, confirmed polar policy and persistent tracking are
-now implemented; validation and Android integrations are actively continuing. Never
+implemented and passed CI. Alerts/audio/Fajr/Direct Boot/Focus are in PR #3 with
+local compilation/lint/optimized assembly; new emulator checks are running.
+Offline location, visible-only true-north Qibla and two RemoteViews widgets are now
+implemented on the active branch. Continue with full-route visual/accessibility,
+API-boundary emulator, performance/Baseline Profile and release hardening work. Never
 interpret a milestone or foundation PR as completion of the approved full plan.
 
 ## Non-negotiable decisions
