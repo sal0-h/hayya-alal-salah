@@ -18,7 +18,7 @@ import java.util.Locale
 class MainActivity : ComponentActivity() {
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        org.hayya.salah.focus.PrayerFocusService.onOwnWindowFocus(hasFocus)
+        org.hayya.salah.focus.PrayerFocusService.onOwnWindowFocus(hasFocus,window.decorView)
     }
 
     private var requested by mutableStateOf<PrayerKey?>(null)

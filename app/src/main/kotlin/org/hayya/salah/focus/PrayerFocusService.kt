@@ -110,10 +110,13 @@ class PrayerFocusService : AccessibilityService() {
         private val connection = kotlinx.coroutines.flow.MutableStateFlow(false)
         val connected: kotlinx.coroutines.flow.StateFlow<Boolean> = connection
         private var instance: java.lang.ref.WeakReference<PrayerFocusService>? = null
-        private var ownWindowFocused = false
-        fun onOwnWindowFocus(focused: Boolean) {
-            ownWindowFocused = focused
-            if (focused) instance?.get()?.let { it.foreground = it.packageName; it.refresh() }
+        private var ownWindow: java.lang.ref.WeakReference<android.view.View>? = null
+        private val ownWindowFocused get() = ownWindow?.get()?.hasWindowFocus() == true
+        fun onOwnWindowFocus(focused: Boolean, view: android.view.View) {
+            if (focused) {
+                ownWindow = java.lang.ref.WeakReference(view)
+                instance?.get()?.let { it.foreground = it.packageName; it.refresh() }
+            } else if (ownWindow?.get() === view) ownWindow = null
         }
         fun onTimeChanged() { instance?.get()?.refresh() }
         fun releaseOverlay() { instance?.get()?.let { it.hide(); it.disableSelf() } }
