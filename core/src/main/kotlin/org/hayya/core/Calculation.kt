@@ -19,13 +19,35 @@ enum class Profile(val engine: String) {
 }
 enum class AsrConvention { STANDARD, HANAFI }
 enum class HighLatitude { MIDDLE_OF_NIGHT, SEVENTH_OF_NIGHT, TWILIGHT_ANGLE }
+enum class PolarMode { ASK, DISABLED, NEAREST, REFERENCE }
+enum class CalculationQuality { CALCULATED, ESTIMATED_REFERENCE }
+data class ParameterOverrides(
+    val fajrAngle: Double? = null,
+    val ishaAngle: Double? = null,
+    val ishaInterval: Int? = null,
+    val maghribAngle: Double? = null,
+) {
+    init {
+        require(listOfNotNull(fajrAngle, ishaAngle, maghribAngle).all { it.isFinite() && it in 0.1..30.0 })
+        require(ishaInterval == null || ishaInterval in 1..300)
+        require(ishaAngle == null || ishaInterval == null)
+    }
+}
 data class CalculationSettings(
     val profile: Profile = Profile.MWL,
     val asr: AsrConvention = AsrConvention.STANDARD,
     val highLatitude: HighLatitude = HighLatitude.MIDDLE_OF_NIGHT,
     val corrections: Map<Prayer, Int> = emptyMap(),
+    val overrides: ParameterOverrides = ParameterOverrides(),
+    val polar: PolarMode = PolarMode.ASK,
+    val referenceLatitude: Double? = null,
 ) {
-    init { require(corrections.values.all { it in -120..120 }) }
+    init {
+        require(corrections.values.all { it in -120..120 })
+        require(overrides.maghribAngle == null || profile.engine == "praytimes")
+        require(referenceLatitude == null || (referenceLatitude.isFinite() && referenceLatitude in -89.0..89.0))
+        require(polar != PolarMode.REFERENCE || referenceLatitude != null)
+    }
 }
 data class Provenance(
     val engineVersion: String,
@@ -33,6 +55,7 @@ data class Provenance(
     val actual: GeoPoint,
     val effective: GeoPoint,
     val settings: CalculationSettings,
+    val quality: CalculationQuality = CalculationQuality.CALCULATED,
 )
 data class DailySchedule(
     val date: LocalDate,
@@ -55,6 +78,7 @@ data class DailySchedule(
 sealed interface CalculationResult {
     data class Available(val schedule: DailySchedule) : CalculationResult
     data class Unavailable(val reason: Reason) : CalculationResult
+    data class NeedsPolarConfirmation(val referenceLatitude: Double) : CalculationResult
     enum class Reason { NO_VALID_SOLAR_EVENTS, INVALID_ORDER_OR_DATE, UNSUPPORTED_DATE }
 }
 fun interface PrayerCalculator {

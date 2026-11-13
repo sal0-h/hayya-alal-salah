@@ -69,7 +69,7 @@ class CoreTest {
     }
     @Test fun `both engines fail closed for polar day and night`() {
         for (profile in listOf(Profile.MWL, Profile.JAFARI)) for (d in listOf(LocalDate.of(2026, 6, 21), LocalDate.of(2026, 12, 21))) {
-            assertIs<CalculationResult.Unavailable>(calculator.calculate(d, GeoPoint(78.22, 15.65), ZoneId.of("Arctic/Longyearbyen"), CalculationSettings(profile)))
+            assertIs<CalculationResult.Unavailable>(calculator.calculate(d, GeoPoint(78.22, 15.65), ZoneId.of("Arctic/Longyearbyen"), CalculationSettings(profile, polar = PolarMode.DISABLED)))
         }
     }
     @Test fun `invalid coordinates and corrections are rejected`() {

@@ -32,6 +32,11 @@ class PrayTimes(
     highLatitudesMethod: HighLatitudesMethod,
     /** Midnight calculation method. Pass null to choose based on  */
     midnightMethod: MidnightMethod? = null,
+    // Hayya adaptation: optional existing angle/interval parameters, no new formulas.
+    fajrAngle: Double? = null,
+    ishaAngle: Double? = null,
+    ishaInterval: Int? = null,
+    maghribAngle: Double? = null,
 ) {
     /** Imsak, time fasting starts in Ramadan. A real number [0-24), portion of a day. */
     val imsak: Double
@@ -84,17 +89,23 @@ class PrayTimes(
     }
 
     init {
+        require(listOfNotNull(fajrAngle, ishaAngle, maghribAngle).all { it.isFinite() && it in 0.1..30.0 })
+        require(ishaInterval == null || ishaInterval in 1..300)
+        require(ishaAngle == null || ishaInterval == null)
+        val fajrParameter = fajrAngle?.deg ?: method.fajr
+        val ishaParameter = ishaInterval?.min ?: ishaAngle?.deg ?: method.isha
+        val maghribParameter = maghribAngle?.deg ?: method.maghrib
         val jdate = julian(year, month, dayOfMonth) - coordinates.longitude / (15 * 24)
         // compute prayer times at given julian date
         var imsak = sunAngleTime(jdate, DEFAULT_TIME_IMSAK, DEFAULT_IMSAK, true, coordinates)
-        var fajr = sunAngleTime(jdate, method.fajr, DEFAULT_FAJR, true, coordinates)
+        var fajr = sunAngleTime(jdate, fajrParameter, DEFAULT_FAJR, true, coordinates)
         val riseAngle = riseSetAngle(coordinates) // Sun angle for sunset/sunrise
         var sunrise = sunAngleTime(jdate, riseAngle, DEFAULT_SUNRISE, true, coordinates)
         var dhuhr = midDay(jdate, DEFAULT_DHUHR)
         var asr = asrTime(jdate, asrMethod.asrFactor, DEFAULT_ASR, coordinates)
         var sunset = sunAngleTime(jdate, riseAngle, DEFAULT_SUNSET, coordinates)
-        var maghrib = sunAngleTime(jdate, method.maghrib, DEFAULT_MAGHRIB, coordinates)
-        var isha = sunAngleTime(jdate, method.isha, DEFAULT_ISHA, coordinates)
+        var maghrib = sunAngleTime(jdate, maghribParameter, DEFAULT_MAGHRIB, coordinates)
+        var isha = sunAngleTime(jdate, ishaParameter, DEFAULT_ISHA, coordinates)
 
         // Adjust times
         val addToAll = offset - coordinates.longitude / 15
@@ -113,16 +124,16 @@ class PrayTimes(
                 highLatitudesMethod, imsak, sunrise, DEFAULT_TIME_IMSAK.value, nightTime, true
             )
             fajr = adjustHLTime(
-                highLatitudesMethod, fajr, sunrise, method.fajr.value, nightTime, true
+                highLatitudesMethod, fajr, sunrise, fajrParameter.value, nightTime, true
             )
-            isha = adjustHLTime(highLatitudesMethod, isha, sunset, method.isha.value, nightTime)
+            isha = adjustHLTime(highLatitudesMethod, isha, sunset, ishaParameter.value, nightTime)
             maghrib = adjustHLTime(
-                highLatitudesMethod, maghrib, sunset, method.maghrib.value, nightTime
+                highLatitudesMethod, maghrib, sunset, maghribParameter.value, nightTime
             )
         }
         if (DEFAULT_TIME_IMSAK.isMinutes) imsak = fajr - DEFAULT_TIME_IMSAK.value / 60
-        if (method.maghrib.isMinutes) maghrib = sunset + method.maghrib.value / 60
-        if (method.isha.isMinutes) isha = maghrib + method.isha.value / 60
+        if (maghribParameter.isMinutes) maghrib = sunset + maghribParameter.value / 60
+        if (ishaParameter.isMinutes) isha = maghrib + ishaParameter.value / 60
         dhuhr += DEFAULT_TIME_DHUHR.value / 60
 
         val midnight = when (midnightMethod ?: method.defaultMidnight) {

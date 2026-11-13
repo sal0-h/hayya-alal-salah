@@ -43,7 +43,10 @@ class AdhanCalculator : PrayerCalculator {
                     HighLatitude.SEVENTH_OF_NIGHT -> HighLatitudeRule.SEVENTH_OF_THE_NIGHT
                     HighLatitude.TWILIGHT_ANGLE -> HighLatitudeRule.TWILIGHT_ANGLE
                 },
-                ishaInterval = if (ramadan) 120 else base.ishaInterval,
+                fajrAngle = settings.overrides.fajrAngle ?: base.fajrAngle,
+                ishaAngle = settings.overrides.ishaAngle ?: base.ishaAngle,
+                ishaInterval = settings.overrides.ishaInterval
+                    ?: if (settings.overrides.ishaAngle != null) 0 else if (ramadan) 120 else base.ishaInterval,
             )
             // 0.0.7 throws IllegalStateException when a required solar event is absent.
             // Catch only at the upstream constructor boundary, not around application logic.
