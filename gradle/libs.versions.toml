@@ -14,6 +14,8 @@ compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose"
 compose-ui = { module = "androidx.compose.ui:ui" }
 compose-foundation = { module = "androidx.compose.foundation:foundation" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-test = { module = "androidx.compose.ui:ui-test-junit4" }
+compose-accessibility-test = { module = "androidx.compose.ui:ui-test-junit4-accessibility" }
 compose-tooling = { module = "androidx.compose.ui:ui-tooling-preview" }
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
 adhan = { module = "com.batoulapps.adhan:adhan2", version.ref = "adhan" }

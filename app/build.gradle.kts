@@ -50,6 +50,9 @@ dependencies {
     annotationProcessor(libs.room.compiler)
     androidTestImplementation(libs.room.testing)
     implementation(libs.lifecycle.runtime.compose)
+    androidTestImplementation(platform(libs.compose.bom))
+    androidTestImplementation(libs.compose.test)
+    androidTestImplementation(libs.compose.accessibility.test)
     androidTestImplementation(libs.android.test.runner)
     androidTestImplementation(libs.android.test.junit)
 }
