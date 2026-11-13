@@ -16,6 +16,11 @@ import java.time.LocalDate
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        org.hayya.salah.focus.PrayerFocusService.onOwnWindowFocus(hasFocus)
+    }
+
     private var requested by mutableStateOf<PrayerKey?>(null)
     override fun attachBaseContext(base: Context) {
         val language = base.getSharedPreferences("locale-bootstrap", Context.MODE_PRIVATE).getString("language", "system")

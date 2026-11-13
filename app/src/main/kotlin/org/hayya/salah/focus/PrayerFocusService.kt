@@ -48,6 +48,8 @@ class PrayerFocusService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
         val name = event.packageName?.toString() ?: return
+        // Our own focused window is authoritative over delayed external package events.
+        if (ownWindowFocused && name != packageName) return
         // Our overlay itself may emit window events; an explicit Open action hides it first.
         if (name == packageName && event.className?.toString().orEmpty() !in setOf(MainActivity::class.java.name, org.hayya.salah.alerts.RingingActivity::class.java.name)) return
         foreground = name
@@ -108,6 +110,11 @@ class PrayerFocusService : AccessibilityService() {
         private val connection = kotlinx.coroutines.flow.MutableStateFlow(false)
         val connected: kotlinx.coroutines.flow.StateFlow<Boolean> = connection
         private var instance: java.lang.ref.WeakReference<PrayerFocusService>? = null
+        private var ownWindowFocused = false
+        fun onOwnWindowFocus(focused: Boolean) {
+            ownWindowFocused = focused
+            if (focused) instance?.get()?.let { it.foreground = it.packageName; it.refresh() }
+        }
         fun onTimeChanged() { instance?.get()?.refresh() }
         fun releaseOverlay() { instance?.get()?.let { it.hide(); it.disableSelf() } }
     }
