@@ -19,6 +19,8 @@ class AlarmPermissionDeniedTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val required = InstrumentationRegistry.getArguments().getString("expectDenied") == "true"
         if (!required) assumeTrue("Run scripts/integration_ci.sh to exercise OS denial", !AlertNotifications.ready(context,true))
+        if (required) context.getSystemService(android.app.NotificationManager::class.java).createNotificationChannel(
+            android.app.NotificationChannel(AlertNotifications.FAJR,context.getString(R.string.fajr_alarm),android.app.NotificationManager.IMPORTANCE_NONE))
         assertFalse(AlertNotifications.ready(context,true))
         if (android.os.Build.VERSION.SDK_INT >= 31) assertFalse(AlarmCoordinator.exactAccess(context))
         val app = context.appContainer

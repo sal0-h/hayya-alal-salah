@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
+hayya_hardware=$(adb shell getprop ro.hardware | tr -d '\r')
+[[ "$hayya_hardware" == ranchu || "$hayya_hardware" == goldfish ]]
 ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
@@ -7,6 +9,7 @@ hayya_package=org.hayya.salah.dev
 hayya_api=$(adb shell getprop ro.build.version.sdk | tr -d '\r')
 adb shell appops set "$hayya_package" POST_NOTIFICATION deny
 if (( hayya_api >= 31 )); then adb shell appops set "$hayya_package" SCHEDULE_EXACT_ALARM deny; fi
+sleep 1
 mkdir -p app/build/reports/integration
 adb shell am instrument -w -r -e class org.hayya.salah.AlarmPermissionDeniedTest -e expectDenied true "$hayya_package.test/androidx.test.runner.AndroidJUnitRunner" > "app/build/reports/integration/denied-api-$hayya_api.txt"
 python3 - "$hayya_api" <<'PY'
@@ -15,6 +18,8 @@ import sys
 text=Path(f"app/build/reports/integration/denied-api-{sys.argv[1]}.txt").read_text()
 assert "OK (1 test)" in text and "FAILURES" not in text and "INSTRUMENTATION_FAILED" not in text, text
 PY
+# Reset this isolated fixture installation so a deliberately blocked channel is not reused.
+adb shell pm clear "$hayya_package"
 adb shell appops set "$hayya_package" POST_NOTIFICATION allow
 if (( hayya_api >= 31 )); then adb shell appops set "$hayya_package" SCHEDULE_EXACT_ALARM allow; fi
 if (( hayya_api >= 33 )); then adb shell pm grant "$hayya_package" android.permission.POST_NOTIFICATIONS; fi

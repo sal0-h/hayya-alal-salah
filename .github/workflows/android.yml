@@ -139,7 +139,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api: [26, 31, 33, 37]
+        api: [26, 31, 33, '37.0']
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     steps:
