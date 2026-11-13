@@ -200,14 +200,14 @@ class MainActivity : ComponentActivity() {
     val schedules by produceState<List<DailySchedule>?>(null, setup, date) {
         value = withContext(Dispatchers.Default) {
             val calculator = LocalPrayerCalculator()
-            (0L..1L).mapNotNull { offset ->
+            (-1L..1L).mapNotNull { offset ->
                 (calculator.calculate(date.plusDays(offset), setup.point, setup.zone,
                     CalculationSettings(setup.profile)) as? CalculationResult.Available)?.schedule
             }
         }
     }
     val today = schedules?.firstOrNull { it.date == date }
-    val next = schedules.orEmpty().flatMap { it.prayers.entries }.filter { it.value > now }.minByOrNull { it.value }
+    val next = nextPrayer(schedules.orEmpty(), now)
     Text(setup.name, style = MaterialTheme.typography.headlineSmall)
     Text(date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)), color = MaterialTheme.colorScheme.onSurfaceVariant)
     if (schedules == null) CircularProgressIndicator()
@@ -216,8 +216,8 @@ class MainActivity : ComponentActivity() {
         Text(stringResource(R.string.unavailable_detail))
     } else {
         if (next != null) {
-            NextPrayerMarker(prayerName(next.key), timeLabel(next.value, setup.zone))
-            val minutes = Duration.between(now, next.value).toMinutes().coerceAtLeast(0)
+            NextPrayerMarker(prayerName(next.key.prayer), timeLabel(next.at, setup.zone))
+            val minutes = Duration.between(now, next.at).toMinutes().coerceAtLeast(0)
             Text(stringResource(R.string.remaining, minutes / 60, minutes % 60), style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.primary, modifier = Modifier.alignCenter())
         } else Text(stringResource(R.string.next_unavailable))
@@ -231,7 +231,7 @@ class MainActivity : ComponentActivity() {
                     Text(if (prayer == null) stringResource(R.string.sunrise) else prayerName(prayer),
                         style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                     Text(timeLabel(at, setup.zone), style = MaterialTheme.typography.titleMedium,
-                        fontWeight = if (prayer == next?.key) FontWeight.Bold else FontWeight.Normal)
+                        fontWeight = if (at == next?.at) FontWeight.Bold else FontWeight.Normal)
                 }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             }

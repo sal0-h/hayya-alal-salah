@@ -109,4 +109,17 @@ class CoreTest {
         assertEquals(PrayerKey(date, Prayer.ISHA), event.target)
         assertEquals(date.plusDays(1), event.at.atZone(zone).toLocalDate())
     }
+    @Test fun `next prayer includes previous service date Isha after civil midnight`() {
+        val previous = schedule().let { s -> s.copy(prayers = s.prayers +
+            (Prayer.ISHA to date.plusDays(1).atTime(0, 30).atZone(zone).toInstant())) }
+        val current = schedule(date.plusDays(1))
+        val now = date.plusDays(1).atTime(0, 15).atZone(zone).toInstant()
+        val next = assertNotNull(nextPrayer(listOf(previous, current), now))
+        assertEquals(PrayerKey(date, Prayer.ISHA), next.key)
+        assertEquals(previous.prayers.getValue(Prayer.ISHA), next.at)
+        assertEquals(PrayerKey(date.plusDays(1), Prayer.FAJR),
+            nextPrayer(listOf(previous, current), next.at)?.key)
+        assertNull(nextPrayer(listOf(previous), next.at))
+    }
+
 }
