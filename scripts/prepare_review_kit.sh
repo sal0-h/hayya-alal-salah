@@ -3,6 +3,7 @@ set -euo pipefail
 # Assembled, unsigned review materials only. No credential access, merge or publication.
 python3 scripts/check_manifest.py
 python3 scripts/check_release.py
+"$ANDROID_HOME/build-tools/36.0.0/zipalign" -c -P 16 4 app/build/outputs/apk/release/app-release-unsigned.apk
 hayya_revision=$(git rev-parse HEAD)
 hayya_output="release-review/$hayya_revision"
 mkdir -p "$hayya_output"

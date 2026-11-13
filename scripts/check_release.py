@@ -4,6 +4,8 @@ from pathlib import Path
 import hashlib
 import json
 import zipfile
+import subprocess
+import tempfile
 from xml.etree import ElementTree as ET
 
 apk = Path('app/build/outputs/apk/release/app-release-unsigned.apk')
@@ -13,7 +15,18 @@ with zipfile.ZipFile(apk) as archive:
     names = set(archive.namelist())
     for license in Path('licenses').glob('*.txt'):
         assert archive.read('assets/' + license.name) == license.read_bytes(), license
-    assert not any(n.startswith('lib/') for n in names), 'Review newly introduced native code/ABIs'
+    # Existing pinned AndroidX native helpers; this is not a Rust/NDK app layer.
+    expected_libraries = {'libandroidx.graphics.path.so','libdatastore_shared_counter.so'}
+    expected_abis = {'arm64-v8a','armeabi-v7a','x86','x86_64'}
+    for name in sorted(n for n in names if n.startswith('lib/') and n.endswith('.so')):
+        _,abi,library = name.split('/')
+        assert abi in expected_abis and library in expected_libraries, name
+        if abi in {'arm64-v8a','x86_64'}:
+            with tempfile.NamedTemporaryFile(suffix='.so') as binary:
+                binary.write(archive.read(name)); binary.flush()
+                headers = subprocess.check_output(['readelf','-lW',binary.name],text=True)
+                loads = [line.split() for line in headers.splitlines() if line.strip().startswith('LOAD ')]
+                assert loads and all(int(fields[-1],16) >= 16384 for fields in loads), (name,headers)
     assert not any(n.startswith('META-INF/') and n.endswith(('.RSA','.DSA','.EC')) for n in names), 'Ordinary builds must stay unsigned'
     assert 'classes.dex' in names
     # Generation must happen before committing profiles; never manufacture a profile.

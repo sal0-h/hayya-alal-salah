@@ -10,7 +10,7 @@ filled from reviewed decisions; do not invent them or use the QA key.
 Use the pinned toolchain, committed dependency locks/verification and committed actual
 generated profiles. `./gradlew :app:assembleRelease :app:bundleRelease :app:lintRelease`
 produces unsigned production artifacts. `scripts/check_release.py` checks the actual
-35 MiB APK budget, packaged license bytes, lack of synthetic components/profiling and
+35 MiB APK budget, packaged license bytes, reviewed AndroidX native helpers/64-bit ELF 16 KiB alignment, lack of synthetic components/profiling and
 unsigned identity. `scripts/check_manifest.py` verifies privacy/backup declarations.
 
 The reproducibility workflow builds the same source on two independent clean workers
