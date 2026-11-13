@@ -14,7 +14,11 @@ class AppearanceCaptureTest {
     @Test fun captureTodayInFourLanguagesAtNormalAndLargeText() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
-        val directory = File(context.getExternalFilesDir(null), "screenshots").apply { mkdirs() }
+        // AGP collects this directory before uninstalling the app after instrumentation.
+        val output = checkNotNull(InstrumentationRegistry.getArguments().getString("additionalTestOutputDir")) {
+            "Run through Gradle so additional test output is collected"
+        }
+        val directory = File(output, "screenshots").apply { check(isDirectory || mkdirs()) }
         val originalLocale = Locale.getDefault()
         try {
             for (language in listOf("en", "ru", "az", "ar")) {

@@ -36,11 +36,12 @@ gradle :core:test :praytimes:test :app:lintDebug :app:assembleDebug :app:assembl
 python3 scripts/check_manifest.py
 ```
 
-- 11 core tests passed: pinned upstream Adhan Raleigh expected-time fixture; all 15
+- 12 core tests passed: pinned upstream Adhan Raleigh expected-time fixture; all 15
   profiles; both engines across fractional zones, DST, leap date and date line;
   Asr conventions; Ja‘fari Maghrib/midnight; explicit Ramadan interval; polar failure;
   invalid inputs/order; explicit unknown/excused/made-up streak behavior; suppression,
-  stable event IDs/generations and original after-midnight service-date targeting.
+  stable event IDs/generations, original after-midnight service-date targeting, and
+  next-prayer selection of previous-service-date Isha after civil midnight.
 - Preserved upstream PrayTimes correctness fixture passed (one test, multiple cases).
 - Android lint passed with warnings treated as errors. Only new-version advisories
   are excluded because versions are deliberately pinned; compatibility checks stay on.
@@ -48,8 +49,14 @@ python3 scripts/check_manifest.py
 - Merged debug/QA manifests passed no-Internet/no-location and backup-control checks.
 - All resource XML parsed and four language key sets match. `fc-query` confirmed
   sampled Azerbaijani/Russian/Arabic glyph coverage in all four bundled font files.
-- Dependency locks/checksum metadata generated. Clean-checkout CI, actual emulator
-  screenshots and visual review remain pending. Checksum metadata is first-resolution
+- Strict offline build passed without regenerating locks or verification metadata.
+- Clean-checkout CI build/lint/privacy and isolated QA signing passed at `45860c2`.
+  Downloaded QA artifact checksum and v2/v3 signature verified; QA ID, min/target SDK
+  inspected from the actual APK. Certificate SHA-256 is recorded in QA.md.
+- The initial emulator test completed, but its artifact had reports only. Capture
+  collection now uses AGP additional test output and CI requires all 16 actual PNGs;
+  corrected capture execution and visual review remain pending.
+- Dependency locks/checksum metadata generated. Checksum metadata is first-resolution
   trust, not an independent audit of upstream supply chains.
 
 ## Physical validation

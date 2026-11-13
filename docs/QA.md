@@ -34,3 +34,10 @@ screenshots is not a claim that accessibility or design review passed.
 
 Production signing, cross-store update compatibility, reproducible/F-Droid release
 checks and public store publication remain separate release work.
+
+QA certificate SHA-256 (public, not a secret):
+`081b779ae9d4f9c1714f212bcb5936fdc239a9941d3c1658920cef1229d08d7f`.
+
+Screenshot instrumentation writes to AGP-provided `additionalTestOutputDir`, which is
+collected before app cleanup. CI requires all sixteen named PNG files with valid headers
+and dimensions; a successful instrumentation exit alone does not satisfy capture QA.
