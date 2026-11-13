@@ -28,6 +28,8 @@ class PrayerFocusService : AccessibilityService() {
     private var overlay: android.view.View? = null
     private var displayed: FocusWindow? = null
     private var displayedLanguage: String? = null
+    private var displayedAppearance: AppearancePreferences? = null
+    private var sessionBypass: FocusBypass? = null
     private val boundary = Runnable { refresh() }
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -62,7 +64,7 @@ class PrayerFocusService : AccessibilityService() {
             val schedules = withContext(Dispatchers.Default) { (-1L..2L).mapNotNull { day ->
                 (LocalPrayerCalculator().calculate(now.atZone(place.zone).toLocalDate().plusDays(day), place.point, place.zone, place.calculation) as? CalculationResult.Available)?.schedule
             } }
-            val window = focusWindow(schedules, prefs.focus.prayers, records.records, records.pauses, now, prefs.focus.bypass)
+            val window = focusWindow(schedules, prefs.focus.prayers, records.records, records.pauses, now, sessionBypass?.takeIf { it.expiresAt > now } ?: prefs.focus.bypass)
             val nextBoundary = (schedules.flatMap { it.prayers.values + it.sunrise } + listOfNotNull(window?.expiresAt)).filter { it > now }.minOrNull()
             nextBoundary?.let { handler.postDelayed(boundary, Duration.between(now, it).toMillis().coerceAtLeast(1)) }
             if (foreground !in prefs.focus.packages || foreground in EssentialApps.excluded(this@PrayerFocusService) || window == null) hide()
@@ -70,64 +72,34 @@ class PrayerFocusService : AccessibilityService() {
         }
     }
     private fun show(window: FocusWindow) {
-        if (displayed == window && overlay != null && displayedLanguage == config?.language) return
+        if (displayed == window && overlay != null && displayedLanguage == config?.language && displayedAppearance == config?.appearance) return
         hide()
-        val strings = DeliveryLocale.context(this, config?.language)
-        val density = resources.displayMetrics.density
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER_VERTICAL
-            setPadding((24*density).toInt(), (48*density).toInt(), (24*density).toInt(), (48*density).toInt())
-            setBackgroundColor(Color.rgb(16,29,38)); importantForAccessibility = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES
-        }
-        fun text(value: String, size: Float) = TextView(this).apply {
-            text = value; textSize = size; setTextColor(Color.rgb(228,237,242)); setPadding(0, 12, 0, 20)
-            layout.addView(this, LinearLayout.LayoutParams(-1, -2))
-        }
-        text(strings.getString(R.string.prayer_focus), 28f)
-        text(org.hayya.salah.alerts.AlertNotifications.prayerName(this, window.target.prayer), 24f)
-        text(strings.getString(R.string.focus_block_explanation), 18f)
-        val log = Button(this).apply {
-            text = strings.getString(R.string.record_prayer); minHeight = (56*density).toInt()
-            setOnClickListener {
-                this@PrayerFocusService.foreground = packageName; hide()
-                startActivity(Intent(this@PrayerFocusService, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    .putExtra("serviceDate", window.target.date.toString()).putExtra("prayer", window.target.prayer.name))
-            }
-        }
-        layout.addView(log, LinearLayout.LayoutParams(-1, -2))
-        val bypass = Button(this).apply {
-            text = strings.getString(R.string.emergency_bypass); minHeight = (56*density).toInt()
-            setOnClickListener {
-                // Hide only after the explicit bypass has persisted. No prayer record is written.
-                isEnabled = false
+        val root = focusOverlayContent(this,config?.language ?: "system",config?.appearance ?: AppearancePreferences(),window.target.prayer,
+            onRecord = {
+                foreground = packageName; hide()
+                startActivity(Intent(this,MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    .putExtra("serviceDate",window.target.date.toString()).putExtra("prayer",window.target.prayer.name))
+            }, onBypass = {
+                val bypass = FocusBypass(window.target,window.expiresAt)
+                sessionBypass = bypass
+                hide() // Emergency control works immediately, including if persistent storage fails.
                 scope.launch {
-                    try { appContainer.settings.update { it.copy(focus = it.focus.copy(bypass = FocusBypass(window.target, window.expiresAt))) }; hide() }
-                    catch (_: Exception) { isEnabled = true }
+                    runCatching { appContainer.settings.update { it.copy(focus = it.focus.copy(bypass = bypass)) } }
+                        .onSuccess { if (sessionBypass == bypass) sessionBypass = null }
                 }
-            }
-        }
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL; setBackgroundColor(Color.rgb(16,29,38))
-            setPadding((16*density).toInt(), (24*density).toInt(), (16*density).toInt(), (24*density).toInt())
-        }
-        val scroll = ScrollView(this).apply { isFillViewport = true; addView(layout) }
-        root.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
-        root.addView(bypass, LinearLayout.LayoutParams(-1, -2))
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            view.setPadding(bars.left + (16*density).toInt(), bars.top + (16*density).toInt(), bars.right + (16*density).toInt(), bars.bottom + (16*density).toInt())
-            insets
-        }
+            })
         try {
             getSystemService(WindowManager::class.java).addView(root, WindowManager.LayoutParams(-1, -1,
                 WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, android.graphics.PixelFormat.OPAQUE))
-            overlay = root; displayed = window; displayedLanguage = config?.language
-            androidx.core.view.ViewCompat.setAccessibilityPaneTitle(root, strings.getString(R.string.prayer_focus))
+            overlay = root; displayed = window; displayedLanguage = config?.language; displayedAppearance = config?.appearance
         } catch (_: Exception) { hide() }
     }
     private fun hide() {
         overlay?.let { runCatching { getSystemService(WindowManager::class.java).removeView(it) } }
         overlay = null; displayed = null
+    }
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig); hide(); refresh()
     }
     override fun onInterrupt() { hide() }
     override fun onUnbind(intent: Intent?): Boolean { connection.value = false; hide(); return super.onUnbind(intent) }

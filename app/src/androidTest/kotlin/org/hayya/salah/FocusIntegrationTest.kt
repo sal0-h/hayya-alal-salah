@@ -69,17 +69,26 @@ class FocusIntegrationTest {
                 for (index in 0 until node.childCount) find(node.getChild(index),text)?.let { return it }
                 return null
             }
-            val root = automation.windows.first { it.type == AccessibilityWindowInfo.TYPE_ACCESSIBILITY_OVERLAY }.root
-            checkNotNull(find(root,context.getString(R.string.emergency_bypass))).performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            phase = "emergency bypass"
+            val bypass = withTimeout(5000) {
+                var button: AccessibilityNodeInfo? = null
+                while (button == null) {
+                    val root = automation.windows.firstOrNull { it.type == AccessibilityWindowInfo.TYPE_ACCESSIBILITY_OVERLAY }?.root
+                    button = find(root,context.getString(R.string.emergency_bypass))
+                    if (button == null) delay(100)
+                }
+                button
+            }
+            assertTrue(checkNotNull(bypass).performAction(AccessibilityNodeInfo.ACTION_CLICK))
             overlay(false)
             assertNull(app.repository.snapshot().records[window.target])
             assertEquals(window.target,app.settings.preferences.first().focus.bypass?.target)
-            app.settings.update { it.copy(focus = it.focus.copy(bypass = null)) }; overlay(true)
-            shell("am start -W -n ${context.packageName}/org.hayya.salah.MainActivity"); overlay(false)
+            phase = "clear bypass"; app.settings.update { it.copy(focus = it.focus.copy(bypass = null)) }; overlay(true)
+            phase = "own app exclusion"; shell("am start -W -n ${context.packageName}/org.hayya.salah.MainActivity"); overlay(false)
             launchTarget(); overlay(true)
-            shell("am start -W -a android.settings.SETTINGS"); overlay(false)
+            phase = "settings exclusion"; shell("am start -W -a android.settings.SETTINGS"); overlay(false)
             launchTarget(); overlay(true)
-            shell("settings delete secure enabled_accessibility_services")
+            phase = "permission removal"; shell("settings delete secure enabled_accessibility_services")
             shell("settings put secure accessibility_enabled 0"); overlay(false)
         } catch (error: Exception) {
             val directory = InstrumentationRegistry.getArguments().getString("additionalTestOutputDir")?.let { java.io.File(it,"focus-diagnostics").apply { mkdirs() } }
