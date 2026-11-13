@@ -199,4 +199,6 @@
     <string name="location_permission_needed">Automatic refresh needs location permission. Use the location button to allow it, or keep manual mode.</string>
     <string name="focus_service_inactive">Focus is inactive until you enable its Android Accessibility service.</string>
     <string name="loading">Loading…</string>
+    <string name="regional_profiles">Regional presets to compare: %1$s. Choose your method explicitly; location does not determine your practice.</string>
+    <string name="calendar_scroll_hint">Scroll the calendar sideways to see all days. You can also choose a date above.</string>
 </resources>

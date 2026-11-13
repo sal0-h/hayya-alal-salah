@@ -11,6 +11,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -43,17 +45,19 @@ import java.time.temporal.WeekFields
     val nextLabel = stringResource(R.string.next_month)
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         TextButton(onClick = { monthString = month.minusMonths(1).toString() }, modifier = Modifier.heightIn(min = 48.dp)) { Text(if (rtl) "›" else "‹", Modifier.semantics { contentDescription = previousLabel }) }
-        Text("${month.month.getDisplayName(TextStyle.FULL, locale)} ${month.year}", Modifier.weight(1f))
+        Text("${month.month.getDisplayName(TextStyle.FULL, locale)} ${numberLabel(month.year)}", Modifier.weight(1f))
         TextButton(enabled = month < YearMonth.from(today), onClick = { monthString = month.plusMonths(1).toString() }, modifier = Modifier.heightIn(min = 48.dp)) { Text(if (rtl) "‹" else "›", Modifier.semantics { contentDescription = nextLabel }) }
     }
     val weekStart = WeekFields.of(locale).firstDayOfWeek
     val offset = Math.floorMod(month.atDay(1).dayOfWeek.value - weekStart.value, 7)
+    Text(stringResource(R.string.calendar_scroll_hint),style = MaterialTheme.typography.bodySmall,color = MaterialTheme.colorScheme.onSurfaceVariant)
+    val calendarWidth = (52f * LocalDensity.current.fontScale.coerceAtLeast(1f) * 7).dp
     Column(Modifier.horizontalScroll(rememberScrollState())) {
-        Row(Modifier.width(360.dp)) {
-            repeat(7) { i -> Text(weekStart.plus(i.toLong()).getDisplayName(TextStyle.NARROW, locale), modifier = Modifier.weight(1f)) }
+        Row(Modifier.width(calendarWidth)) {
+            repeat(7) { i -> Text(weekStart.plus(i.toLong()).getDisplayName(TextStyle.NARROW, locale), modifier = Modifier.weight(1f),textAlign = TextAlign.Center) }
         }
         repeat((offset + month.lengthOfMonth() + 6) / 7) { week ->
-            Row(Modifier.width(360.dp)) {
+            Row(Modifier.width(calendarWidth)) {
                 repeat(7) { day ->
                     val number = week * 7 + day - offset + 1
                     if (number !in 1..month.lengthOfMonth()) Spacer(Modifier.weight(1f)) else {
@@ -64,7 +68,7 @@ import java.time.temporal.WeekFields
                             colors = ButtonDefaults.textButtonColors(contentColor = if (d == selectedDate) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(numberLabel(number), style = MaterialTheme.typography.titleSmall)
-                                Text("${numberLabel(count)}/${numberLabel(5)}", style = MaterialTheme.typography.labelSmall)
+                                Text("${numberLabel(count)}/${numberLabel(5)}", style = MaterialTheme.typography.labelSmall,softWrap = false)
                             }
                         }
                     }

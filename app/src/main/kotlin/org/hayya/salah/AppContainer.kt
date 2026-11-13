@@ -15,6 +15,10 @@ class SalahApplication : Application() {
         super.onCreate()
         if (AlarmCoordinator.unlocked(this)) container.startIntegrations()
     }
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (AlarmCoordinator.unlocked(this)) container.refreshIntegrations()
+    }
 }
 class AppContainer(val context: Context) {
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
