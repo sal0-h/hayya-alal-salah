@@ -73,16 +73,21 @@ object WidgetUpdater {
             Palette.INK -> if (dark) 0xff9bbfff.toInt() else 0xff2c4f8f.toInt()
             Palette.PLUM -> if (dark) 0xffdab0d4.toInt() else 0xff76456f.toInt()
         }
-        fun base(layout: Int) = RemoteViews(context.packageName, layout).apply {
+        fun base(layout: Int, provenance: Provenance? = null) = RemoteViews(context.packageName, layout).apply {
             setOnClickPendingIntent(R.id.widget_root, open)
             setInt(R.id.widget_root, "setBackgroundColor", if (dark) 0xff101d26.toInt() else 0xfff8fafc.toInt())
             setTextColor(R.id.widget_place, if (dark) 0xffa9b9c5.toInt() else 0xff526875.toInt())
             setTextColor(R.id.widget_title, if (dark) 0xffe4edf2.toInt() else 0xff172d3a.toInt())
-            setTextViewText(R.id.widget_place, place?.name ?: context.getString(if (unlocked) R.string.widget_setup else R.string.widget_unlock))
+            val label = place?.let { location ->
+                if (provenance?.quality == CalculationQuality.ESTIMATED_REFERENCE)
+                    context.getString(R.string.estimated_boundaries,"%.2f".format(java.util.Locale.ROOT,provenance.effective.latitude)) + " · " + location.name
+                else location.name
+            } ?: context.getString(if (unlocked) R.string.widget_setup else R.string.widget_unlock)
+            setTextViewText(R.id.widget_place,label)
         }
         val next = nextPrayer(schedules, now)
         compact.forEach { id ->
-            val views = base(R.layout.widget_next)
+            val views = base(R.layout.widget_next,schedules.firstOrNull { it.date == next?.key?.date }?.provenance)
             views.setTextViewText(R.id.widget_title, next?.let { AlertNotifications.prayerName(context, it.key.prayer) } ?: context.getString(R.string.app_name))
             views.setTextViewText(R.id.widget_time, next?.at?.atZone(place!!.zone)?.format(formatter).orEmpty())
             views.setTextColor(R.id.widget_time, accent)
@@ -94,16 +99,34 @@ object WidgetUpdater {
             } else views.setViewVisibility(R.id.widget_countdown, android.view.View.GONE)
             manager.updateAppWidget(id, views)
         }
+        val schedule = schedules.firstOrNull { it.date == today }
+        val rows = schedule?.let { day ->
+            listOf(AlertNotifications.prayerName(context,Prayer.FAJR) to day.prayers.getValue(Prayer.FAJR),
+                context.getString(R.string.sunrise) to day.sunrise) + Prayer.entries.drop(1).map { AlertNotifications.prayerName(context,it) to day.prayers.getValue(it) }
+        }.orEmpty().map { (name,at) -> "$name    \u2068${at.atZone(place!!.zone).format(formatter)}\u2069" }
         daily.forEach { id ->
-            val views = base(R.layout.widget_daily)
+            val views = base(R.layout.widget_daily,schedule?.provenance)
             views.setTextViewText(R.id.widget_title, context.getString(R.string.today))
-            views.setRemoteAdapter(R.id.widget_rows,Intent(context,DailyRowsService::class.java)
-                .setData("hayya-widget://daily/$id".toUri()))
+            views.setViewVisibility(R.id.widget_rows,if (unlocked && place != null) android.view.View.VISIBLE else android.view.View.GONE)
+            if (Build.VERSION.SDK_INT >= 31) {
+                val items = RemoteViews.RemoteCollectionItems.Builder().setHasStableIds(true).setViewTypeCount(1)
+                rows.forEachIndexed { index,text ->
+                    items.addItem(index.toLong(),RemoteViews(context.packageName,R.layout.widget_daily_row).apply {
+                        setTextViewText(R.id.widget_row,text)
+                        setTextColor(R.id.widget_row,if (dark) 0xffe4edf2.toInt() else 0xff172d3a.toInt())
+                    })
+                }
+                views.setRemoteAdapter(R.id.widget_rows,items.build())
+            } else {
+                @Suppress("DEPRECATION") // The intent adapter supports Android 8–11.
+                views.setRemoteAdapter(R.id.widget_rows,Intent(context,DailyRowsService::class.java)
+                    .setData("hayya-widget://daily/$id".toUri()))
+            }
             manager.updateAppWidget(id, views)
         }
         // Collections scroll at large text sizes; no text shrinking or minute polling.
         @Suppress("DEPRECATION") // RemoteViews collections support the API26 minimum.
-        manager.notifyAppWidgetViewDataChanged(daily,R.id.widget_rows)
+        if (Build.VERSION.SDK_INT < 31) manager.notifyAppWidgetViewDataChanged(daily,R.id.widget_rows)
         val boundary = (schedules.flatMap { it.prayers.values + it.sunrise } + listOfNotNull(today?.plusDays(1)?.atStartOfDay(place!!.zone)?.toInstant())).filter { it > now }.minOrNull()
         if (boundary == null) alarm.cancel(refresh)
         else if (AlarmCoordinator.exactAccess(context)) {
