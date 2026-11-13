@@ -23,7 +23,7 @@ adb uninstall "$hayya_package.test"
 adb uninstall "$hayya_package"
 # connectedAndroidTest owns fresh installation; alarm tests grant contextual permissions.
 
-./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=org.hayya.salah.AppearanceCaptureTest,org.hayya.salah.AlarmPermissionDeniedTest,org.hayya.salah.DirectBootFixtureTest,org.hayya.salah.WidgetAppearanceTest --no-daemon
+./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=org.hayya.salah.AppearanceCaptureTest,org.hayya.salah.AlarmPermissionDeniedTest,org.hayya.salah.DirectBootFixtureTest,org.hayya.salah.WidgetAppearanceTest,org.hayya.salah.AudioPlaybackIntegrationTest --no-daemon
 
 python3 - <<'VERIFY'
 from pathlib import Path
@@ -32,8 +32,20 @@ reports=list(Path('app/build/outputs/androidTest-results/connected/debug').glob(
 assert reports
 for path in reports:
     report=ET.parse(path).getroot()
-    assert int(report.get('tests','0')) >= 14, (path,report.attrib)
+    assert int(report.get('tests','0')) >= 13, (path,report.attrib)
     assert int(report.get('failures','0')) == 0 and int(report.get('errors','0')) == 0, report.attrib
 VERIFY
+
+# AudioManager/MediaPlayer and its UiAutomation connection own a separate process/session.
+# Audio and accessibility fixtures use different UiAutomation suppression flags.
+# Separate sessions prevent framework/client state from leaking between them.
+# Every real playback assertion still runs and its report must contain one passing test.
+adb shell am instrument -w -r -e class org.hayya.salah.AudioPlaybackIntegrationTest "$hayya_package.test/androidx.test.runner.AndroidJUnitRunner" > "app/build/reports/integration/audio-api-$hayya_api.txt"
+python3 - "$hayya_api" <<'AUDIO'
+from pathlib import Path
+import sys
+text=Path(f"app/build/reports/integration/audio-api-{sys.argv[1]}.txt").read_text()
+assert "OK (1 test)" in text and "FAILURES" not in text and "INSTRUMENTATION_FAILED" not in text, text
+AUDIO
 
 if (( hayya_api >= 37 )); then bash scripts/direct_boot_ci.sh; fi
