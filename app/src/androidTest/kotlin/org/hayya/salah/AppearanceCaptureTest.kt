@@ -76,18 +76,24 @@ class AppearanceCaptureTest {
                                         }?.root
                                         val ime = windows.firstOrNull { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD } ?: return false
                                         val answer = find(root) ?: return false
-                                        fun emergency(n: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
-                                            if (n == null || n.viewIdResourceName == "alarm-emergency-stop") return n
-                                            for (i in 0 until n.childCount) emergency(n.getChild(i))?.let { return it }
+                                        fun tagged(n: android.view.accessibility.AccessibilityNodeInfo?, tag: String): android.view.accessibility.AccessibilityNodeInfo? {
+                                            if (n == null || n.viewIdResourceName == tag) return n
+                                            for (i in 0 until n.childCount) tagged(n.getChild(i),tag)?.let { return it }
                                             return null
                                         }
-                                        val stop = emergency(root) ?: return false
+                                        val stop = tagged(root,"alarm-emergency-stop") ?: return false
+                                        val content = tagged(root,"alarm-content") ?: return false
                                         val answerBounds = android.graphics.Rect().also(answer::getBoundsInScreen)
                                         val stopBounds = android.graphics.Rect().also(stop::getBoundsInScreen)
                                         val imeBounds = android.graphics.Rect().also(ime::getBoundsInScreen)
-                                        val statusTop = activity.window.decorView.rootWindowInsets?.systemWindowInsetTop ?: 0
+                                        val contentBounds = android.graphics.Rect().also(content::getBoundsInScreen)
+                                        val statusTop = windows.filter { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SYSTEM }
+                                            .map { android.graphics.Rect().also(it::getBoundsInScreen) }
+                                            .filter { it.top == 0 && it.height() < activity.resources.displayMetrics.heightPixels/4 }
+                                            .maxOfOrNull { it.bottom } ?: 0
                                         return answer.isVisibleToUser && stop.isVisibleToUser && answerBounds.height() > 0 &&
-                                            answerBounds.top >= statusTop && answerBounds.bottom <= stopBounds.top && stopBounds.bottom <= imeBounds.top
+                                            contentBounds.top >= statusTop && answerBounds.top >= statusTop && answerBounds.bottom <= stopBounds.top &&
+                                            stopBounds.bottom <= imeBounds.top && imeBounds.top-stopBounds.bottom <= 64*activity.resources.displayMetrics.density
                                     }
                                     while (!answerVisible() && android.os.SystemClock.uptimeMillis() < keyboardDeadline) Thread.sleep(100)
                                     check(answerVisible()) { "Fajr answer field disappeared behind keyboard at ${scale}x/$language" }

@@ -50,7 +50,7 @@ class RingingActivity : ComponentActivity() {
 @Composable internal fun RingingContent(active: AlarmEntry?, stop: () -> Unit, close: () -> Unit) {
     Surface(Modifier.fillMaxSize().semantics { testTagsAsResourceId = true }) {
         Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
-        Column(Modifier.weight(1f).fillMaxWidth().clipToBounds().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+        Column(Modifier.weight(1f).fillMaxWidth().testTag("alarm-content").clipToBounds().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
             Text(stringResource(R.string.fajr_alarm), style = MaterialTheme.typography.headlineLarge)
             Text(stringResource(R.string.dismiss_not_record))
             if (active?.isFajr != true) {
