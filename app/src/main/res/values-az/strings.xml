@@ -200,4 +200,5 @@
     <string name="focus_service_inactive">Android əlçatanlıq xidmətini aktiv edənədək rejim qeyri-aktivdir.</string>
     <string name="loading">Yüklənir…</string>
     <string name="regional_profiles">Müqayisə üçün regional profillər: %1$s. Üsulu özünüz seçin; məkan dini praktikanızı müəyyən etmir.</string>
+    <string name="calendar_scroll_hint">Bütün günləri görmək üçün təqvimi yana sürüşdürün. Yuxarıdan tarix də seçə bilərsiniz.</string>
 </resources>

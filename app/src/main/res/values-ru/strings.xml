@@ -200,4 +200,5 @@
     <string name="focus_service_inactive">Режим неактивен, пока его служба не включена в специальных возможностях Android.</string>
     <string name="loading">Загрузка…</string>
     <string name="regional_profiles">Региональные профили для сравнения: %1$s. Выберите метод самостоятельно; местоположение не определяет вашу практику.</string>
+    <string name="calendar_scroll_hint">Прокрутите календарь по горизонтали, чтобы увидеть все дни. Также можно выбрать дату выше.</string>
 </resources>
