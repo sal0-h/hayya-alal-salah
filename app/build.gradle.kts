@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.lifecycle.runtime.compose)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.test)
+    androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.compose.accessibility.test)
     androidTestImplementation(libs.android.test.runner)
     androidTestImplementation(libs.android.test.junit)

@@ -61,9 +61,9 @@ class FocusIntegrationTest {
             withTimeout(15000) { org.hayya.salah.focus.PrayerFocusService.connected.first { it } }
             phase = "initial overlay"; launchTarget(); overlay(true)
             phase = "completion"; app.repository.record(window.target,PrayerStatus.ON_TIME,place.zone); overlay(false)
-            app.repository.record(window.target,null,place.zone); overlay(true)
-            app.repository.addPause(pause); overlay(false)
-            app.repository.deletePause(pause); overlay(true)
+            phase = "restore unrecorded"; app.repository.record(window.target,null,place.zone); overlay(true)
+            phase = "pause"; app.repository.addPause(pause); overlay(false)
+            phase = "remove pause"; app.repository.deletePause(pause); overlay(true)
             fun find(node: AccessibilityNodeInfo?, text: String): AccessibilityNodeInfo? {
                 if (node == null || node.text?.toString() == text) return node
                 for (index in 0 until node.childCount) find(node.getChild(index),text)?.let { return it }

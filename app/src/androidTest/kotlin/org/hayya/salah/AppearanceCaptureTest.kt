@@ -70,9 +70,13 @@ class AppearanceCaptureTest {
                             }
                             for (position in if (width == "phone" && route !in listOf("record","date","focus-consent","privacy-confirm")) listOf("top","bottom") else listOf("top")) {
                                 if (position == "bottom") { instrumentation.runOnMainSync { activity.bottom() }; instrumentation.waitForIdleSync(); Thread.sleep(100) }
-                                val active = instrumentation.uiAutomation.windows.firstOrNull { it.isActive }
+                                var active = instrumentation.uiAutomation.windows.firstOrNull { it.isActive }
+                                val windowDeadline = android.os.SystemClock.uptimeMillis() + 5000
+                                while (active?.root?.packageName == null && android.os.SystemClock.uptimeMillis() < windowDeadline) {
+                                    Thread.sleep(100); active = instrumentation.uiAutomation.windows.firstOrNull { it.isActive }
+                                }
                                 val owner = active?.root?.packageName?.toString()
-                                check(owner == context.packageName || active?.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD) { "Unexpected capture window: $owner" }
+                                check(owner == context.packageName || active?.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD) { "Unexpected capture window for $route/$position: $owner" }
                                 val bitmap = checkNotNull(instrumentation.uiAutomation.takeScreenshot())
                                 File(directory,"$route-$language-${scale}x-${if(dark) "dark" else "light"}-$width-$position.png").outputStream().use { check(bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG,100,it)) }
                                 bitmap.recycle()

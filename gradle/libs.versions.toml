@@ -10,6 +10,7 @@ lifecycle = "2.11.0"
 room = "2.8.5"
 
 [libraries]
+espresso-core = { module = "androidx.test.espresso:espresso-core", version = "3.7.0" }
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose" }
 compose-ui = { module = "androidx.compose.ui:ui" }
 compose-foundation = { module = "androidx.compose.foundation:foundation" }
