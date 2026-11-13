@@ -24,6 +24,11 @@ import org.hayya.salah.*
 import org.hayya.salah.R
 
 class RingingActivity : ComponentActivity() {
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        org.hayya.salah.focus.PrayerFocusService.onOwnWindowFocus(hasFocus,window.decorView)
+    }
+
     override fun attachBaseContext(base: android.content.Context) { super.attachBaseContext(DeliveryLocale.context(base)) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
