@@ -2,6 +2,7 @@
 package org.hayya.salah
 
 import androidx.compose.foundation.layout.*
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -86,5 +87,6 @@ import java.time.ZoneId
     SectionTitle(stringResource(R.string.credits))
     if (names.isNotEmpty()) SelectionField(stringResource(R.string.credits), selected, names, { it }) { selected = it }
     val text by produceState("", selected) { value = withContext(Dispatchers.IO) { context.assets.open(selected).bufferedReader().use { it.readText() } } }
+    ReportDrawnWhen { text.isNotEmpty() }
     Text(text, style = MaterialTheme.typography.bodySmall)
 }

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 package org.hayya.salah
 
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -72,9 +73,12 @@ import java.time.temporal.WeekFields
         }
     }
     Text(dateLabel(selectedDate), style = MaterialTheme.typography.titleMedium)
-    val calculation by produceState<DailySchedule?>(null, place, selectedDate) {
-        value = withContext(Dispatchers.Default) { (LocalPrayerCalculator().calculate(selectedDate, place.point, place.zone, place.calculation) as? CalculationResult.Available)?.schedule }
+    val calculated by produceState<CalculationResult?>(null, place, selectedDate) {
+        value = withContext(Dispatchers.Default) { LocalPrayerCalculator().calculate(selectedDate, place.point, place.zone, place.calculation) }
     }
+    ReportDrawnWhen { calculated != null }
+    val calculation = (calculated as? CalculationResult.Available)?.schedule
+    if (calculated != null && calculation == null) Text(stringResource(R.string.calculation_unavailable))
     DailyPrayerRows(selectedDate, calculation, place.zone, history, onRecord)
     val first = minOf(config.trackingSince ?: today, history.records.keys.minOfOrNull { it.date } ?: today)
     val currentStatuses = Prayer.entries.mapNotNull { p -> effectiveStatus(PrayerKey(today, p), history.records, history.pauses)?.let { p to it } }.toMap()

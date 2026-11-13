@@ -24,6 +24,9 @@ class AppearanceCaptureTest {
         val oldScale = shell("settings get system font_scale")
         val oldSize = shell("wm size").lineSequence().firstOrNull { it.startsWith("Override size:") }?.substringAfter(": ")
         val oldLocale = Locale.getDefault()
+        val host = instrumentation.startActivitySync(Intent(context,CaptureHostActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        instrumentation.waitForIdleSync()
+        shell("am force-stop com.android.launcher3")
         try {
             for (width in listOf("phone","tablet")) {
                 shell(if (width == "phone") "wm size 840x1960" else "wm size 1800x2400")
@@ -38,7 +41,10 @@ class AppearanceCaptureTest {
                         Locale.setDefault(Locale.forLanguageTag(language))
                         val activity = instrumentation.startActivitySync(Intent(context,ScreenshotActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as ScreenshotActivity
                         try {
-                            instrumentation.waitForIdleSync(); Thread.sleep(350)
+                            val deadline = android.os.SystemClock.uptimeMillis() + 10000
+                            while (!activity.fullyDrawnReporter.isFullyDrawnReported && android.os.SystemClock.uptimeMillis() < deadline) Thread.sleep(50)
+                            check(activity.fullyDrawnReporter.isFullyDrawnReported) { "Fixture did not finish drawing: $route" }
+                            instrumentation.waitForIdleSync(); Thread.sleep(200)
                             check(kotlin.math.abs(activity.resources.configuration.fontScale - scale) < 0.05) { "Actual system font scale did not update" }
                             val trigger = when (route) { "date" -> "history-date"; "focus-consent" -> "focus-permission"; "privacy-confirm" -> "privacy-delete"; else -> null }
                             if (trigger != null) {
@@ -64,6 +70,9 @@ class AppearanceCaptureTest {
                             }
                             for (position in if (width == "phone" && route !in listOf("record","date","focus-consent","privacy-confirm")) listOf("top","bottom") else listOf("top")) {
                                 if (position == "bottom") { instrumentation.runOnMainSync { activity.bottom() }; instrumentation.waitForIdleSync(); Thread.sleep(100) }
+                                val active = instrumentation.uiAutomation.windows.firstOrNull { it.isActive }
+                                val owner = active?.root?.packageName?.toString()
+                                check(owner == context.packageName || active?.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD) { "Unexpected capture window: $owner" }
                                 val bitmap = checkNotNull(instrumentation.uiAutomation.takeScreenshot())
                                 File(directory,"$route-$language-${scale}x-${if(dark) "dark" else "light"}-$width-$position.png").outputStream().use { check(bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG,100,it)) }
                                 bitmap.recycle()
@@ -73,6 +82,7 @@ class AppearanceCaptureTest {
                 }
             }
         } finally {
+            instrumentation.runOnMainSync { host.finish() }
             Locale.setDefault(oldLocale)
             shell(if (oldScale == "null") "settings delete system font_scale" else "settings put system font_scale $oldScale")
             shell(if (oldSize == null) "wm size reset" else "wm size $oldSize")

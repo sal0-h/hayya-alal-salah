@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.LocaleList
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.rememberScrollState
@@ -40,6 +41,7 @@ class ScreenshotActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState); enableEdgeToEdge()
         setContent {
+            ReportDrawnWhen { true }
             val fixed = remember { Clock.fixed(Instant.parse("2026-11-13T08:00:00Z"), ZoneOffset.UTC) }
             val today = LocalDate.of(2026,11,13)
             val place = remember { ManualSetup("Baku · Bakı", GeoPoint(40.4093,49.8671), ZoneId.of("Asia/Baku"), Profile.MWL) }
@@ -62,5 +64,13 @@ class ScreenshotActivity : ComponentActivity() {
                 }, onDismiss = { target = null }) }
             }
         }
+    }
+}
+
+/** Stable native underlay while capture activities/configurations change; never a launcher. */
+class CaptureHostActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        window.decorView.setBackgroundColor(android.graphics.Color.BLACK)
     }
 }
