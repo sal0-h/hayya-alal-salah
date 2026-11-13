@@ -32,7 +32,7 @@ reports=list(Path('app/build/outputs/androidTest-results/connected/debug').glob(
 assert reports
 for path in reports:
     report=ET.parse(path).getroot()
-    assert int(report.get('tests','0')) >= 11, (path,report.attrib)
+    assert int(report.get('tests','0')) >= 12, (path,report.attrib)
     assert int(report.get('failures','0')) == 0 and int(report.get('errors','0')) == 0, report.attrib
 VERIFY
 
