@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
@@ -49,7 +50,7 @@ class RingingActivity : ComponentActivity() {
 @Composable internal fun RingingContent(active: AlarmEntry?, stop: () -> Unit, close: () -> Unit) {
     Surface(Modifier.fillMaxSize().semantics { testTagsAsResourceId = true }) {
         Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
-        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+        Column(Modifier.weight(1f).fillMaxWidth().clipToBounds().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
             Text(stringResource(R.string.fajr_alarm), style = MaterialTheme.typography.headlineLarge)
             Text(stringResource(R.string.dismiss_not_record))
             if (active?.isFajr != true) {
