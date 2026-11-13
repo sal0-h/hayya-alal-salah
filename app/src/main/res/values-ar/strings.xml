@@ -177,4 +177,24 @@
     <string name="focus_select_prayers">الصلوات</string>
     <string name="focus_select_apps">التطبيقات المراد حظرها</string>
     <string name="emergency_bypass">تجاوز طارئ لهذه الصلاة</string>
+    <string name="current_coordinates">الإحداثيات الحالية</string>
+    <string name="search_city">البحث عن مدن دون اتصال</string>
+    <string name="use_device_location">استخدام موقع الجهاز</string>
+    <string name="location_unavailable">الموقع غير متاح. اختر مدينة أو أدخل الإحداثيات.</string>
+    <string name="zone_suggestion_note">اقتراح المنطقة الزمنية دون اتصال تقريبي. تحقّق من منطقة IANA خاصة قرب الحدود. يمكنك تعديلها.</string>
+    <string name="confirm_location_zone">تأكيد الموقع والمنطقة الزمنية</string>
+    <string name="automatic_location">تحديث الموقع أثناء استخدام التطبيق</string>
+    <string name="foreground_location_note">يعمل التحديث التلقائي فقط عندما يكون التطبيق ظاهرًا. الوضع اليدوي لا يطلب الموقع. تغيير المنطقة الزمنية يتطلب التأكيد.</string>
+    <string name="location_observed_at">وقت تحديد الموقع: %1$s</string>
+    <string name="qibla_true_bearing">القبلة: %1$s من الشمال الحقيقي</string>
+    <string name="qibla_actual_location">يستخدم الاتجاه إحداثياتك الفعلية حتى عند حساب المواقيت بخط عرض مرجعي قطبي.</string>
+    <string name="qibla_numeric_fallback">لا تتوفر قراءة للبوصلة. استخدم الاتجاه الرقمي من الشمال الحقيقي مع خريطة أو بوصلة موثوقة.</string>
+    <string name="qibla_calibrate">دقة المستشعر منخفضة. ابتعد عن المعادن والمغناطيس وحرّك الهاتف برفق على شكل رقم ثمانية ثم أمسكه أفقيًا.</string>
+    <string name="qibla_hold_flat">أمسك الهاتف أفقيًا بعيدًا عن المعادن والمغناطيس. قد تتغير قراءات البوصلة.</string>
+    <string name="widget_setup">افتح حيّ على الصلاة لاختيار الموقع</string>
+    <string name="widget_unlock">افتح القفل لعرض مواقيت الصلاة</string>
+    <string name="widget_next_description">الصلاة القادمة</string>
+    <string name="widget_daily_description">مواقيت الصلاة اليومية</string>
+    <string name="zone_not_supported">لا يتعرّف إصدار أندرويد هذا على المنطقة المقترحة. حدّث بيانات المناطق الزمنية أو اختر منطقة IANA مناسبة يدويًا.</string>
+    <string name="location_permission_needed">يحتاج التحديث التلقائي إلى إذن الموقع. استخدم زر الموقع للسماح أو أبقِ الوضع اليدوي.</string>
 </resources>

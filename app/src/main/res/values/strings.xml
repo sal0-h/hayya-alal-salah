@@ -177,4 +177,24 @@
     <string name="focus_select_prayers">Prayers</string>
     <string name="focus_select_apps">Apps to block</string>
     <string name="emergency_bypass">Emergency bypass for this prayer</string>
+    <string name="current_coordinates">Current coordinates</string>
+    <string name="search_city">Search offline cities</string>
+    <string name="use_device_location">Use device location</string>
+    <string name="location_unavailable">Location is unavailable. Choose a city or enter coordinates.</string>
+    <string name="zone_suggestion_note">The offline time-zone suggestion is approximate. Check the IANA zone, especially near borders. You can edit it.</string>
+    <string name="confirm_location_zone">Confirm location and time zone</string>
+    <string name="automatic_location">Refresh location while using the app</string>
+    <string name="foreground_location_note">Automatic refresh runs only while the app is visible. Manual mode makes no location requests. Zone changes need confirmation.</string>
+    <string name="location_observed_at">Location observed: %1$s</string>
+    <string name="qibla_true_bearing">Qibla: %1$s from true north</string>
+    <string name="qibla_actual_location">Bearing uses your actual coordinates, including when prayer times use a polar reference.</string>
+    <string name="qibla_numeric_fallback">No compass reading is available. Use the numerical true-north bearing with a reliable map or compass.</string>
+    <string name="qibla_calibrate">Low sensor accuracy. Move away from metal and magnets; gently move the phone in a figure eight, then hold it flat.</string>
+    <string name="qibla_hold_flat">Hold the phone flat, away from metal and magnets. Compass readings can vary.</string>
+    <string name="widget_setup">Open Hayya to choose a location</string>
+    <string name="widget_unlock">Unlock to show prayer times</string>
+    <string name="widget_next_description">Next prayer</string>
+    <string name="widget_daily_description">Daily prayer times</string>
+    <string name="zone_not_supported">This Android version does not recognize the suggested zone. Update system time-zone data or choose an appropriate IANA zone manually.</string>
+    <string name="location_permission_needed">Automatic refresh needs location permission. Use the location button to allow it, or keep manual mode.</string>
 </resources>
