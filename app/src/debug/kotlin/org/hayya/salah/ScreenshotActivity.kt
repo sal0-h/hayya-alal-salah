@@ -84,6 +84,7 @@ class ScreenshotActivity : ComponentActivity() {
 
 /** Stable native underlay while capture activities/configurations change; never a launcher. */
 class CaptureHostActivity : ComponentActivity() {
+    override fun attachBaseContext(base: Context) { super.attachBaseContext(DeliveryLocale.context(base)) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.decorView.setBackgroundColor(android.graphics.Color.BLACK)

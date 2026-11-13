@@ -13,6 +13,11 @@ for width in ("phone", "tablet"):
                 for theme in ("light","dark"):
                     for position in (("top","bottom") if width == "phone" and route not in ("record","date","focus-consent","privacy-confirm","focus-overlay","ringing","ringing-keyboard") else ("top",)):
                         expected.add(f"{route}-{language}-{scale}x-{theme}-{width}-{position}.png")
+for language in ("en","ru","az","ar"):
+    for scale in (1,2):
+        for theme in ("light","dark"):
+            for position in ("top","bottom"):
+                expected.add(f"widgets-{language}-{scale}x-{theme}-{position}.png")
 files = {path.name: path for path in root.rglob("*.png")}
 assert expected <= files.keys(), sorted(expected - files.keys())
 for name in expected:
