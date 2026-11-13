@@ -67,6 +67,17 @@ class AppearanceCaptureTest {
                                 }
                                 checkNotNull(node).performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK)
                                 instrumentation.waitForIdleSync(); Thread.sleep(200)
+                                if (route == "ringing-keyboard") {
+                                    val keyboardDeadline = android.os.SystemClock.uptimeMillis()+5000
+                                    fun answerVisible(): Boolean {
+                                        val root = instrumentation.uiAutomation.windows.firstOrNull {
+                                            it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION && it.root?.packageName?.toString() == context.packageName
+                                        }?.root
+                                        return find(root)?.isVisibleToUser == true
+                                    }
+                                    while (!answerVisible() && android.os.SystemClock.uptimeMillis() < keyboardDeadline) Thread.sleep(100)
+                                    check(answerVisible()) { "Fajr answer field disappeared behind keyboard at ${scale}x/$language" }
+                                }
                             }
                             for (position in if (width == "phone" && route !in listOf("record","date","focus-consent","privacy-confirm","focus-overlay","ringing","ringing-keyboard")) listOf("top","bottom") else listOf("top")) {
                                 if (position == "bottom") { instrumentation.runOnMainSync { activity.bottom() }; instrumentation.waitForIdleSync(); Thread.sleep(100) }

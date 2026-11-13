@@ -52,7 +52,7 @@ class RingingActivity : ComponentActivity() {
             if (active?.isFajr == true) OutlinedButton(onClick = { stop() },
                 Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(16.dp).heightIn(min = 56.dp)) { Text(stringResource(R.string.emergency_stop)) }
         }) { contentPadding ->
-        Column(Modifier.padding(contentPadding).safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+        Column(Modifier.padding(contentPadding).consumeWindowInsets(contentPadding).safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
             Text(stringResource(R.string.fajr_alarm), style = MaterialTheme.typography.headlineLarge)
             Text(stringResource(R.string.dismiss_not_record))
             if (active?.isFajr != true) {
