@@ -27,7 +27,10 @@ class FocusIntegrationTest {
         val automation = instrumentation.getUiAutomation(UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES)
         automation.serviceInfo = automation.serviceInfo.apply { flags = flags or android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS }
         fun shell(command: String) = ParcelFileDescriptor.AutoCloseInputStream(automation.executeShellCommand(command)).bufferedReader().use { it.readText().trim() }
-        fun quote(value: String) = "'" + value.replace("'", "'\"'\"'") + "'"
+        fun quote(value: String): String {
+            require(Regex("[A-Za-z0-9_./:-]+").matches(value))
+            return value // UiAutomation executes argv directly; quotes would become part of the setting.
+        }
         val services = shell("settings get secure enabled_accessibility_services")
         val enabled = shell("settings get secure accessibility_enabled")
         val app = context.appContainer
@@ -50,13 +53,14 @@ class FocusIntegrationTest {
             }
         }
         fun launchTarget() { shell("am start -W -n $targetPackage/org.hayya.salah.FocusTargetActivity") }
+        var phase = "connect"
         try {
             app.settings.update { AppPreferences(place,focus = FocusPreferences(true,setOf(targetPackage))) }
             shell("settings put secure enabled_accessibility_services ${quote(context.packageName + "/org.hayya.salah.focus.PrayerFocusService")}")
             shell("settings put secure accessibility_enabled 1")
             withTimeout(15000) { org.hayya.salah.focus.PrayerFocusService.connected.first { it } }
-            launchTarget(); overlay(true)
-            app.repository.record(window.target,PrayerStatus.ON_TIME,place.zone); overlay(false)
+            phase = "initial overlay"; launchTarget(); overlay(true)
+            phase = "completion"; app.repository.record(window.target,PrayerStatus.ON_TIME,place.zone); overlay(false)
             app.repository.record(window.target,null,place.zone); overlay(true)
             app.repository.addPause(pause); overlay(false)
             app.repository.deletePause(pause); overlay(true)
@@ -77,6 +81,10 @@ class FocusIntegrationTest {
             launchTarget(); overlay(true)
             shell("settings delete secure enabled_accessibility_services")
             shell("settings put secure accessibility_enabled 0"); overlay(false)
+        } catch (error: Exception) {
+            val directory = InstrumentationRegistry.getArguments().getString("additionalTestOutputDir")?.let { java.io.File(it,"focus-diagnostics").apply { mkdirs() } }
+            directory?.resolve("accessibility.txt")?.writeText("Phase: $phase\n" + shell("dumpsys accessibility"))
+            throw AssertionError("Focus lifecycle failed during $phase",error)
         } finally {
             app.repository.record(window.target,null,place.zone); app.repository.deletePause(pause)
             app.settings.update { original }

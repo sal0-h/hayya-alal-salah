@@ -15,6 +15,9 @@ class AppearanceCaptureTest {
     @Test fun captureFullShellInFourLanguagesWithActualSystemScaleAndWidths() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
+        instrumentation.uiAutomation.serviceInfo = instrumentation.uiAutomation.serviceInfo.apply {
+            flags = flags or android.accessibilityservice.AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS or android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
+        }
         val output = checkNotNull(InstrumentationRegistry.getArguments().getString("additionalTestOutputDir"))
         val directory = File(output,"screenshots").apply { check(isDirectory || mkdirs()) }
         fun shell(command: String): String = ParcelFileDescriptor.AutoCloseInputStream(instrumentation.uiAutomation.executeShellCommand(command)).bufferedReader().use { it.readText().trim() }
