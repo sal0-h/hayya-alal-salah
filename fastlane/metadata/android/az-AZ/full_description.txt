@@ -1,0 +1,15 @@
+Namaz vaxtları və şəxsi qeydlər cihazınızda saxlanılır.
+
+15 hesablama profili, hər iki Əsr qaydası, düzəlişlər və əlavə parametrlər. Oflayn şəhər seçin, koordinatları daxil edin və ya tətbiqdən istifadə zamanı məkan icazəsi verin. Qütb təxmini istinad enliyini göstərir və təsdiq tələb edir. Hesablama yerli cədvəldən fərqlənə bilər.
+
+Namazı açıq şəkildə vaxtında, qəza, buraxılmış və ya üzrlü kimi qeyd edin. Keçmiş qeydləri düzəldin, tarix aralığı üzrə fasilə verin, tarixçə, qeyd əhatəsi və təsdiqlənmiş ardıcıllıqları görün. Qeyd edilməyən namaz avtomatik buraxılmış sayılmır.
+
+Hər namaz üçün bildiriş və səs seçin, yerli audio idxal edin, Sübh vaxtına bağlı ayrıca zəngi riyazi tapşırıq və təcili dayandırma ilə aktivləşdirin. Zəngi dayandırmaq namazı qeyd etmir. Android icazələri, Narahat etmə rejimi və cihaz məhdudiyyətləri çatdırılmaya təsir edir.
+
+Seçimli Namaz Fokusu Android AccessibilityService paket/pəncərə hadisələri ilə seçdiyiniz tətbiqlərin üzərində müəyyən namaz intervallarında bloklama pəncərəsi göstərir. Ekran məzmununu və düymə basmalarını oxumur, ekran şəkli çəkmir, jest icra etmir və istifadə məlumatını ötürmür. Telefon, əsas ekran, ayarlar və vacib funksiyalar açıq qalır. Ayrı izah, açıq razılıq və namazı qeyd etməyən təcili çıxış mövcuddur.
+
+Rəqəmli istiqamət və sensor məlumatı ilə Qiblə, ayrıca gün düzəlişli Ümmül-Qura hicri tarixi, iki vidcet, dörd dil, RTL, mövzular və iri mətn.
+
+Hesab, reklam, analitika, abunə və İnternet icazəsi yoxdur. Arxa planda səfər izlənmir. Məlumatlar yerli saxlanılır. İlk versiyada ixrac, sinxronizasiya və bərpa yoxdur: tətbiqin silinməsi və ya yaddaşın təmizlənməsi məlumatları silir.
+
+GPL-3.0-or-later lisenziyalı azad proqramdır; üçüncü tərəf materialları öz lisenziyalarını saxlayır.

@@ -19,14 +19,16 @@ Download the commit-labeled signed APK, verify the artifact SHA-256, then:
 adb install -r hayya-qa-<commit>.apk
 ```
 
-This is a times-only preview: no prayer records, alarm delivery or app blocking yet.
+This internal preview now includes records, alerts, Fajr, Focus, Qibla and widgets.
+Implementation does not establish physical reliability; consult PROGRESS.md.
 Use manual decimal coordinates and an IANA time zone. Each method is chosen explicitly;
 regional labels are not promises of exact published-timetable agreement.
 
 For each physical report record commit, app version, exact device/Android/One UI build,
 reproduction steps, expected/actual result and whether an update preserved saved setup.
 Do not attach private coordinates/history or unreviewed logs. Do not uninstall between
-update tests. The planned two-update record-preservation test awaits the Room slice.
+update tests. Two successive signed QA update tests must preserve records, pauses, settings and
+imported audio without uninstalling. This physical gate is still pending.
 
 CI screenshot fixtures contain only a fixed Baku example and date, never saved user
 settings. `screenshots-<commit>` contains EN/RU/AZ/AR at 100%/200%, light/dark. Capturing
@@ -39,7 +41,7 @@ QA certificate SHA-256 (public, not a secret):
 `081b779ae9d4f9c1714f212bcb5936fdc239a9941d3c1658920cef1229d08d7f`.
 
 Screenshot instrumentation writes to AGP-provided `additionalTestOutputDir`, which is
-collected before app cleanup. CI requires all sixteen named PNG files with valid headers
+collected before app cleanup. CI requires the complete named full-route/large-text/width matrix with valid headers
 and dimensions; a successful instrumentation exit alone does not satisfy capture QA.
 
 Verified foundation artifacts (code commit `7d1a109`, 2026-11-13):
