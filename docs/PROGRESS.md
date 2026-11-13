@@ -13,11 +13,22 @@ Today/History/Settings navigation, explicit correction/backfill, dated pauses,
 daily/per-prayer verified streaks, recording coverage and explainable statistics,
 language/appearance/time/numeral settings, and local deletion/reset.
 
-17 core tests plus the preserved upstream fixture passed locally. Android persistence
-instrumentation was added and compiled, but has not yet run on an emulator. Full
-Android lint/APK validation is in progress; do not treat compilation as device QA.
-The city dataset and freely licensed developer recordings are staged for Android
-integrations; staging assets is not a working alert or location feature.
+17 core tests plus the preserved upstream fixture, lint, debug/optimized QA and test
+APK assembly passed locally. Clean CI at `a8d2981` passed in run 43389685112:
+https://github.com/sal0-h/hayya-alal-salah/actions/runs/43389685112
+Downloaded JUnit XML confirms all three Android persistence tests and the screenshot
+capture test passed on API 35 (zero failures/skips). This covers database reopen,
+original-zone correction, concurrent updates and preference round-trip; it is not
+physical process-death/upgrade/device QA.
+`implement/android-alerts` adds AlarmManager rolling reconciliation, minimal Direct
+Boot snapshots, durable duplicate claims, delivery-time settings/history checks,
+original-target notification actions, foreground media playback, normal silent/DND
+handling, Fajr arithmetic/emergency stop, private bounded/decoded audio import,
+restricted opt-in Focus overlay and essential-app exclusions. Local debug/test APK
+assembly and lint passed during integration; the optimized QA build also passed locally.
+New alarm/audio/Focus instrumentation is added but not yet run. No alert, Direct Boot
+or blocking behavior has been physically tested. Location/Qibla work is being kept
+in a following review branch; staged assets alone do not establish those features.
 
 The older foundation ledger below records validation at its cited commit. Its
 remaining-work list is historical; new work must be checked against the full plan.
