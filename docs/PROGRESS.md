@@ -50,12 +50,21 @@ python3 scripts/check_manifest.py
 - All resource XML parsed and four language key sets match. `fc-query` confirmed
   sampled Azerbaijani/Russian/Arabic glyph coverage in all four bundled font files.
 - Strict offline build passed without regenerating locks or verification metadata.
-- Clean-checkout CI build/lint/privacy and isolated QA signing passed at `45860c2`.
-  Downloaded QA artifact checksum and v2/v3 signature verified; QA ID, min/target SDK
-  inspected from the actual APK. Certificate SHA-256 is recorded in QA.md.
-- The initial emulator test completed, but its artifact had reports only. Capture
-  collection now uses AGP additional test output and CI requires all 16 actual PNGs;
-  corrected capture execution and visual review remain pending.
+- Clean-checkout CI build/lint/privacy, optimized QA assembly/signing and emulator
+  capture passed at `7d1a109` in [run 43345790379](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43345790379).
+  CI ran 12 core tests, the upstream fixture and Android screenshot instrumentation.
+- All 16 actual PNG files were retained and validated (four languages × two text scales
+  × two themes), on an Android 15/API 35 x86_64 emulator. Downloaded final images were
+  inspected: EN and AR at 100%/200% in both themes, plus RU/AZ at 200%. The review caught
+  global-locale date formatting and wrapped Russian-label alignment; both were corrected
+  and the final captures confirmed localized dates/times and centered wrapping.
+- This is a representative Today-component review, not full UI/accessibility approval.
+  Full MainActivity/onboarding/navigation, narrow screens, system font-scale/inset behavior
+  and TalkBack still need review. The context-overridden fixture has imperfect system-bar
+  rendering; its snapshots do not establish production system-bar behavior.
+- Final downloaded QA checksum and v2/v3 signature verified. Actual APK: separate QA ID,
+  min API 26/target 37, version code 9, 1,856,869 bytes. Its certificate matches the earlier
+  CI APK (version code 5); actual installation/update preservation remains untested.
 - Dependency locks/checksum metadata generated. Checksum metadata is first-resolution
   trust, not an independent audit of upstream supply chains.
 
@@ -68,13 +77,14 @@ Arabic reviewer and physical mid-range device remain public release gates.
 
 ## Remaining milestone work
 
-- Milestone 1: prove clean CI build and installable signed QA artifact. Two successive
-  QA updates preserving records remain pending; record persistence is not implemented.
+- Milestone 1: clean CI and signed QA artifacts are verified. Physical installation and
+  two successive QA updates preserving records remain pending; record persistence is
+  not implemented.
 - Milestone 2: confirmed nearest-valid-latitude/manual polar policy, supported advanced
   overrides, larger upstream/published timetable comparison and seasonal boundary suites.
 - Milestone 3: offline city search, automatic foreground location, in-app language
   selection on all supported Android versions, Asr/high-latitude/offset settings UI,
-  actual normal/large LTR/RTL screenshot inspection, TalkBack and design review.
+  full-route/narrow-screen/system-inset captures, TalkBack and product design review.
 - Milestone 4: Room record repository, explicit prayer actions, correction/history,
   pause persistence, per-prayer streaks, coverage/statistics/insights.
 - Milestones 5–10: Android alarm delivery, audio/import, Fajr/Direct Boot, Focus, Qibla,

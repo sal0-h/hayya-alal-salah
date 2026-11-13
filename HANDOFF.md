@@ -21,8 +21,11 @@ accordingly, or install the documented pinned toolchain independently. No KVM he
 Do not rely on /tmp surviving a reboot. `.local-qa/` holds an ignored private QA key;
 never commit it. Dedicated QA secrets are configured in repository Actions settings.
 
-Next: finish foundation validation/visual review, then complete calculation controls
-and polar policy before extending persistent tracking and Android alarm delivery.
+Foundation clean CI, QA signing and representative Today screenshot review passed;
+code commit `7d1a109` has downloadable verified artifacts linked in docs/QA.md. Next:
+complete calculation controls and confirmed polar policy, extend setup/full-shell visual
+QA, then implement persistent tracking and Android alarm delivery. Read the remaining
+validation limits in docs/PROGRESS.md; no physical-device test has run.
 
 ## Non-negotiable decisions
 

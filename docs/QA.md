@@ -41,3 +41,10 @@ QA certificate SHA-256 (public, not a secret):
 Screenshot instrumentation writes to AGP-provided `additionalTestOutputDir`, which is
 collected before app cleanup. CI requires all sixteen named PNG files with valid headers
 and dimensions; a successful instrumentation exit alone does not satisfy capture QA.
+
+Verified foundation artifacts (code commit `7d1a109`, 2026-11-13):
+- [Signed QA APK + SHA256SUMS](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43345790379/artifacts/14001602656)
+- [Sixteen screenshots and Android test reports](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43345790379/artifacts/14001338533)
+
+These are expiring CI artifacts, not a public app release. Future trusted pushes produce
+new commit-labeled artifacts using the same dedicated QA identity.
