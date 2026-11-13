@@ -32,10 +32,13 @@ class PrayerFocusService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = java.lang.ref.WeakReference(this)
+        connection.value = true
         scope.launch {
             try {
                 combine(appContainer.settings.preferences, appContainer.repository.changes) { prefs, records -> prefs to records }.collect { (prefs, records) ->
-                    config = prefs; history = records; refresh()
+                    config = prefs; history = records
+                    serviceInfo = serviceInfo.apply { eventTypes = if (prefs.focus.enabled) AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or AccessibilityEvent.TYPE_WINDOWS_CHANGED else 0 }
+                    refresh()
                 }
             } catch (_: Exception) { hide(); handler.removeCallbacks(boundary) }
         }
@@ -44,8 +47,7 @@ class PrayerFocusService : AccessibilityService() {
         if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
         val name = event.packageName?.toString() ?: return
         // Our overlay itself may emit window events; an explicit Open action hides it first.
-        if (name == packageName && overlay != null && event.className?.toString() !in setOf(
-                MainActivity::class.java.name, org.hayya.salah.alerts.RingingActivity::class.java.name)) return
+        if (name == packageName && overlay != null && event.className?.toString().orEmpty() in setOf(LinearLayout::class.java.name, ScrollView::class.java.name)) return
         foreground = name
         refresh()
     }
@@ -128,11 +130,13 @@ class PrayerFocusService : AccessibilityService() {
         overlay = null; displayed = null
     }
     override fun onInterrupt() { hide() }
-    override fun onUnbind(intent: Intent?): Boolean { hide(); return super.onUnbind(intent) }
-    override fun onDestroy() { hide(); handler.removeCallbacks(boundary); scope.cancel(); if (instance?.get() === this) instance = null; super.onDestroy() }
+    override fun onUnbind(intent: Intent?): Boolean { connection.value = false; hide(); return super.onUnbind(intent) }
+    override fun onDestroy() { connection.value = false; hide(); handler.removeCallbacks(boundary); scope.cancel(); if (instance?.get() === this) instance = null; super.onDestroy() }
     companion object {
+        private val connection = kotlinx.coroutines.flow.MutableStateFlow(false)
+        val connected: kotlinx.coroutines.flow.StateFlow<Boolean> = connection
         private var instance: java.lang.ref.WeakReference<PrayerFocusService>? = null
         fun onTimeChanged() { instance?.get()?.refresh() }
-        fun releaseOverlay() { instance?.get()?.hide() }
+        fun releaseOverlay() { instance?.get()?.let { it.hide(); it.disableSelf() } }
     }
 }

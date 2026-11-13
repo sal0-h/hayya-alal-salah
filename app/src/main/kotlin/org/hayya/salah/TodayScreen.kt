@@ -2,6 +2,8 @@
 package org.hayya.salah
 
 import androidx.compose.foundation.layout.*
+import androidx.activity.compose.ReportDrawnWhen
+import androidx.compose.ui.platform.testTag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,6 +37,7 @@ import java.time.format.FormatStyle
         value = withContext(Dispatchers.Default) { val calc = LocalPrayerCalculator()
             (-1L..1L).associate { d -> date.plusDays(d).let { it to calc.calculate(it, place.point, place.zone, place.calculation) } } }
     }
+    ReportDrawnWhen { results != null }
     val result = results?.get(date)
     val schedule = (result as? CalculationResult.Available)?.schedule
     val schedules = results?.values?.mapNotNull { (it as? CalculationResult.Available)?.schedule }.orEmpty()
@@ -45,9 +48,9 @@ import java.time.format.FormatStyle
     }
     Text(dateLabel(date, FormatStyle.FULL), color = MaterialTheme.colorScheme.onSurfaceVariant)
     val hijri = runCatching { ummAlQuraDisplay(date, config.hijriAdjustment) }.getOrNull()
-    if (hijri != null) Text(stringResource(R.string.hijri_convention, "${hijri.day}/${hijri.month}/${hijri.year}"),
+    if (hijri != null) Text(stringResource(R.string.hijri_convention, numeralLabel("${hijri.day}/${hijri.month}/${hijri.year}")),
         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    if (results == null) CircularProgressIndicator()
+    if (results == null) LoadingIndicator()
     if (result is CalculationResult.NeedsPolarConfirmation) {
         Text(stringResource(R.string.polar_consent, "%.2f".format(java.util.Locale.ROOT, result.referenceLatitude)))
         Button(onClick = { update { it.copy(place = place.copy(calculation = place.calculation.copy(polar = PolarMode.NEAREST))) } }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
@@ -60,7 +63,7 @@ import java.time.format.FormatStyle
     if (next != null) {
         NextPrayerMarker(prayerName(next.key.prayer), timeLabel(next.at, place.zone))
         val minutes = Duration.between(now, next.at).toMinutes().coerceAtLeast(0)
-        Text(stringResource(R.string.remaining, minutes / 60, minutes % 60), color = MaterialTheme.colorScheme.primary,
+        Text(stringResource(R.string.remaining, numberLabel(minutes / 60), numberLabel(minutes % 60)), color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.fillMaxWidth().wrapContentWidth(Alignment.CenterHorizontally))
     }
     if (schedule?.provenance?.quality == CalculationQuality.ESTIMATED_REFERENCE) {
@@ -90,7 +93,7 @@ import java.time.format.FormatStyle
             if (prayer != null) {
                 val description = "$label, ${if (history == null) stringResource(R.string.not_available) else statusName(status)}"
                 TextButton(enabled = history != null, onClick = { onRecord(PrayerKey(date, prayer)) },
-                    modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = description }) {
+                    modifier = Modifier.heightIn(min = 48.dp).testTag("record-open-${prayer.name.lowercase()}").semantics { contentDescription = description }) {
                     Text(if (history == null) stringResource(R.string.not_available) else "${statusSymbol(status)}  ${statusName(status)}")
                 }
             }

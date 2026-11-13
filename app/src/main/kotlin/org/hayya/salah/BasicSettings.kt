@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -72,7 +73,7 @@ import java.time.ZoneId
     var confirmation by remember { mutableStateOf<Int?>(null) }
     SectionTitle(stringResource(R.string.privacy_data))
     Text(stringResource(R.string.privacy))
-    OutlinedButton(onClick = { confirmation = R.string.delete_records }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(stringResource(R.string.delete_records)) }
+    OutlinedButton(onClick = { confirmation = R.string.delete_records }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("privacy-delete")) { Text(stringResource(R.string.delete_records)) }
     OutlinedButton(onClick = { confirmation = R.string.full_reset }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(stringResource(R.string.full_reset)) }
     confirmation?.let { label -> AlertDialog(onDismissRequest = { confirmation = null }, title = { Text(stringResource(label)) }, text = { Text(stringResource(R.string.delete_confirm)) },
         confirmButton = { TextButton(onClick = { if (label == R.string.delete_records) deleteRecords() else reset(); confirmation = null }) { Text(stringResource(R.string.remove)) } },

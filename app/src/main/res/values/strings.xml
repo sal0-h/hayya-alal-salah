@@ -16,7 +16,7 @@
     <string name="save_error">Could not save your setup. Please try again.</string>
     <string name="privacy">Your setup stays on this device. There are no accounts or network requests. Uninstalling removes saved data.</string>
     <string name="next_prayer">NEXT PRAYER</string>
-    <string name="remaining">In %1$d h %2$d min</string>
+    <string name="remaining">In %1$s h %2$s min</string>
     <string name="fajr">Fajr</string>
     <string name="sunrise">Sunrise</string>
     <string name="dhuhr">Dhuhr</string>
@@ -53,12 +53,12 @@
     <string name="choose_date">Choose date</string>
     <string name="previous_month">Previous month</string>
     <string name="next_month">Next month</string>
-    <string name="streak_daily">Verified daily streak: %1$d</string>
-    <string name="streak_prayer">On-time streak: %1$d</string>
+    <string name="streak_daily">Verified daily streak: %1$s</string>
+    <string name="streak_prayer">On-time streak: %1$s</string>
     <string name="streak_unknown">Continuity before this is unconfirmed. Unrecorded prayers are not counted as missed.</string>
     <string name="statistics">Statistics and local insights</string>
-    <string name="recorded_coverage">Recording coverage: %1$d / %2$d</string>
-    <string name="on_time_recorded">On time among recorded: %1$d / %2$d</string>
+    <string name="recorded_coverage">Recording coverage: %1$s / %2$s</string>
+    <string name="on_time_recorded">On time among recorded: %1$s / %2$s</string>
     <string name="period_last_30">Last 30 completed days</string>
     <string name="pause">Pause</string>
     <string name="pause_explanation">Set dates manually. Relevant alerts and Focus stop during this pause. Completed records stay unchanged. No cycle prediction.</string>
@@ -136,7 +136,7 @@
     <string name="dismiss_not_record">Stopping this alarm does not record a prayer.</string>
     <string name="alarm_finished">The alarm is no longer ringing.</string>
     <string name="close">Close</string>
-    <string name="question_progress">Question %1$d / %2$d</string>
+    <string name="question_progress">Question %1$s / %2$s</string>
     <string name="answer">Answer</string>
     <string name="check_answer">Check answer</string>
     <string name="stop_alarm">Stop alarm</string>
@@ -197,4 +197,6 @@
     <string name="widget_daily_description">Daily prayer times</string>
     <string name="zone_not_supported">This Android version does not recognize the suggested zone. Update system time-zone data or choose an appropriate IANA zone manually.</string>
     <string name="location_permission_needed">Automatic refresh needs location permission. Use the location button to allow it, or keep manual mode.</string>
+    <string name="focus_service_inactive">Focus is inactive until you enable its Android Accessibility service.</string>
+    <string name="loading">Loading…</string>
 </resources>
