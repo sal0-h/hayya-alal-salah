@@ -19,8 +19,29 @@ jobs:
           distribution: temurin
           java-version: '21.0.13+9'
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
-      - name: Install pinned SDK packages
-        run: sdkmanager 'platforms;android-37.0' 'build-tools;36.0.0' 'platform-tools'
+        with:
+          cache-provider: basic
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+      - &android-toolchain
+        name: Install checksum-pinned Android tools and SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          hayya_sdk_root="$RUNNER_TEMP/hayya-android-sdk"
+          archive="$RUNNER_TEMP/hayya-android-tools.zip"
+          curl --fail --location --retry 3 --output "$archive" https://dl.google.com/android/repository/commandlinetools-linux-15859902_latest.zip
+          printf '4e4c464f145a7512b57d088ac6c278c03c9eea610886b35a5e0804e74eedf583  %s\n' "$archive" | sha256sum --check
+          mkdir -p "$hayya_sdk_root/cmdline-tools"
+          unzip -q "$archive" -d "$hayya_sdk_root/cmdline-tools"
+          mv "$hayya_sdk_root/cmdline-tools/cmdline-tools" "$hayya_sdk_root/cmdline-tools/latest"
+          rm "$archive"
+          manager="$hayya_sdk_root/cmdline-tools/latest/bin/sdkmanager"
+          "$manager" --sdk_root="$hayya_sdk_root" --licenses < <(yes) > /dev/null
+          "$manager" --sdk_root="$hayya_sdk_root" 'platforms;android-37.0' 'build-tools;36.0.0' 'platform-tools'
+          echo "ANDROID_HOME=$hayya_sdk_root" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$hayya_sdk_root" >> "$GITHUB_ENV"
+          echo "$hayya_sdk_root/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$hayya_sdk_root/platform-tools" >> "$GITHUB_PATH"
       - name: Check core, upstream fixtures, lint and APKs
         env:
           QA_VERSION_CODE: ${{ github.run_number }}
@@ -48,7 +69,10 @@ jobs:
           distribution: temurin
           java-version: '21.0.13+9'
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
-      - run: sdkmanager 'platforms;android-37.0' 'build-tools;36.0.0'
+        with:
+          cache-provider: basic
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+      - *android-toolchain
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -85,7 +109,7 @@ jobs:
         with:
           name: android-${{ github.sha }}
           path: unsigned
-      - run: sdkmanager 'build-tools;36.0.0'
+      - *android-toolchain
       - name: Sign internal QA build with dedicated identity
         env:
           QA_KEYSTORE_BASE64: ${{ secrets.QA_KEYSTORE_BASE64 }}

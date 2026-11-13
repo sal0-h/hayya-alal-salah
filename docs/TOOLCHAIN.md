@@ -21,3 +21,7 @@ Run `./gradlew :core:test :praytimes:test :app:lintDebug :app:assembleDebug :app
 The wrapper verifies the Gradle distribution SHA-256. Dependency locks and checksum
 metadata are committed after a successful resolution. Review changes to either.
 Temporary downloads on one machine are not project dependencies.
+
+CI provisions Android command-line tools 15859902 explicitly and checks the published
+SHA-256 before extraction, rather than relying on hosted runner PATH contents. Gradle
+Actions uses its open-source `basic` cache provider.
