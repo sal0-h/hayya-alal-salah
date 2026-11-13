@@ -34,12 +34,12 @@ class PrayerFocusService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = java.lang.ref.WeakReference(this)
-        connection.value = true
         scope.launch {
             try {
                 combine(appContainer.settings.preferences, appContainer.repository.changes) { prefs, records -> prefs to records }.collect { (prefs, records) ->
                     config = prefs; history = records
                     serviceInfo = serviceInfo.apply { eventTypes = if (prefs.focus.enabled) AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or AccessibilityEvent.TYPE_WINDOWS_CHANGED else 0 }
+                    connection.value = true
                     refresh()
                 }
             } catch (_: Exception) { hide(); handler.removeCallbacks(boundary) }
@@ -48,10 +48,9 @@ class PrayerFocusService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
         val name = event.packageName?.toString() ?: return
-        // Our own focused window is authoritative over delayed external package events.
-        if (ownWindowFocused && name != packageName) return
-        // Our overlay itself may emit window events; an explicit Open action hides it first.
-        if (name == packageName && event.className?.toString().orEmpty() !in setOf(MainActivity::class.java.name, org.hayya.salah.alerts.RingingActivity::class.java.name)) return
+        // Own activity focus comes directly from its window callback. Delayed accessibility
+        // events from that activity or our overlay must not replace a newer external app.
+        if (name == packageName || event.eventTime < ownFocusedAt) return
         foreground = name
         refresh()
     }
@@ -60,7 +59,7 @@ class PrayerFocusService : AccessibilityService() {
         val prefs = config ?: return hide()
         val records = history ?: return hide()
         val place = prefs.place ?: return hide()
-        if (!prefs.focus.enabled || foreground !in prefs.focus.packages || foreground in EssentialApps.excluded(this)) return hide()
+        if (ownWindowFocused || !prefs.focus.enabled || foreground !in prefs.focus.packages || foreground in EssentialApps.excluded(this)) return hide()
         refreshJob = scope.launch {
             val now = Instant.now()
             val schedules = withContext(Dispatchers.Default) { (-1L..2L).mapNotNull { day ->
@@ -69,7 +68,7 @@ class PrayerFocusService : AccessibilityService() {
             val window = focusWindow(schedules, prefs.focus.prayers, records.records, records.pauses, now, sessionBypass?.takeIf { it.expiresAt > now } ?: prefs.focus.bypass)
             val nextBoundary = (schedules.flatMap { it.prayers.values + it.sunrise } + listOfNotNull(window?.expiresAt)).filter { it > now }.minOrNull()
             nextBoundary?.let { handler.postDelayed(boundary, Duration.between(now, it).toMillis().coerceAtLeast(1)) }
-            if (foreground !in prefs.focus.packages || foreground in EssentialApps.excluded(this@PrayerFocusService) || window == null) hide()
+            if (ownWindowFocused || foreground !in prefs.focus.packages || foreground in EssentialApps.excluded(this@PrayerFocusService) || window == null) hide()
             else show(window)
         }
     }
@@ -111,12 +110,17 @@ class PrayerFocusService : AccessibilityService() {
         val connected: kotlinx.coroutines.flow.StateFlow<Boolean> = connection
         private var instance: java.lang.ref.WeakReference<PrayerFocusService>? = null
         private var ownWindow: java.lang.ref.WeakReference<android.view.View>? = null
+        private var ownFocusedAt = 0L
         private val ownWindowFocused get() = ownWindow?.get()?.hasWindowFocus() == true
         fun onOwnWindowFocus(focused: Boolean, view: android.view.View) {
             if (focused) {
                 ownWindow = java.lang.ref.WeakReference(view)
+                ownFocusedAt = android.os.SystemClock.uptimeMillis()
                 instance?.get()?.let { it.foreground = it.packageName; it.refresh() }
-            } else if (ownWindow?.get() === view) ownWindow = null
+            } else if (ownWindow?.get() === view) {
+                ownWindow = null
+                instance?.get()?.refresh()
+            }
         }
         fun onTimeChanged() { instance?.get()?.refresh() }
         fun releaseOverlay() { instance?.get()?.let { it.hide(); it.disableSelf() } }
