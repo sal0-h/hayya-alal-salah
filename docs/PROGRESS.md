@@ -1,109 +1,110 @@
 # Implementation and validation ledger
 
-Updated 2026-11-13. Code, automated execution and physical verification are separate.
-The entire approved v1 plan remains active. Draft PRs are internal review checkpoints;
-no merge, physical test or additional go-ahead is needed for independent server work.
+Updated 2026-11-13. Source implementation, automated execution, visual inspection and
+physical acceptance are separate. The full approved v1 scope is implemented in the
+stacked draft PRs; these are review checkpoints, not merged or published releases.
+Final Focus-transition and keyboard-inset verification is running at `71a7c4b`.
 
-## Code and evidence
+## Implemented scope and executed evidence
 
-| Area | Implemented | Automated execution | Physical testing |
+| Area | Implemented | Automated evidence | Physical acceptance |
 | --- | --- | --- | --- |
-| Foundation | Native Compose/API26–37, four modules, pinned engines/tools/dependencies, dedicated QA signing/ID, privacy CI | Clean CI, signed QA artifacts and 16 Today captures at `7d1a109` | None |
-| Calculation | 15 profiles/two engines, Asr/high latitude/corrections, advanced parameters, explicit polar proposal/confirmation/manual reference, provenance, rollover/Ramadan | 21 core tests passed locally, including seasonal/public-provider comparisons; preserved upstream fixture | No local authority/device comparison |
-| Tracking | Room records/pauses/audio metadata, original date/zone, explicit correction/backfill/deletion, calendar, verified daily/per-prayer streaks, coverage/insights | Three API35 persistence/concurrency/preference tests passed at `a8d2981`; lint/debug/optimized QA/test builds passed | No install/update/process-kill/device QA |
-| UI/settings | Today/History/Settings, calculation/location/pause/appearance/language/privacy/credits, four translations, fonts, RTL, time/numeral/theme controls | Today capture matrix passed; representative EN/AR normal/200% plus RU/AZ200 reviewed | No TalkBack/Arabic reviewer/full design approval |
-| Alerts/Fajr | AlarmManager rolling window, exact primary/inexact fallback/extras, stale/duplicate/token checks, lifecycle reconciliation, original-target actions, minimal Direct Boot snapshot, contextual readiness | Local lint/debug/test APK and optimized QA assembly passed; API35 snapshot/media tests passed at `07225e4`; real idle-capable delivery/duplicate/original-zone actions passed API26/31/33/37; locked-reboot probe rerun pending | No timing/Doze/reboot-before-unlock/OEM/overnight tests |
-| Audio | Three specifically licensed Ahmed Khalaf CC BY recordings, private bounded import with actual decoder validation, audio focus/foreground playback, silent/DND handling, Fajr priority/challenge/emergency stop | API35 bundled media preparation passed; PCM import and corrupt-file rejection passed four API levels; audible/call checks external | No audible/call/headphone/DND verification |
-| Focus | Explicit disclosure/consent, selected apps/prayers, narrow accessibility overlay, essential exclusions, completion/pause/bypass/expiry, pinned emergency bypass | Core expiry/bypass rules passed; API35 installed capability test passed; actual completion/pause/bypass/essential-app/permission-removal lifecycle passed API26/31/33/37 | No OEM/overlay/TalkBack tests; Play review pending |
-| Location | Bundled GeoNames cities/all native aliases, manual coordinates/IANA zone, bounded foreground-only platform requests, cached fallback, confirmed zone changes, explicit approximate offline zone suggestion | Core lookup fixtures/world edges passed locally; API35 four-script alias/resource/privacy test passed at `a6fd568` | No GPS/travel/border/device verification |
-| Qibla/Hijri | Actual-coordinate Adhan bearing, visible-only magnetic/rotation sensors and true-north correction, quality/numeric fallback, named Umm al-Qura display and independent day correction | Core Qibla/Hijri tests passed; Android compile/lint passed | No sensor/calibration/Arabic review |
-| Widgets | Next/countdown and resizable daily RemoteViews; host countdown and boundary updates; no polling/bitmap payloads/check-off; pre-unlock placeholder | scrollable daily collection and actual host/resize/clear fixture compile/lint passed; OS execution pending | None |
+| Foundation | Native Compose/API26–37, four modules, pinned tools/engines/dependencies, separate stable QA signing/ID | Clean builds, lint, manifest/privacy checks and signed QA artifacts | Not run; two successive QA updates remain a gate |
+| Calculation | 15 profiles/two reused engines, both Asr rules, advanced controls/corrections, high latitude, confirmed nearest-valid polar policy/manual reference/disabled, provenance, rollover/Ramadan | 21 core tests plus preserved upstream fixture; six seasonal provider references/36 times differ by at most one minute | No local religious-authority signoff |
+| Tracking | Room records/pauses/audio metadata, explicit correction/backfill/deletion, original date/zone, calendar, daily/per-prayer streaks, coverage/insights | Persistence/reopen/concurrency/preferences, UI correction, actual original-target actions and full private-data deletion fixtures | No physical update/process-kill QA |
+| Navigation/design | Today/History/Settings, all setup/settings/dialog routes, original geometric marker, bundled fonts, four languages/RTL, time/numerals/themes/palettes/reduced motion | Full-route/dialog capture matrix, navigation/labeled-control checks, real 100%/200% system fonts and narrow/tablet widths | TalkBack, Arabic and final design review pending |
+| Alerts/Fajr | Seven-day stable alarms, exact/inexact readiness, best-effort extras, stale/duplicate claims, lifecycle reconciliation, authenticated original-target actions, challenge/emergency stop | Actual idle-capable AlarmManager delivery on APIs26/31/33/37; locked-reboot API37 probe verified active Fajr/bundled audio before unlock and preservation afterward | S23/OEM/overnight/Doze timing unverified |
+| Audio | Three redistributable CC BY recordings, per-prayer/Fajr choices, private bounded validated imports/removal, finite foreground playback, ringer/DND guards, Fajr priority | Actual media preparation/import/corrupt rejection and MediaPlayer/audio-focus pause/regain/priority/emergency stop on all four APIs | Audible/calls/headphones/DND behavior unverified |
+| Focus | Disclosure/consent, selected apps/prayers, metadata-only accessibility, essential exclusions, completion/pause/bypass/expiry, pinned emergency control | Real overlay lifecycle/permission removal passed four APIs at `7f5df5f`; later transition races found and fixed, rerun pending | OEM/TalkBack and Play policy review pending |
+| Location | 34,215 offline cities/all native aliases, coordinates/IANA zones, bounded visible foreground requests/cache, confirmed zone changes and approximate border suggestion | Four-script city/zone fixtures and packaged privacy/resource checks | GPS/travel/border review pending |
+| Qibla/Hijri | Actual-coordinate bearing, visible-only sensors/true-north correction, quality/numeric fallback, named Umm al-Qura display with independent correction | Core bearing/Hijri fixtures; Android lint and UI captures | Sensor/calibration and Arabic review pending |
+| Widgets | Compact next/countdown and resizable scrollable six-row daily RemoteViews, native countdown/boundary updates, no check-off/polling, pre-unlock/reset placeholder | Actual host bind/render/resize/scroll/clear on four APIs; 32 four-language/font/theme captures | Launcher/reboot/device QA pending |
+| Performance/release | Three-year synthetic history, real generated profiles, optimized benchmarks, unsigned reproducibility, privacy/licenses/16 KiB/budget checks, review kits/store drafts/disabled F-Droid recipe | Two profile-generation and five benchmark/memory tests; independent exact-byte release builds; details below | Physical mid-range/power budgets and release/signing/store review pending |
 
-Tracking CI evidence: [run 43389685112](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43389685112).
-Downloaded JUnit XML confirms four API35 tests: the screenshot capture plus all three
-persistence tests, zero failures/skips. Actual Today EN dark and AR200 light screenshots
-were inspected again after tracking integration. These captures do not exercise the
-full shell, dialogs, permissions, widgets or real system font-scale/inset behavior.
+## Current runs and retained evidence
 
-Foundation QA signing/checksum evidence remains in [QA.md](QA.md). QA keys are private,
-ignored and separate from production. Dependency checksums are first-resolution trust,
-not an independent supply-chain audit. Audio/geographic provenance and reproducible
-asset extraction are documented separately in AUDIO.md and GEOGRAPHY.md.
+The entire `7f5df5f` push passed [Android checks](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43511627420),
+[performance](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43511627620) and
+[reproducibility](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43511627558).
+Its ordinary suite executed 13 tests on each API26/31/33/37, plus one isolated denied-
+permission test per API and the API37 locked-reboot preparation/preservation checks.
+No empty/incomplete report is accepted. Reinstall/reset is restricted to isolated
+synthetic emulator fixtures; ordinary QA updates must preserve data.
 
-PR #3 clean CI: [run 43394277151](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43394277151).
-PR #4 clean CI: [run 43395225120](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43395225120).
-The downloaded PR #4 JUnit report confirms eight tests with zero failures/skips:
-snapshot(2), bundled media preparation(covered in snapshot class), screenshot(1),
-Focus capability(1), packaged city/zone data(1), persistence(3). The city test took
-13.446s across its queries; this motivated a pre-normalized streaming search key.
-The improvement is implemented but not yet measured on an emulator.
+At `839b4d8`, the new actual audio-focus test passed all four APIs, bringing each
+ordinary suite to 14 tests. [Android run 43514118846](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43514118846)
+passed API26/33, build, QA signing and all 672 captures. API31 failed the initial Focus
+overlay transition; API37 failed returning from the own-app exclusion. These failures
+are not called green. `2303e42` removes window-event coalescing, rejects stale own-window
+metadata and preserves external transitions arriving before focus loss; PR #6 also
+contains that fix. `71a7c4b` reruns the complete matrix with stricter actual IME/control-
+bounds assertions and a Fajr layout that places system/keyboard insets outside scrolling.
 
-Expanded CI at `f2a5a25`: [run 43502522662](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43502522662).
-The build, dedicated QA signer, full 592-image capture matrix and API26/31/33
-integration jobs passed. The API37 ordinary integration suite also passed; its job
-failed afterward in the locked-reboot probe parser, which mistook printed Intent
-braces for JSON. `d90c684` fixed parsing and its API37 job verified `unlocked=false`, active Fajr,
-bundled fallback and actual active alarm audio, then passed original-record/import
-preservation after unlock. `8087095` subsequently passed the entire hardening push
-[run 43506421797](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43506421797).
-This is emulator evidence, not Samsung/OEM/overnight acceptance.
+The same `839b4d8` passed [all five performance checks](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43514118876)
+and [two independent release builds](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43514118906).
+Both unsigned APKs were 11,043,311 bytes, SHA-256
+`053741d56ded522b9575a5ef7a29c74003c4a574c61de4494475e7fc9a4fe6ac`.
+Later source changes require their own matching evidence.
 
-Each ordinary API suite executed 11 tests, including actual idle-capable AlarmManager
-delivery and stale/duplicate rejection, plus authenticated original-zone actions on
-API31+; PCM import and
-corrupt-file rejection; real Focus overlay completion, unrecorded restoration, pause,
-emergency bypass, essential apps and permission removal; navigation/accessibility;
-and earlier persistence/snapshot/media/privacy/city tests. API26 previously returned
-a false green after zero tests due to an APK reinstall failure; CI now uninstalls only
-its isolated fixture installation and explicitly rejects empty/incomplete reports.
+Real profile generation and all five optimized benchmarks passed at `d11e566`,
+[run 43504979193](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43504979193).
+Committed actual profiles contain 18,903 baseline and 15,718 startup rules; fixture
+rules are excluded and the binary profile is checked in the optimized APK. Settled
+Today PSS was 72.1 MiB with three years of synthetic records. Emulator startup did
+not improve with the profile; no speedup or physical budget acceptance is claimed.
+Raw measurements/provenance/hashes are in PERFORMANCE.md and evidence/performance-d11.json.
 
-Current performance branch: Macrobenchmark journeys/three-year seed, actual profile
-generation workflow, useful-data reporting and settled memory/alarm capture are
-implemented. Real profile generation (two tests) and all five optimized performance/
-memory tests passed at `d11e566`, [run 43504979193](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43504979193).
-Human profiles and raw evidence are committed; the optimized APK contained the binary
-profile. Emulator Today PSS was 72.1 MiB with three years of synthetic records; no
-startup improvement or physical budget acceptance is claimed. See PERFORMANCE.md.
-Two independent clean production-identity builds at `957230d` passed release lint,
-privacy/license/native-alignment/profile/budget checks and produced byte-identical
-unsigned APKs (11,042,687 bytes); source, bundle, mapping and review kits are retained
-by [run 43509300940](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43509300940).
-Later source changes still need their own CI evidence.
+Frozen calculation comparisons, exact methods/coordinates, checksums and limitations
+are in CALCULATION_FIXTURES.md. Published AlAdhan calculations may share upstream
+ancestry; they are not independent local religious-authority approval. No new astronomy.
 
-Local tests now total 21 core + one vendored fixture. Six frozen published AlAdhan
-seasonal references (36 event times) differ by at most one minute; exact methods,
-coordinates, source URLs/checksums, deltas and limitations are in
-CALCULATION_FIXTURES.md. This is not local religious-authority signoff. Regional
-presets are suggestions for comparison only; nothing automatically changes the
-chosen calculation method. The 640-image full shell plus native Focus/Fajr/keyboard matrix passed at `d11e566`.
-Actual widget binding/render/reset passed API26; newer APIs rendered all six rows but
-the test raced asynchronous resize updates before scrolling. The scrolling fixture
-is fixed; 32 additional four-language/theme/font widget captures and the current
-13-test integration suites are being executed. Full reset/import deletion now has
-explicit file-failure reporting and a real deletion fixture (local compile/lint pass;
-API26 execution passed in the 13-test suite). No physical test has run.
-Direct Boot configuration includes minimal language/appearance preferences, never
-coordinates, records or pause intervals. Synthetic components remain absent from
-QA/release; only isolated benchmark builds are shell-profileable.
+Earlier clean milestone evidence remains available: [foundation](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43345790379),
+[tracking](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43389685112),
+[alerts](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43394277151),
+[location](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43395225120) and
+[API hardening](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43506421797).
+Actions artifacts expire; preserve reviewed evidence with an approved release.
 
-## Server work still in progress
+## Actual visual inspection
 
-- Complete clean CI and meaningful Android delivery/Focus/widget/API-boundary checks;
-  investigate failures and preserve actual reports. No compilation-as-delivery claims.
-- Full-route/navigation/onboarding/recording/permission screenshots across four languages,
-  normal/200% system text, themes, narrow/tablet widths; inspect actual artifacts and fix
-  clipping, insets, RTL, labels and accessibility semantics.
-- Review new frozen seasonal/provider comparisons and retain local-authority review as an external gate.
-- Macrobenchmark journeys, generated Baseline Profiles, three-year seeded history,
-  release-like profiling and reproducible release checks for the final source head.
-  First emulator metrics and unsigned reproducibility evidence are committed.
-- Execute final privacy/license/reproducibility checks; review prepared contributor, privacy,
-  signing/update, four-language store drafts and disabled F-Droid recipe. No publication.
+The matrix totals 672 captures: 592 full-shell/routes/dialogs across four languages,
+themes, real 100%/200% fonts and phone/tablet widths; 48 native Focus/Fajr/keyboard
+captures; and 32 actual widget-host captures. Representative EN/AR normal/200% and
+RU/AZ large-text artifacts were opened and inspected, not merely counted.
 
-## External release gates
+Inspection found and drove fixes for large-font calendar widths, compact widget
+countdown clipping, asynchronous widget resize/scroll races and Fajr keyboard/body
+insets. Current compact Arabic widget time/countdown is readable; daily content scrolls
+to all six rows. The `839b4d8` Fajr answer was visible above the keyboard, but scrolled
+text could paint under the status bar. The newer inset fix still needs capture review.
+Earlier captures obscured by a system error dialog were rejected, not approved.
+Screenshot generation does not establish fluent Arabic review or physical TalkBack use.
 
-No physical-device testing has run. Salman owns S23 Ultra QA; exact OS/One UI build is
-still to be recorded. Arabic reviewer and physical mid-range testing remain required.
-Alarm/Doze/OEM/Direct Boot/calls/sensors/TalkBack/overnight reliability and physical
-performance budgets are unverified. No KVM exists on this server; CI runs emulators.
-These gates do not block remaining independent implementation or server checks.
+## Privacy and release preparation
+
+Runtime network permission, broad storage/app-usage/screen access, background location,
+backup/transfer and exported-component protections are automatically checked. Full reset
+and imported-audio deletion exercise actual private-file removal and error reporting.
+Direct Boot keeps only upcoming event/sound/challenge/language/appearance data, never
+coordinates/history/pause dates. Synthetic probes are absent from QA/release.
+
+Dedicated QA credentials remain private and separate from production. No production
+signature, merged PR, public release or store submission exists. Source/unsigned APK/
+bundle/R8 mapping/hashes and four-language store drafts form a concrete review kit;
+the F-Droid recipe stays disabled until a reviewed release tag/certificate is supplied.
+Private vulnerability reporting was verified enabled on 2026-11-13; SECURITY.md links
+the private route. Public privacy hosting and store declarations await release review.
+Dependency checksums are first-resolution trust, not an independent supply-chain audit.
+
+## Remaining work and external gates
+
+Server work: finish the current Focus/inset CI reruns, inspect their actual captures,
+update final evidence and draft PR descriptions, and leave clean reviewable commits.
+There is no observed usage-limit blocker. This server lacks KVM; GitHub CI provides
+emulators. The interrupted local build is tracked separately and is not delivery proof.
+
+No physical tests have run. Salman owns S23 Ultra QA and must record the exact Android/
+One UI build. Arabic review, a physical mid-range tester, two QA update-preservation
+tests, overnight alarms/Doze/OEM/Direct Boot/calls/headphones/sensors/TalkBack and physical
+startup/frame/memory/power budgets remain public-release gates. They do not authorize
+publication or excuse leaving independent implementation unfinished.

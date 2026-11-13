@@ -42,4 +42,4 @@ a bug report; review any screenshot/log you choose to share.
 
 Questions and defects can be raised in the repository. Do not put private history,
 coordinates, audio or sensitive logs into a public issue. Security reporting is
-covered in SECURITY.md; a private contact must be established before public release.
+available through the private GitHub reporting route linked in SECURITY.md.

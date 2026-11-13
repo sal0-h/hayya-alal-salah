@@ -48,7 +48,8 @@ using them publicly. Use real approved captures from the final signed build; exc
 synthetic fixture components, system error dialogs and private user data. Store
 feature artwork must be original and separately reviewed.
 
-Publish PRIVACY.md at a stable public URL and establish a verified private contact.
+Publish PRIVACY.md at a stable public URL. Private vulnerability reporting is enabled
+and linked in SECURITY.md; maintain access to incoming reports.
 For Play, prepare Data safety from the final binary: no app collection/sharing;
 location, records, audio and package selections are processed locally. The developer
 must review the form against current definitions, dependencies and final behavior.

@@ -4,11 +4,10 @@ This is an unreleased application. Only the current development head is maintain
 there is no supported public release yet.
 
 Do not put private prayer history, coordinates, imported audio, signing material or
-unreviewed logs into public issues. For a vulnerability, first use the repository's
-private vulnerability reporting feature if available. Availability must be checked;
-this document does not claim that GitHub reporting is enabled. If unavailable, open
-a public issue containing only a request for a private contact, with no exploit or
-sensitive details. A verified private security contact is a public-release gate.
+unreviewed logs into public issues. For a vulnerability, use
+[GitHub private vulnerability reporting](https://github.com/sal0-h/hayya-alal-salah/security/advisories/new).
+This repository feature was verified enabled on 2026-11-13. Reports stay private
+while the maintainer investigates. Do not publish exploit details in ordinary issues.
 
 Include the commit/build ID, Android version, affected component and a minimal
 synthetic reproduction. Ordinary app code has no runtime Internet permission or
