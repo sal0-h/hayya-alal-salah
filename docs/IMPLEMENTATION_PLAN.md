@@ -1,6 +1,6 @@
 # حي على الصلاة — approved implementation plan
 
-Approved by Salman on 12 November 2026 with “Implement the plan.” Development is to move to Dukhan through GitHub. This is the durable specification distilled from the completed research and interactive requirements interview. Implementation has not started.
+Approved by Salman on 12 November 2026 with “Implement the plan.” Development is to move to Dukhan through GitHub. This is the durable specification distilled from the completed research and interactive requirements interview. Implementation started on 13 November 2026; actual validation and remaining work are recorded in [PROGRESS.md](PROGRESS.md).
 
 ## 1. Product and release scope
 
