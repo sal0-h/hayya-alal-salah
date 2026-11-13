@@ -13,3 +13,6 @@ local.properties
 
 .ci-screenshots/
 .local-qa/
+
+__pycache__/
+*.pyc
