@@ -10,3 +10,6 @@ local.properties
 .env.*
 !*.example
 .DS_Store
+
+.ci-screenshots/
+.local-qa/

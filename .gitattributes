@@ -1,0 +1,6 @@
+* text=auto eol=lf
+gradlew.bat text eol=crlf
+*.jar binary
+*.ttf binary
+# Preserve upstream font license files byte-for-byte, including their whitespace.
+licenses/plex-*-OFL.txt -text -whitespace

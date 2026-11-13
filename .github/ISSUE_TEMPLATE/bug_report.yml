@@ -1,0 +1,30 @@
+name: Bug report
+description: Report a reproducible application defect
+body:
+  - type: input
+    id: commit
+    attributes:
+      label: App version and commit
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and exact Android / One UI build
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps, expected result and actual result
+      description: Omit private coordinates, prayer history, keys and unreviewed logs.
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Test environment
+      options:
+        - Physical device
+        - Emulator
+        - JVM unit test
