@@ -23,6 +23,8 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -197,6 +199,7 @@ class MainActivity : ComponentActivity() {
         }
     }
     val date = now.atZone(setup.zone).toLocalDate()
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
     val schedules by produceState<List<DailySchedule>?>(null, setup, date) {
         value = withContext(Dispatchers.Default) {
             val calculator = LocalPrayerCalculator()
@@ -209,7 +212,8 @@ class MainActivity : ComponentActivity() {
     val today = schedules?.firstOrNull { it.date == date }
     val next = nextPrayer(schedules.orEmpty(), now)
     Text(setup.name, style = MaterialTheme.typography.headlineSmall)
-    Text(date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)), color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Text(date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(locale)
+        .withDecimalStyle(java.time.format.DecimalStyle.of(locale))), color = MaterialTheme.colorScheme.onSurfaceVariant)
     if (schedules == null) CircularProgressIndicator()
     else if (today == null) {
         Text(stringResource(R.string.unavailable), style = MaterialTheme.typography.titleLarge)
@@ -230,7 +234,8 @@ class MainActivity : ComponentActivity() {
                     horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(if (prayer == null) stringResource(R.string.sunrise) else prayerName(prayer),
                         style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                    Text(timeLabel(at, setup.zone), style = MaterialTheme.typography.titleMedium,
+                    Text(timeLabel(at, setup.zone), style = MaterialTheme.typography.titleMedium.copy(
+                        textDirection = TextDirection.Ltr, fontFeatureSettings = "tnum"),
                         fontWeight = if (at == next?.at) FontWeight.Bold else FontWeight.Normal)
                 }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -261,9 +266,10 @@ private fun Modifier.alignCenter() = this.fillMaxWidth().wrapContentWidth(Alignm
         }
         Column(Modifier.padding(horizontal = 32.dp, vertical = 36.dp), horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.next_prayer), style = MaterialTheme.typography.labelLarge, color = accent)
-            Text(name, style = MaterialTheme.typography.headlineMedium)
-            Text(time, style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Light)
+            Text(stringResource(R.string.next_prayer), style = MaterialTheme.typography.labelLarge, color = accent, textAlign = TextAlign.Center)
+            Text(name, style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
+            Text(time, style = MaterialTheme.typography.displayMedium.copy(textDirection = TextDirection.Ltr,
+                fontFeatureSettings = "tnum"), fontWeight = FontWeight.Light, textAlign = TextAlign.Center)
         }
     }
 }
@@ -282,6 +288,9 @@ private fun Modifier.alignCenter() = this.fillMaxWidth().wrapContentWidth(Alignm
 })
 @Composable private fun timeLabel(instant: Instant, zone: ZoneId): String {
     val context = androidx.compose.ui.platform.LocalContext.current
-    val pattern = if (android.text.format.DateFormat.is24HourFormat(context)) "HH:mm" else "h:mm a"
-    return instant.atZone(zone).format(DateTimeFormatter.ofPattern(pattern))
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
+    val skeleton = if (android.text.format.DateFormat.is24HourFormat(context)) "Hm" else "hm"
+    val pattern = android.text.format.DateFormat.getBestDateTimePattern(locale, skeleton)
+    return instant.atZone(zone).format(DateTimeFormatter.ofPattern(pattern, locale)
+        .withDecimalStyle(java.time.format.DecimalStyle.of(locale)))
 }
