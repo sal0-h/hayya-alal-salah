@@ -1,7 +1,7 @@
 name: Performance profiles and emulator metrics
 on:
   push:
-    paths: ['app/**', 'core/**', 'praytimes/**', 'benchmark/**', 'gradle/**', 'build.gradle.kts', 'settings.gradle.kts', 'scripts/performance_ci.sh', 'scripts/merge_profiles.py', '.github/workflows/performance.yml']
+    paths: ['app/**', 'core/**', 'praytimes/**', 'benchmark/**', 'gradle/**', 'build.gradle.kts', 'settings.gradle.kts', 'scripts/performance_ci.sh', 'scripts/check_benchmark_apks.py', 'scripts/merge_profiles.py', '.github/workflows/performance.yml']
   workflow_dispatch:
 permissions:
   contents: read

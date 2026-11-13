@@ -40,7 +40,7 @@ android {
         }
     }
     listOf("performance", "profilegen").forEach { variant ->
-        sourceSets.getByName(variant).java.srcDir("src/performanceFixture/kotlin")
+        sourceSets.getByName(variant).kotlin.srcDir("src/performanceFixture/kotlin")
         sourceSets.getByName(variant).manifest.srcFile("src/performanceFixture/AndroidManifest.xml")
     }
     bundle { language { enableSplit = false } } // All four languages stay available offline.
