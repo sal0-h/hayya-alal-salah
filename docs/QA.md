@@ -66,3 +66,7 @@ traces and settled-memory diagnostics using synthetic three-year history. Releas
 workflows retain `release-reports-a/b-<commit>`, `rebuild-a/b-<commit>` and
 `reproducibility-<commit>`. These use the production application ID but remain unsigned;
 use the separate stable signed QA artifact on the test phone.
+
+The prepared [physical acceptance protocol](DEVICE_QA.md) covers update preservation,
+reliability, language/TalkBack review and the unchanged physical performance budgets.
+Every physical row remains not run until actual device evidence is recorded.

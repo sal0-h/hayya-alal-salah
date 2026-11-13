@@ -3,7 +3,7 @@
 Updated 2026-11-13. Source implementation, automated execution, visual inspection and
 physical acceptance are separate. The full approved v1 scope is implemented in the
 stacked draft PRs; these are review checkpoints, not merged or published releases.
-Final Focus-transition and keyboard-inset verification is running at `71a7c4b`.
+Final Focus/audio-session and keyboard-resize verification is running at `250d740`.
 
 ## Implemented scope and executed evidence
 
@@ -15,7 +15,7 @@ Final Focus-transition and keyboard-inset verification is running at `71a7c4b`.
 | Navigation/design | Today/History/Settings, all setup/settings/dialog routes, original geometric marker, bundled fonts, four languages/RTL, time/numerals/themes/palettes/reduced motion | Full-route/dialog capture matrix, navigation/labeled-control checks, real 100%/200% system fonts and narrow/tablet widths | TalkBack, Arabic and final design review pending |
 | Alerts/Fajr | Seven-day stable alarms, exact/inexact readiness, best-effort extras, stale/duplicate claims, lifecycle reconciliation, authenticated original-target actions, challenge/emergency stop | Actual idle-capable AlarmManager delivery on APIs26/31/33/37; locked-reboot API37 probe verified active Fajr/bundled audio before unlock and preservation afterward | S23/OEM/overnight/Doze timing unverified |
 | Audio | Three redistributable CC BY recordings, per-prayer/Fajr choices, private bounded validated imports/removal, finite foreground playback, ringer/DND guards, Fajr priority | Actual media preparation/import/corrupt rejection and MediaPlayer/audio-focus pause/regain/priority/emergency stop on all four APIs | Audible/calls/headphones/DND behavior unverified |
-| Focus | Disclosure/consent, selected apps/prayers, metadata-only accessibility, essential exclusions, completion/pause/bypass/expiry, pinned emergency control | Real overlay lifecycle/permission removal passed four APIs at `7f5df5f`; later transition races found and fixed, rerun pending | OEM/TalkBack and Play policy review pending |
+| Focus | Disclosure/consent, selected apps/prayers, metadata-only accessibility, essential exclusions, completion/pause/bypass/expiry, pinned emergency control | Real overlay lifecycle/permission removal passed four APIs at `7f5df5f`; later transitions fixed; audio/accessibility session isolation rerun pending | OEM/TalkBack and Play policy review pending |
 | Location | 34,215 offline cities/all native aliases, coordinates/IANA zones, bounded visible foreground requests/cache, confirmed zone changes and approximate border suggestion | Four-script city/zone fixtures and packaged privacy/resource checks | GPS/travel/border review pending |
 | Qibla/Hijri | Actual-coordinate bearing, visible-only sensors/true-north correction, quality/numeric fallback, named Umm al-Qura display with independent correction | Core bearing/Hijri fixtures; Android lint and UI captures | Sensor/calibration and Arabic review pending |
 | Widgets | Compact next/countdown and resizable scrollable six-row daily RemoteViews, native countdown/boundary updates, no check-off/polling, pre-unlock/reset placeholder | Actual host bind/render/resize/scroll/clear on four APIs; 32 four-language/font/theme captures | Launcher/reboot/device QA pending |
@@ -38,7 +38,11 @@ overlay transition; API37 failed returning from the own-app exclusion. These fai
 are not called green. `2303e42` removes window-event coalescing, rejects stale own-window
 metadata and preserves external transitions arriving before focus loss; PR #6 also
 contains that fix. `71a7c4b` reruns the complete matrix with stricter actual IME/control-
-bounds assertions and a Fajr layout that places system/keyboard insets outside scrolling.
+bounds assertions. Its API26/37 tests and locked reboot passed; API31 still missed
+the initial overlay after the new audio fixture. `8a2708b` isolates audio and Focus
+in separate instrumentation sessions (13 ordinary tests plus one real audio test per
+API) and adds synthetic failure-state diagnostics. `250d740` also explicitly resizes
+keyboard windows and checks the scrolling viewport against the actual status bar.
 
 The same `839b4d8` passed [all five performance checks](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43514118876)
 and [two independent release builds](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43514118906).
@@ -76,7 +80,10 @@ Inspection found and drove fixes for large-font calendar widths, compact widget
 countdown clipping, asynchronous widget resize/scroll races and Fajr keyboard/body
 insets. Current compact Arabic widget time/countdown is readable; daily content scrolls
 to all six rows. The `839b4d8` Fajr answer was visible above the keyboard, but scrolled
-text could paint under the status bar. The newer inset fix still needs capture review.
+text could paint under the status bar. The `71a7c4b` captures passed automated field bounds but visual inspection still
+rejected the status-bar overlap. `12b5be9` sets explicit `adjustResize` and clips the
+viewport; `250d740` checks its actual boundary and the pinned emergency control.
+These newer captures still need execution and visual review.
 Earlier captures obscured by a system error dialog were rejected, not approved.
 Screenshot generation does not establish fluent Arabic review or physical TalkBack use.
 
@@ -100,7 +107,8 @@ Dependency checksums are first-resolution trust, not an independent supply-chain
 
 Server work: finish the current Focus/inset CI reruns, inspect their actual captures,
 update final evidence and draft PR descriptions, and leave clean reviewable commits.
-There is no observed usage-limit blocker. This server lacks KVM; GitHub CI provides
+Local compilation/lint and privacy checks passed after the inset changes. There is
+no observed usage-limit blocker. This server lacks KVM; GitHub CI provides
 emulators. The interrupted local build is tracked separately and is not delivery proof.
 
 No physical tests have run. Salman owns S23 Ultra QA and must record the exact Android/

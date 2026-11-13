@@ -16,12 +16,15 @@ calculation/tracking PR #2 and foundation PR #1. Nothing is merged or published.
 The full approved feature scope is implemented. Do not restart the interview or stop
 at the foundation milestone. `docs/PROGRESS.md` is the evidence authority.
 
-Latest code `71a7c4b` fixes Focus transitions and Fajr system/keyboard insets after
-actual CI/capture inspection; complete matrix reruns are in progress. Previous
-`7f5df5f` passed all Android/API26/31/33/37, 672 captures, optimized performance and
-unsigned reproducibility. `839b4d8` added an actual MediaPlayer/audio-focus/priority
-fixture that passed four APIs, but found Focus transition races on API31/37. Do not
-call that run fully green. The current rerun must verify the fixes and actual captures.
+Latest code `250d740` explicitly resizes keyboard windows and checks the Fajr scroll
+viewport against the real status bar. CI is running. `8a2708b` isolates real audio
+policy and Focus tests into separate instrumentation sessions and adds synthetic
+failure diagnostics. At `71a7c4b`, API26/37, locked reboot, performance and unsigned
+reproducibility passed, but API31 still missed the initial Focus overlay after the
+audio fixture. Its 672 captures passed field bounds yet visual inspection rejected
+remaining status-bar overlap, motivating the newer resize/viewport fix. Do not call
+pending work green. PR #6 `df388f6` passed all four integration APIs and 672 captures;
+its performance trace-query failure is being retried. PROGRESS.md carries exact runs.
 
 Real generated profiles and raw emulator measurements are committed. Clean independent
 unsigned builds are byte-identical; exact source/hash evidence is in PROGRESS.md and
