@@ -70,10 +70,24 @@ class AppearanceCaptureTest {
                                 if (route == "ringing-keyboard") {
                                     val keyboardDeadline = android.os.SystemClock.uptimeMillis()+5000
                                     fun answerVisible(): Boolean {
-                                        val root = instrumentation.uiAutomation.windows.firstOrNull {
+                                        val windows = instrumentation.uiAutomation.windows
+                                        val root = windows.firstOrNull {
                                             it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION && it.root?.packageName?.toString() == context.packageName
                                         }?.root
-                                        return find(root)?.isVisibleToUser == true
+                                        val ime = windows.firstOrNull { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD } ?: return false
+                                        val answer = find(root) ?: return false
+                                        fun emergency(n: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
+                                            if (n == null || n.viewIdResourceName == "alarm-emergency-stop") return n
+                                            for (i in 0 until n.childCount) emergency(n.getChild(i))?.let { return it }
+                                            return null
+                                        }
+                                        val stop = emergency(root) ?: return false
+                                        val answerBounds = android.graphics.Rect().also(answer::getBoundsInScreen)
+                                        val stopBounds = android.graphics.Rect().also(stop::getBoundsInScreen)
+                                        val imeBounds = android.graphics.Rect().also(ime::getBoundsInScreen)
+                                        val statusTop = activity.window.decorView.rootWindowInsets?.systemWindowInsetTop ?: 0
+                                        return answer.isVisibleToUser && stop.isVisibleToUser && answerBounds.height() > 0 &&
+                                            answerBounds.top >= statusTop && answerBounds.bottom <= stopBounds.top && stopBounds.bottom <= imeBounds.top
                                     }
                                     while (!answerVisible() && android.os.SystemClock.uptimeMillis() < keyboardDeadline) Thread.sleep(100)
                                     check(answerVisible()) { "Fajr answer field disappeared behind keyboard at ${scale}x/$language" }

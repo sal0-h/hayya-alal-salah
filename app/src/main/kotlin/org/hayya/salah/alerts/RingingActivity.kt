@@ -48,11 +48,8 @@ class RingingActivity : ComponentActivity() {
 /** Shared with synthetic visual fixtures; actions are explicit and never record a prayer. */
 @Composable internal fun RingingContent(active: AlarmEntry?, stop: () -> Unit, close: () -> Unit) {
     Surface(Modifier.fillMaxSize().semantics { testTagsAsResourceId = true }) {
-        Scaffold(bottomBar = {
-            if (active?.isFajr == true) OutlinedButton(onClick = { stop() },
-                Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(16.dp).heightIn(min = 56.dp)) { Text(stringResource(R.string.emergency_stop)) }
-        }) { contentPadding ->
-        Column(Modifier.padding(contentPadding).consumeWindowInsets(contentPadding).safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+        Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
+        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
             Text(stringResource(R.string.fajr_alarm), style = MaterialTheme.typography.headlineLarge)
             Text(stringResource(R.string.dismiss_not_record))
             if (active?.isFajr != true) {
@@ -77,6 +74,8 @@ class RingingActivity : ComponentActivity() {
                 } else Button(onClick = { stop() }, Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.stop_alarm)) }
             }
         }
+        if (active?.isFajr == true) OutlinedButton(onClick = stop,
+            Modifier.fillMaxWidth().padding(16.dp).heightIn(min = 56.dp).testTag("alarm-emergency-stop")) { Text(stringResource(R.string.emergency_stop)) }
         }
     }
 
