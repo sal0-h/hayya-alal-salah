@@ -49,7 +49,7 @@ class PrayerFocusService : AccessibilityService() {
         if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
         val name = event.packageName?.toString() ?: return
         // Our overlay itself may emit window events; an explicit Open action hides it first.
-        if (name == packageName && overlay != null && event.className?.toString().orEmpty() in setOf(LinearLayout::class.java.name, ScrollView::class.java.name)) return
+        if (name == packageName && event.className?.toString().orEmpty() !in setOf(MainActivity::class.java.name, org.hayya.salah.alerts.RingingActivity::class.java.name)) return
         foreground = name
         refresh()
     }
