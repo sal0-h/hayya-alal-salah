@@ -19,7 +19,7 @@ internal fun ready() {
 }
 internal fun journey() {
     val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-    fun click(tag: String) { checkNotNull(device.wait(Until.findObject(By.res(tag)),5000)).click(); device.waitForIdle() }
+    fun click(tag: String) { checkNotNull(device.wait(Until.findObject(By.res(tag)),5000)).click(); device.waitForIdle(500) }
     click("nav-history"); click("nav-settings"); click("settings-calculation")
     device.pressBack(); click("nav-today"); ready()
     repeat(3) {
