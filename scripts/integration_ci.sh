@@ -40,6 +40,9 @@ VERIFY
 # Audio and accessibility fixtures use different UiAutomation suppression flags.
 # Separate sessions prevent framework/client state from leaking between them.
 # Every real playback assertion still runs and its report must contain one passing test.
+# AGP removes the isolated installation at connected-test teardown; install the next fixture.
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 adb shell am instrument -w -r -e class org.hayya.salah.AudioPlaybackIntegrationTest "$hayya_package.test/androidx.test.runner.AndroidJUnitRunner" > "app/build/reports/integration/audio-api-$hayya_api.txt"
 python3 - "$hayya_api" <<'AUDIO'
 from pathlib import Path
