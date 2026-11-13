@@ -81,7 +81,12 @@ class WidgetHostTest {
                     })
                     views[1].findViewById<ListView>(R.id.widget_rows).setSelection(5)
                 }
-                waitFor("resize $height") { views[1].findViewById<ListView>(R.id.widget_rows).lastVisiblePosition == 5 }
+                waitFor("resize $height") {
+                    val list = views[1].findViewById<ListView>(R.id.widget_rows)
+                    // Provider options updates are asynchronous and may replace the adapter.
+                    if (list.lastVisiblePosition != 5) list.setSelection(5)
+                    list.lastVisiblePosition == 5
+                }
                 instrumentation.waitForIdleSync(); delay(200)
                 InstrumentationRegistry.getArguments().getString("additionalTestOutputDir")?.let { output ->
                     val directory = File(output,"widgets").apply { mkdirs() }
