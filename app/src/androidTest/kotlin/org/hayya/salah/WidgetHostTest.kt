@@ -52,13 +52,20 @@ class WidgetHostTest {
                 }
             }
             WidgetUpdater.update(context)
-            suspend fun waitFor(test: () -> Boolean) {
-                withTimeout(12000) {
+            suspend fun waitFor(phase: String, test: () -> Boolean) {
+                try { withTimeout(12000) {
                     var done = false
                     while (!done) { instrumentation.runOnMainSync { done = test() }; if (!done) delay(100) }
+                } } catch (error: TimeoutCancellationException) {
+                    var state = ""
+                    instrumentation.runOnMainSync {
+                        val list = views[1].findViewById<ListView>(R.id.widget_rows)
+                        state = "place=${views[0].findViewById<TextView>(R.id.widget_place)?.text}; time=${views[0].findViewById<TextView>(R.id.widget_time)?.text}; rows=${list?.count}; last=${list?.lastVisiblePosition}"
+                    }
+                    throw AssertionError("Widget host failed during $phase: $state",error)
                 }
             }
-            waitFor { views[0].findViewById<TextView>(R.id.widget_place)?.text?.contains("Baku") == true &&
+            waitFor("initial render") { views[0].findViewById<TextView>(R.id.widget_place)?.text?.contains("Baku") == true &&
                 views[0].findViewById<TextView>(R.id.widget_time)?.text?.isNotEmpty() == true &&
                 views[1].findViewById<ListView>(R.id.widget_rows)?.count == 6 }
             val countdown = views[0].findViewById<Chronometer>(R.id.widget_countdown)
@@ -74,7 +81,7 @@ class WidgetHostTest {
                     })
                     views[1].findViewById<ListView>(R.id.widget_rows).setSelection(5)
                 }
-                waitFor { views[1].findViewById<ListView>(R.id.widget_rows).lastVisiblePosition == 5 }
+                waitFor("resize $height") { views[1].findViewById<ListView>(R.id.widget_rows).lastVisiblePosition == 5 }
                 instrumentation.waitForIdleSync(); delay(200)
                 InstrumentationRegistry.getArguments().getString("additionalTestOutputDir")?.let { output ->
                     val directory = File(output,"widgets").apply { mkdirs() }
@@ -83,7 +90,7 @@ class WidgetHostTest {
                 }
             }
             context.appContainer.settings.update { AppPreferences() }; WidgetUpdater.update(context)
-            waitFor { views[0].findViewById<TextView>(R.id.widget_time)?.text?.isEmpty() == true &&
+            waitFor("clear") { views[0].findViewById<TextView>(R.id.widget_time)?.text?.isEmpty() == true &&
                 views[1].findViewById<ListView>(R.id.widget_rows)?.count == 0 }
             assertEquals(before.records,context.appContainer.repository.snapshot().records)
         } finally {
