@@ -67,6 +67,37 @@ class AppearanceCaptureTest {
                                 }
                                 checkNotNull(node).performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK)
                                 instrumentation.waitForIdleSync(); Thread.sleep(200)
+                                if (route == "ringing-keyboard") {
+                                    val keyboardDeadline = android.os.SystemClock.uptimeMillis()+5000
+                                    fun answerVisible(): Boolean {
+                                        val windows = instrumentation.uiAutomation.windows
+                                        val root = windows.firstOrNull {
+                                            it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION && it.root?.packageName?.toString() == context.packageName
+                                        }?.root
+                                        val ime = windows.firstOrNull { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD } ?: return false
+                                        val answer = find(root) ?: return false
+                                        fun tagged(n: android.view.accessibility.AccessibilityNodeInfo?, tag: String): android.view.accessibility.AccessibilityNodeInfo? {
+                                            if (n == null || n.viewIdResourceName == tag) return n
+                                            for (i in 0 until n.childCount) tagged(n.getChild(i),tag)?.let { return it }
+                                            return null
+                                        }
+                                        val stop = tagged(root,"alarm-emergency-stop") ?: return false
+                                        val content = tagged(root,"alarm-content") ?: return false
+                                        val answerBounds = android.graphics.Rect().also(answer::getBoundsInScreen)
+                                        val stopBounds = android.graphics.Rect().also(stop::getBoundsInScreen)
+                                        val imeBounds = android.graphics.Rect().also(ime::getBoundsInScreen)
+                                        val contentBounds = android.graphics.Rect().also(content::getBoundsInScreen)
+                                        val statusTop = windows.filter { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SYSTEM }
+                                            .map { android.graphics.Rect().also(it::getBoundsInScreen) }
+                                            .filter { it.top == 0 && it.height() < activity.resources.displayMetrics.heightPixels/4 }
+                                            .maxOfOrNull { it.bottom } ?: 0
+                                        return answer.isVisibleToUser && stop.isVisibleToUser && answerBounds.height() > 0 &&
+                                            contentBounds.top >= statusTop && answerBounds.top >= statusTop && answerBounds.bottom <= stopBounds.top &&
+                                            stopBounds.bottom <= imeBounds.top && imeBounds.top-stopBounds.bottom <= 64*activity.resources.displayMetrics.density
+                                    }
+                                    while (!answerVisible() && android.os.SystemClock.uptimeMillis() < keyboardDeadline) Thread.sleep(100)
+                                    check(answerVisible()) { "Fajr answer field disappeared behind keyboard at ${scale}x/$language" }
+                                }
                             }
                             for (position in if (width == "phone" && route !in listOf("record","date","focus-consent","privacy-confirm","focus-overlay","ringing","ringing-keyboard")) listOf("top","bottom") else listOf("top")) {
                                 if (position == "bottom") { instrumentation.runOnMainSync { activity.bottom() }; instrumentation.waitForIdleSync(); Thread.sleep(100) }

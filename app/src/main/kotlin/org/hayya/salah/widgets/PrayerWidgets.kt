@@ -80,19 +80,23 @@ object WidgetUpdater {
             setTextColor(R.id.widget_title, if (dark) 0xffe4edf2.toInt() else 0xff172d3a.toInt())
             val label = place?.let { location ->
                 if (provenance?.quality == CalculationQuality.ESTIMATED_REFERENCE)
-                    context.getString(R.string.estimated_boundaries,"%.2f".format(java.util.Locale.ROOT,provenance.effective.latitude)) + " · " + location.name
+                    context.getString(R.string.widget_estimated,"%.2f".format(java.util.Locale.ROOT,provenance.effective.latitude)) + " · " + location.name
                 else location.name
             } ?: context.getString(if (unlocked) R.string.widget_setup else R.string.widget_unlock)
             setTextViewText(R.id.widget_place,label)
         }
         val next = nextPrayer(schedules, now)
         compact.forEach { id ->
-            val views = base(R.layout.widget_next,schedules.firstOrNull { it.date == next?.key?.date }?.provenance)
+            val provenance = schedules.firstOrNull { it.date == next?.key?.date }?.provenance
+            val views = base(R.layout.widget_next,provenance)
+            val constrainedLargeText = context.resources.configuration.fontScale >= 1.5f && manager.getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT,160) < 210
+            val estimated = provenance?.quality == CalculationQuality.ESTIMATED_REFERENCE
+            views.setViewVisibility(R.id.widget_place,if (next != null && constrainedLargeText && !estimated) android.view.View.GONE else android.view.View.VISIBLE)
             views.setTextViewText(R.id.widget_title, next?.let { AlertNotifications.prayerName(context, it.key.prayer) } ?: context.getString(R.string.app_name))
             views.setTextViewText(R.id.widget_time, next?.at?.atZone(place!!.zone)?.format(formatter).orEmpty())
             views.setTextColor(R.id.widget_time, accent)
             if (next != null) {
-                views.setViewVisibility(R.id.widget_countdown, android.view.View.VISIBLE)
+                views.setViewVisibility(R.id.widget_countdown,if (constrainedLargeText && estimated) android.view.View.GONE else android.view.View.VISIBLE)
                 views.setChronometerCountDown(R.id.widget_countdown, true)
                 views.setChronometer(R.id.widget_countdown, SystemClock.elapsedRealtime() + Duration.between(now, next.at).toMillis(), null, true)
                 views.setTextColor(R.id.widget_countdown, if (dark) 0xffe4edf2.toInt() else 0xff172d3a.toInt())

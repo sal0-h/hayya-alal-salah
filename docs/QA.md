@@ -19,27 +19,30 @@ Download the commit-labeled signed APK, verify the artifact SHA-256, then:
 adb install -r hayya-qa-<commit>.apk
 ```
 
-This is a times-only preview: no prayer records, alarm delivery or app blocking yet.
+This internal preview now includes records, alerts, Fajr, Focus, Qibla and widgets.
+Implementation does not establish physical reliability; consult PROGRESS.md.
 Use manual decimal coordinates and an IANA time zone. Each method is chosen explicitly;
 regional labels are not promises of exact published-timetable agreement.
 
 For each physical report record commit, app version, exact device/Android/One UI build,
 reproduction steps, expected/actual result and whether an update preserved saved setup.
 Do not attach private coordinates/history or unreviewed logs. Do not uninstall between
-update tests. The planned two-update record-preservation test awaits the Room slice.
+update tests. Two successive signed QA update tests must preserve records, pauses, settings and
+imported audio without uninstalling. This physical gate is still pending.
 
 CI screenshot fixtures contain only a fixed Baku example and date, never saved user
 settings. `screenshots-<commit>` contains EN/RU/AZ/AR at 100%/200%, light/dark. Capturing
 screenshots is not a claim that accessibility or design review passed.
 
-Production signing, cross-store update compatibility, reproducible/F-Droid release
-checks and public store publication remain separate release work.
+Unsigned reproducibility, privacy/license/native-alignment checks and source/APK/AAB/
+mapping/hash review kits run in separate CI. Production signing, cross-store certificate
+choice, F-Droid acceptance and public store publication remain external release work.
 
 QA certificate SHA-256 (public, not a secret):
 `081b779ae9d4f9c1714f212bcb5936fdc239a9941d3c1658920cef1229d08d7f`.
 
 Screenshot instrumentation writes to AGP-provided `additionalTestOutputDir`, which is
-collected before app cleanup. CI requires all sixteen named PNG files with valid headers
+collected before app cleanup. CI requires the complete named full-route/large-text/width matrix with valid headers
 and dimensions; a successful instrumentation exit alone does not satisfy capture QA.
 
 Verified foundation artifacts (code commit `7d1a109`, 2026-11-13):
@@ -48,3 +51,22 @@ Verified foundation artifacts (code commit `7d1a109`, 2026-11-13):
 
 These are expiring CI artifacts, not a public app release. Future trusted pushes produce
 new commit-labeled artifacts using the same dedicated QA identity.
+
+## Current automated artifacts
+
+Use PROGRESS.md for the exact passing source/run, rather than assuming the newest
+push is green. `integration-api-<api>-<commit>` contains JUnit XML, per-test logs,
+widget-host captures and denial/locked-reboot probes. Ordinary tests run on APIs
+26/31/33/37. `screenshots-<commit>` contains 672 full-route/dialog/native/widget
+captures; inspect actual images, including the 200% RTL keyboard and compact widgets.
+A complete file count does not prove usable typography or accessibility.
+
+`profiles-and-emulator-metrics-<commit>` contains optimized Macrobenchmark reports,
+traces and settled-memory diagnostics using synthetic three-year history. Release
+workflows retain `release-reports-a/b-<commit>`, `rebuild-a/b-<commit>` and
+`reproducibility-<commit>`. These use the production application ID but remain unsigned;
+use the separate stable signed QA artifact on the test phone.
+
+The prepared [physical acceptance protocol](DEVICE_QA.md) covers update preservation,
+reliability, language/TalkBack review and the unchanged physical performance budgets.
+Every physical row remains not run until actual device evidence is recorded.

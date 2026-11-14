@@ -41,11 +41,12 @@ import java.time.ZoneId
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
     val errorMessage = stringResource(R.string.save_error)
+    val resetError = stringResource(R.string.reset_error)
     val context = LocalContext.current
     var recordTarget by remember { mutableStateOf<Pair<PrayerKey, ZoneId>?>(null) }
     var recordBusy by remember { mutableStateOf(false) }
-    fun perform(action: suspend () -> Unit) { scope.launch {
-        try { action() } catch (e: CancellationException) { throw e } catch (_: Exception) { snackbar.showSnackbar(errorMessage) }
+    fun perform(message: String = errorMessage, action: suspend () -> Unit) { scope.launch {
+        try { action() } catch (e: CancellationException) { throw e } catch (_: Exception) { snackbar.showSnackbar(message) }
     } }
     val update: PreferencesUpdate = { transform -> perform { app.settings.update(transform) } }
     HayyaTheme(config?.appearance ?: remember { DeliveryLocale.appearance(context) }) {
@@ -62,15 +63,8 @@ import java.time.ZoneId
                 addPause = { perform { app.repository.addPause(it) } },
                 removePause = { perform { app.repository.deletePause(it) } },
                 deleteRecords = { perform { app.repository.deleteRecords() } },
-                reset = { perform {
-                    app.settings.reset()
-                    DeliveryLocale.clear(context)
-                    org.hayya.salah.focus.PrayerFocusService.releaseOverlay()
-                    org.hayya.salah.alerts.AlarmCoordinator.cancelAll(context)
-                    org.hayya.salah.widgets.WidgetUpdater.update(context)
-                    app.repository.reset()
-                    context.filesDir.resolve("audio").deleteRecursively()
-                    context.getSharedPreferences("locale-bootstrap", 0).edit { clear() }
+                reset = { perform(resetError) {
+                    app.resetLocalData()
                     if (Build.VERSION.SDK_INT >= 33) context.getSystemService(LocaleManager::class.java).applicationLocales = LocaleList.getEmptyLocaleList()
                     else (context as? Activity)?.recreate()
                 } },

@@ -46,3 +46,14 @@ five-iteration startup samples do not establish a physical p95. The profile did 
 produce a startup improvement in this emulator run; no speedup is claimed. Frame
 samples and variation are in the raw evidence. Emulator/software-rendering results
 do not replace physical frame-overrun, startup, power or memory acceptance.
+
+## Useful-display trace correctness
+
+Repeated emulator runs exposed a missing RenderThread slice after `reportFullyDrawn`,
+on different cold/warm startup journeys. This is not accepted as a passing sample.
+The activity now requests one dirty traversal when useful-data readiness reports, so
+that signal is followed by a RenderThread draw; metrics and budgets are unchanged.
+This follows the same dirty-frame requirement documented in the
+[AndroidX first-frame correction](https://android.git.googlesource.com/platform/frameworks/support/+/258dc5586df930667094d970975322d8e6f16b78).
+Current rerun evidence is recorded in PROGRESS.md. No benchmark exception is suppressed
+and failed captures are not substituted with successful-looking measurements.

@@ -10,38 +10,34 @@ Salman approved implementation on 2026-11-12. Do not restart the product intervi
 
 ## Actual implementation state
 
-Active branch: `implement/performance-release` (draft PR #6), stacked on draft location/
-Qibla/widget PR #4, then alerts PR #3, tracking PR #2 and foundation PR #1.
-The draft is an internal checkpoint. Salman explicitly requires autonomous continuation
-through **all** server-implementable milestones; do not stop at a runnable slice,
-wait for a merge/device test, or ask for another go-ahead. Physical QA remains an
-external release gate, not a reason to leave independent implementation unfinished.
-See `docs/PROGRESS.md` for the distinction between code, automated and physical tests.
+Active branch: `implement/release-preparation`, draft PR #7, stacked on performance
+PR #6, API hardening PR #5, location/Qibla/widgets PR #4, alerts/Focus PR #3,
+calculation/tracking PR #2 and foundation PR #1. Nothing is merged or published.
+The full approved feature scope is implemented. Do not restart the interview or stop
+at the foundation milestone. `docs/PROGRESS.md` is the evidence authority.
 
-Temporary JDK 21, Gradle 9.6.0, SDK platform 37.0 and build tools 36.0.0 are under
-`/tmp/hayya-toolchain` on this server. Set JAVA_HOME, ANDROID_HOME and GRADLE_USER_HOME
-accordingly, or install the documented pinned toolchain independently. No KVM here.
-Do not rely on /tmp surviving a reboot. `.local-qa/` holds an ignored private QA key;
-never commit it. Dedicated QA secrets are configured in repository Actions settings.
+Server implementation and verification are complete at source `5bff9bb`. Android
+run43553892997 passed all four APIs (13 ordinary + one separate audio test each),
+672 captures, denial/locked-reboot preservation, lint/privacy/build and QA signing.
+Performance43553892993 and reproducibility43553893029 passed. Downloaded reports and
+actual large-text keyboard images were reviewed. PROGRESS.md has exact evidence.
+No independent coding task or current approval/usage blocker is known. Physical,
+Arabic, signing and store review gates remain open; no PR merge or publication.
 
-Foundation clean CI, signed QA delivery and representative Today screenshots passed
-at `7d1a109`. Calculation controls, confirmed polar policy and persistent tracking are
-implemented and passed CI. Alerts/audio/Fajr/Direct Boot/Focus are in PR #3 with
-local compilation/lint/optimized assembly; the seven-test API35 emulator suite passed.
-Offline location, visible-only true-north Qibla and two RemoteViews widgets are now
-implemented in PR #4 and passed clean CI (18 core + upstream + eight API35 tests).
-The hardening branch passed 592 full-route/dialog captures and the ordinary
-11-test suites on APIs26/31/33/37. The Direct Boot probe parser failed afterward;
-`d90c684` fixes it and the delivery rerun is pending. The current branch adds performance
-fixtures, scrollable widget validation, native lock-screen/Focus captures, frozen
-seasonal/provider comparisons and concrete release preparation. It extends full-route/dialog captures at real 100%/200% system fonts,
-320dp/tablet widths, accessibility/navigation tests, actual alarm/idle/actions,
-actual Focus overlay checks and a reboot-before-unlock fixture. The additional performance/widget/native/release checks are being prepared/run;
-do not claim them passed from compilation.
-Continue through CI fixes/review, Macrobenchmark/generated Baseline Profiles,
-three-year records, reproducibility and concrete release preparation. Do not stop
-when a milestone PR turns green. Never
-interpret a milestone or foundation PR as completion of the approved full plan.
+Real generated profiles and raw emulator measurements are committed. Clean independent
+unsigned builds are byte-identical; exact source/hash evidence is in PROGRESS.md and
+RELEASE.md. Release review kits, four-language store drafts, private security reporting
+and a disabled F-Droid recipe are prepared. No production signing or submission.
+
+Temporary JDK21, Gradle9.6.0 and AndroidSDK37 are in `/tmp/hayya-toolchain`; set
+JAVA_HOME, ANDROID_HOME and GRADLE_USER_HOME accordingly. Do not rely on /tmp surviving.
+No KVM exists here; use GitHub CI emulators. Avoid overlapping local Gradle builds.
+`.local-qa/` holds an ignored private QA key; never commit it. Disk space is limited;
+remove only task-owned reproducible caches/downloads when necessary.
+
+Finish remaining CI failures/capture inspection/documentation autonomously. Physical
+S23/mid-range/overnight/TalkBack/sensors/power and Arabic review are external release
+gates, not coding blockers. Do not merge/publish without the agreed concrete review.
 
 ## Non-negotiable decisions
 

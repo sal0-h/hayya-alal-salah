@@ -92,7 +92,15 @@ class FocusIntegrationTest {
             shell("settings put secure accessibility_enabled 0"); overlay(false)
         } catch (error: Exception) {
             val directory = InstrumentationRegistry.getArguments().getString("additionalTestOutputDir")?.let { java.io.File(it,"focus-diagnostics").apply { mkdirs() } }
-            directory?.resolve("accessibility.txt")?.writeText("Phase: $phase\n" + shell("dumpsys accessibility"))
+            val state = runCatching {
+                val type = org.hayya.salah.focus.PrayerFocusService::class.java
+                val service = (type.getDeclaredField("instance").apply { isAccessible = true }.get(null) as? java.lang.ref.WeakReference<*>)?.get()
+                fun field(name: String) = type.getDeclaredField(name).apply { isAccessible = true }.get(service)
+                val prefs = field("config") as? AppPreferences
+                val view = (field("ownWindow") as? java.lang.ref.WeakReference<*>)?.get() as? android.view.View
+                "foreground=${field("foreground")}; configured=${prefs?.focus?.enabled}; selected=${prefs?.focus?.packages}; ownFocused=${view?.hasWindowFocus()}; overlay=${field("overlay") != null}; connected=${org.hayya.salah.focus.PrayerFocusService.connected.value}"
+            }.getOrElse { "State unavailable: $it" }
+            directory?.resolve("accessibility.txt")?.writeText("Phase: $phase\n$state\n" + shell("dumpsys accessibility"))
             throw AssertionError("Focus lifecycle failed during $phase",error)
         } finally {
             app.repository.record(window.target,null,place.zone); app.repository.deletePause(pause)

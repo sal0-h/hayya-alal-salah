@@ -201,4 +201,7 @@
     <string name="loading">Loading…</string>
     <string name="regional_profiles">Regional presets to compare: %1$s. Choose your method explicitly; location does not determine your practice.</string>
     <string name="calendar_scroll_hint">Scroll the calendar sideways to see all days. You can also choose a date above.</string>
+    <string name="reset_error">Deletion did not finish. Retry full reset or clear app storage in Android settings.</string>
+    <string name="audio_delete_error">The audio file could not be removed. Try again.</string>
+    <string name="widget_estimated">Estimated %1$s°</string>
 </resources>
