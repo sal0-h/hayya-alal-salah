@@ -3,7 +3,7 @@
 Updated 2026-11-13. Source implementation, automated execution, visual inspection and
 physical acceptance are separate. The full approved v1 scope is implemented in the
 stacked draft PRs; these are review checkpoints, not merged or published releases.
-Final Focus/audio-session and keyboard-resize verification is running at `250d740`.
+Final server verification passed at `5bff9bb`; see the authoritative result below.
 
 ## Implemented scope and executed evidence
 
@@ -105,11 +105,9 @@ Dependency checksums are first-resolution trust, not an independent supply-chain
 
 ## Remaining work and external gates
 
-Server work: finish the current Focus/inset CI reruns, inspect their actual captures,
-update final evidence and draft PR descriptions, and leave clean reviewable commits.
-Local compilation/lint and privacy checks passed after the inset changes. There is
-no observed usage-limit blocker. This server lacks KVM; GitHub CI provides
-emulators. The interrupted local build is tracked separately and is not delivery proof.
+Server implementation and verification are complete for the approved scope. No known
+independent coding task remains. Physical/reviewer/signing/store gates below remain
+open. No current usage-limit or approval blocker exists.
 
 No physical tests have run. Salman owns S23 Ultra QA and must record the exact Android/
 One UI build. Arabic review, a physical mid-range tester, two QA update-preservation
@@ -117,14 +115,23 @@ tests, overnight alarms/Doze/OEM/Direct Boot/calls/headphones/sensors/TalkBack a
 startup/frame/memory/power budgets remain public-release gates. They do not authorize
 publication or excuse leaving independent implementation unfinished.
 
-## Resumed verification, 2026-11-14
+## Final server verification, 2026-11-14
 
-The prior automatic approval review stopped a push because of a usage limit. That
-limit cleared on resumption; source `5bff9bb` is now pushed. Android run 43553892997,
-performance 43553892993 and reproducibility 43553893029 are running; no green claim yet.
-The source includes the isolated audio-fixture reinstall, emergency-bypass persistence
-handoff refresh and useful-display dirty traversal. Local compilation/lint passed.
-Actual `250d740` Arabic/English 200% keyboard captures were inspected: scrolling content
-stays below the status bar and answer/emergency stop remain usable above the keyboard.
-The earlier performance draft's pinned Kotlin artifact download failure is being retried
-without changing versions/checksums. Physical acceptance remains not run.
+Source `5bff9bb` passed [Android checks](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43553892997),
+[optimized performance](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43553892993) and
+[independent reproducibility](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43553893029).
+Downloaded JUnit XML confirms 13 ordinary tests on each API26/31/33/37, zero failures,
+errors or skips. Each separate real audio session reports one passing test. Denial
+checks, all 672 captures, build/lint/privacy and stable QA signing passed. The API37
+locked-reboot probe confirms unlocked=false, active Fajr, bundled fallback and actual
+alarm audio; post-unlock preservation passed. Actual 200% Arabic/English keyboard
+captures were inspected and confirm the corrected viewport and pinned emergency stop.
+
+Both independently built unsigned APKs have SHA-256
+`5865029392bcd5602b5bc961dd2b3b334f831ce39fa67ccecc15769a73844a70`.
+The source includes fixture reinstall, bypass persistence refresh and useful-display
+dirty traversal fixes. Earlier draft #6 at `2a7ac4a` also passed Android/performance;
+its transient pinned-artifact fetch failure cleared without checksum/version changes.
+Historical failures above are retained as provenance and are superseded by these runs.
+The prior approval-review usage limit cleared; one later approval timeout succeeded
+on the permitted retry. No active blocker remains. Physical acceptance is not run.

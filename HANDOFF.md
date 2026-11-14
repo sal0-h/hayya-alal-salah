@@ -16,15 +16,13 @@ calculation/tracking PR #2 and foundation PR #1. Nothing is merged or published.
 The full approved feature scope is implemented. Do not restart the interview or stop
 at the foundation milestone. `docs/PROGRESS.md` is the evidence authority.
 
-Latest code `250d740` explicitly resizes keyboard windows and checks the Fajr scroll
-viewport against the real status bar. CI is running. `8a2708b` isolates real audio
-policy and Focus tests into separate instrumentation sessions and adds synthetic
-failure diagnostics. At `71a7c4b`, API26/37, locked reboot, performance and unsigned
-reproducibility passed, but API31 still missed the initial Focus overlay after the
-audio fixture. Its 672 captures passed field bounds yet visual inspection rejected
-remaining status-bar overlap, motivating the newer resize/viewport fix. Do not call
-pending work green. PR #6 `df388f6` passed all four integration APIs and 672 captures;
-its performance trace-query failure is being retried. PROGRESS.md carries exact runs.
+Server implementation and verification are complete at source `5bff9bb`. Android
+run43553892997 passed all four APIs (13 ordinary + one separate audio test each),
+672 captures, denial/locked-reboot preservation, lint/privacy/build and QA signing.
+Performance43553892993 and reproducibility43553893029 passed. Downloaded reports and
+actual large-text keyboard images were reviewed. PROGRESS.md has exact evidence.
+No independent coding task or current approval/usage blocker is known. Physical,
+Arabic, signing and store review gates remain open; no PR merge or publication.
 
 Real generated profiles and raw emulator measurements are committed. Clean independent
 unsigned builds are byte-identical; exact source/hash evidence is in PROGRESS.md and
