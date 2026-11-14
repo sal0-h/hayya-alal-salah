@@ -116,3 +116,15 @@ One UI build. Arabic review, a physical mid-range tester, two QA update-preserva
 tests, overnight alarms/Doze/OEM/Direct Boot/calls/headphones/sensors/TalkBack and physical
 startup/frame/memory/power budgets remain public-release gates. They do not authorize
 publication or excuse leaving independent implementation unfinished.
+
+## Resumed verification, 2026-11-14
+
+The prior automatic approval review stopped a push because of a usage limit. That
+limit cleared on resumption; source `5bff9bb` is now pushed. Android run 43553892997,
+performance 43553892993 and reproducibility 43553893029 are running; no green claim yet.
+The source includes the isolated audio-fixture reinstall, emergency-bypass persistence
+handoff refresh and useful-display dirty traversal. Local compilation/lint passed.
+Actual `250d740` Arabic/English 200% keyboard captures were inspected: scrolling content
+stays below the status bar and answer/emergency stop remain usable above the keyboard.
+The earlier performance draft's pinned Kotlin artifact download failure is being retried
+without changing versions/checksums. Physical acceptance remains not run.
