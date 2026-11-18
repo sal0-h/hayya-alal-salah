@@ -1,6 +1,6 @@
 # Implementation and validation ledger
 
-Updated 2026-11-13. Source implementation, automated execution, visual inspection and
+Updated 2026-11-18. Source implementation, automated execution, visual inspection and
 physical acceptance are separate. The full approved v1 scope is implemented in the
 stacked draft PRs; these are review checkpoints, not merged or published releases.
 Final server verification passed at `5bff9bb`; see the authoritative result below.
@@ -15,13 +15,13 @@ Final server verification passed at `5bff9bb`; see the authoritative result belo
 | Navigation/design | Today/History/Settings, all setup/settings/dialog routes, original geometric marker, bundled fonts, four languages/RTL, time/numerals/themes/palettes/reduced motion | Full-route/dialog capture matrix, navigation/labeled-control checks, real 100%/200% system fonts and narrow/tablet widths | TalkBack, Arabic and final design review pending |
 | Alerts/Fajr | Seven-day stable alarms, exact/inexact readiness, best-effort extras, stale/duplicate claims, lifecycle reconciliation, authenticated original-target actions, challenge/emergency stop | Actual idle-capable AlarmManager delivery on APIs26/31/33/37; locked-reboot API37 probe verified active Fajr/bundled audio before unlock and preservation afterward | S23/OEM/overnight/Doze timing unverified |
 | Audio | Three redistributable CC BY recordings, per-prayer/Fajr choices, private bounded validated imports/removal, finite foreground playback, ringer/DND guards, Fajr priority | Actual media preparation/import/corrupt rejection and MediaPlayer/audio-focus pause/regain/priority/emergency stop on all four APIs | Audible/calls/headphones/DND behavior unverified |
-| Focus | Disclosure/consent, selected apps/prayers, metadata-only accessibility, essential exclusions, completion/pause/bypass/expiry, pinned emergency control | Real overlay lifecycle/permission removal passed four APIs at `7f5df5f`; later transitions fixed; audio/accessibility session isolation rerun pending | OEM/TalkBack and Play policy review pending |
+| Focus | Disclosure/consent, selected apps/prayers, metadata-only accessibility, essential exclusions, completion/pause/bypass/expiry, pinned emergency control | Real overlay lifecycle and permission removal passed all four APIs at `5bff9bb` with audio in a separate session | OEM/TalkBack and Play policy review pending |
 | Location | 34,215 offline cities/all native aliases, coordinates/IANA zones, bounded visible foreground requests/cache, confirmed zone changes and approximate border suggestion | Four-script city/zone fixtures and packaged privacy/resource checks | GPS/travel/border review pending |
 | Qibla/Hijri | Actual-coordinate bearing, visible-only sensors/true-north correction, quality/numeric fallback, named Umm al-Qura display with independent correction | Core bearing/Hijri fixtures; Android lint and UI captures | Sensor/calibration and Arabic review pending |
 | Widgets | Compact next/countdown and resizable scrollable six-row daily RemoteViews, native countdown/boundary updates, no check-off/polling, pre-unlock/reset placeholder | Actual host bind/render/resize/scroll/clear on four APIs; 32 four-language/font/theme captures | Launcher/reboot/device QA pending |
 | Performance/release | Three-year synthetic history, real generated profiles, optimized benchmarks, unsigned reproducibility, privacy/licenses/16 KiB/budget checks, review kits/store drafts/disabled F-Droid recipe | Two profile-generation and five benchmark/memory tests; independent exact-byte release builds; details below | Physical mid-range/power budgets and release/signing/store review pending |
 
-## Current runs and retained evidence
+## Earlier runs and retained evidence
 
 The entire `7f5df5f` push passed [Android checks](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43511627420),
 [performance](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43511627620) and
@@ -83,7 +83,7 @@ to all six rows. The `839b4d8` Fajr answer was visible above the keyboard, but s
 text could paint under the status bar. The `71a7c4b` captures passed automated field bounds but visual inspection still
 rejected the status-bar overlap. `12b5be9` sets explicit `adjustResize` and clips the
 viewport; `250d740` checks its actual boundary and the pinned emergency control.
-These newer captures still need execution and visual review.
+The 200% Arabic and English keyboard images confirm the corrected viewport.
 Earlier captures obscured by a system error dialog were rejected, not approved.
 Screenshot generation does not establish fluent Arabic review or physical TalkBack use.
 
@@ -109,6 +109,8 @@ Server implementation and verification are complete for the approved scope. No k
 independent coding task remains. Physical/reviewer/signing/store gates below remain
 open. No current usage-limit or approval blocker exists.
 
+Three signed QA APKs have verified checksums, a common signing certificate and increasing
+version codes. The [device protocol](DEVICE_QA.md#update-preservation) lists them in order.
 No physical tests have run. Salman owns S23 Ultra QA and must record the exact Android/
 One UI build. Arabic review, a physical mid-range tester, two QA update-preservation
 tests, overnight alarms/Doze/OEM/Direct Boot/calls/headphones/sensors/TalkBack and physical

@@ -9,12 +9,26 @@ passed because the feature compiles or an emulator passed it.
 
 ## Update preservation
 
-Install a commit-labeled QA APK, create explicit records with different statuses,
-a dated pause, non-default calculation/appearance settings and a small redistributable
-import. Install two later QA versions with `adb install -r`, without uninstalling or
-clearing storage. After each update verify records/status/origin date, pause/settings,
-import playback, alert readiness and widget contents. A certificate/version conflict
-is a failure to investigate, not a reason to uninstall and call the update successful.
+Use these three signed builds in order on a QA installation that starts at version
+code 48 or earlier. Each APK passed its artifact checksum and APK signature checks.
+All three use `org.hayya.salah.qa` and the same QA signing certificate in [QA.md](QA.md).
+
+| Step | Source | Version code | Download |
+| --- | --- | --- | --- |
+| Baseline | `8087095` | 48 | [Signed APK and checksum](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43506421797/artifacts/14077311683) |
+| First update | `7f5df5f` | 56 | [Signed APK and checksum](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43511627420/artifacts/14078573268) |
+| Second update | `5bff9bb` | 74 | [Signed APK and checksum](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43553892997/artifacts/14097078942) |
+
+After installing the baseline, create records with different statuses, a dated pause,
+non-default calculation and appearance settings, and a small redistributable audio
+import. Use `adb install -r <apk>` for both updates. Keep the installation and its data
+between builds. After each update, verify records, status, origin date, pause, settings,
+import playback, and alert readiness. Add both widgets at version 56 and verify that
+they remain bound and display the correct times at version 74.
+
+If the phone already has a newer QA build with data, preserve that installation and use
+higher version codes for the update test. Use version 74 for the other device journeys
+if the phone can install it. Record physical results separately from artifact verification.
 
 ## Reliability and privacy journeys
 

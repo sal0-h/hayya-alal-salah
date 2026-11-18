@@ -87,3 +87,9 @@ Both APKs were 11,042,687 bytes (10.5 MiB), SHA-256
 The source/review kit and hashes are retained as commit-labeled Actions artifacts.
 This unsigned internal build is not a reviewed public release or production certificate.
 Later source changes require their own matching evidence.
+
+The final implementation source `5bff9bbe38f935ee93ac60b07e91b713acb3dae7`
+passed the same checks. Both unsigned APKs have SHA-256
+`5865029392bcd5602b5bc961dd2b3b334f831ce39fa67ccecc15769a73844a70`.
+The source, unsigned APK and bundle, mapping, and review materials are available in
+the [release review artifact](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43553893029/artifacts/14097168476).
