@@ -61,9 +61,10 @@ class AppContainer(val context: Context) {
             if (audio.exists() && !audio.deleteRecursively()) throw IOException("Private audio deletion incomplete")
         }
         settings.reset()
+        // Wait for reconciliation that may still hold pre-reset preferences.
+        AlarmCoordinator.cancelAll(context)
         DeliveryLocale.clear(context)
         context.getSharedPreferences("locale-bootstrap",0).edit { clear() }
-        AlarmCoordinator.cancelAll(context)
         org.hayya.salah.widgets.WidgetUpdater.update(context)
     }
     fun refreshIntegrations() {
