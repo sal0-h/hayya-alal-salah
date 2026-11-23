@@ -40,15 +40,19 @@ class ReviewFlowTest {
                 fun byTag(tag: String) = findNode(root()) { it.viewIdResourceName == tag }
                 fun byText(text: String) = findNode(root()) { it.text?.toString() == text }
                 fun click(label: String, locate: () -> AccessibilityNodeInfo?) {
-                    val node = awaitValue(label) {
-                        locate()?.takeIf { it.isVisibleToUser && it.isEnabled }
-                            ?: run {
-                                findNode(root()) { it.isScrollable }
-                                    ?.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
-                                null
-                            }
+                    awaitValue(label) {
+                        // Dialog labels can be exposed as children of the actionable node.
+                        val button = generateSequence(locate()) { it.parent }.firstOrNull {
+                            it.isVisibleToUser && it.isEnabled && it.isClickable
+                        }
+                        if (button != null) {
+                            Unit.takeIf { button.performAction(AccessibilityNodeInfo.ACTION_CLICK) }
+                        } else {
+                            findNode(root()) { it.isScrollable }
+                                ?.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
+                            null
+                        }
                     }
-                    assertTrue("Could not activate $label", node.performAction(AccessibilityNodeInfo.ACTION_CLICK))
                 }
                 fun clickTag(tag: String) = click(tag) { byTag(tag) }
                 fun clickText(text: String) = click(text) { byText(text) }
