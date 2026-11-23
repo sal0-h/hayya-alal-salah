@@ -9,16 +9,16 @@ QA baseline `5bff9bb` passed the initial server checks. The S23 review follow-up
 
 | Area | Implemented | Automated evidence | Physical acceptance |
 | --- | --- | --- | --- |
-| Foundation | Native Compose/API26–37, four modules, pinned tools/engines/dependencies, separate stable QA signing/ID | Clean builds, lint, manifest/privacy checks and signed QA artifacts | Not run; two successive QA updates remain a gate |
+| Foundation | Native Compose/API26–37, four modules, pinned tools/engines/dependencies, separate stable QA signing/ID | Clean builds, lint, manifest/privacy checks and signed QA artifacts | Reported in-place S23 preservation for 48 → 56 → 74. Follow-up build pending physical QA. |
 | Calculation | 15 profiles/two reused engines, both Asr rules, advanced controls/corrections, high latitude, confirmed nearest-valid polar policy/manual reference/disabled, provenance, rollover/Ramadan | 21 core tests plus preserved upstream fixture; six seasonal provider references/36 times differ by at most one minute | No local religious-authority signoff |
-| Tracking | Room records/pauses/audio metadata, explicit correction/backfill/deletion, original date/zone, calendar, daily/per-prayer streaks, coverage/insights | Persistence/reopen/concurrency/preferences, UI correction, actual original-target actions and full private-data deletion fixtures | No physical update/process-kill QA |
+| Tracking | Room records/pauses/audio metadata, explicit correction/backfill/deletion, original date/zone, calendar, daily/per-prayer streaks, coverage/insights | Persistence/reopen/concurrency/preferences, UI correction, actual original-target actions and full private-data deletion fixtures | Records reportedly survived the S23 updates to build 74. Process-kill QA pending. |
 | Navigation/design | Today/History/Settings, all setup/settings/dialog routes, original geometric marker, bundled fonts, four languages/RTL, time/numerals/themes/palettes/reduced motion | Full-route/dialog capture matrix, navigation/labeled-control checks, real 100%/200% system fonts and narrow/tablet widths | TalkBack, Arabic and final design review pending |
 | Alerts/Fajr | Seven-day stable alarms, exact/inexact readiness, best-effort extras, stale/duplicate claims, lifecycle reconciliation, authenticated original-target actions, challenge/emergency stop | Actual idle-capable AlarmManager delivery on APIs26/31/33/37; locked-reboot API37 probe verified active Fajr/bundled audio before unlock and preservation afterward | S23/OEM/overnight/Doze timing unverified |
 | Audio | Three redistributable CC BY recordings, per-prayer/Fajr choices, private bounded validated imports/removal, finite foreground playback, ringer/DND guards, Fajr priority | Actual media preparation/import/corrupt rejection and MediaPlayer/audio-focus pause/regain/priority/emergency stop on all four APIs | Audible/calls/headphones/DND behavior unverified |
 | Focus | Disclosure/consent, selected apps/prayers, metadata-only accessibility, essential exclusions, completion/pause/bypass/expiry, pinned emergency control | Real overlay lifecycle and permission removal passed all four APIs at `5bff9bb` with audio in a separate session | OEM/TalkBack and Play policy review pending |
 | Location | 70,101 offline places with aliases and regional disambiguation, coordinates/IANA zones, bounded visible foreground requests/cache, confirmed zone changes and approximate border suggestion | Four-script city/zone fixtures and packaged privacy/resource checks | GPS/travel/border review pending |
 | Qibla/Hijri | Actual-coordinate bearing, visible-only sensors/true-north correction, quality/numeric fallback, named Umm al-Qura display with independent correction | Core bearing/Hijri fixtures; Android lint and UI captures | Sensor/calibration and Arabic review pending |
-| Widgets | Compact next/countdown and resizable scrollable six-row daily RemoteViews, native countdown/boundary updates, no check-off/polling, pre-unlock/reset placeholder | Actual host bind/render/resize/scroll/clear on four APIs; 32 four-language/font/theme captures | Launcher/reboot/device QA pending |
+| Widgets | Compact next/countdown and resizable scrollable six-row daily RemoteViews, native countdown/boundary updates, no check-off/polling, pre-unlock/reset placeholder | Actual host bind/render/resize/scroll/clear on four APIs; 32 four-language/font/theme captures | Both bindings survived 56 → 74 on the S23. Launcher rendering and reboot QA pending. |
 | Performance/release | Three-year synthetic history, real generated profiles, optimized benchmarks, unsigned reproducibility, privacy/licenses/16 KiB/budget checks, review kits/store drafts/disabled F-Droid recipe | Two profile-generation and five benchmark/memory tests; independent exact-byte release builds; details below | Physical mid-range/power budgets and release/signing/store review pending |
 
 ## Earlier runs and retained evidence
@@ -105,10 +105,10 @@ Dependency checksums are first-resolution trust, not an independent supply-chain
 
 ## Remaining work and external gates
 
-The approved scope passed the baseline checks. Follow-up source is implemented and CI is running before delivery of a new QA build. Physical, language, signing and publication review remain open.
+Physical acceptance, language review, production signing and publication review remain open.
 
-Three signed QA APKs have verified checksums, a common signing certificate and increasing
-version codes. The [device protocol](DEVICE_QA.md#update-preservation) lists them in order.
+The [device protocol](DEVICE_QA.md#update-preservation) lists the baseline signed APKs in order.
+All use the same verified QA certificate and increasing version codes.
 Salman reported that records, theme and imported audio persisted through builds 48 → 56 → 74 on his S23 Ultra. ADB confirmed both widget bindings survived 56 → 74. This verifies that update sequence only. The exact Android/One UI build is unrecorded. Arabic review, a physical mid-range tester, overnight alarms/Doze/OEM/Direct Boot/calls/headphones, live Qibla/TalkBack and physical
 startup/frame/memory/power budgets remain public-release gates. They do not authorize
 publication or excuse leaving independent implementation unfinished.
@@ -143,7 +143,31 @@ on the permitted retry. No active blocker remains. This baseline run contains em
 | Location and History | Ranked 70,101-place GeoNames index with aliases, regions and localized countries. First-run method confirmation finishes setup and opens Today. Existing location changes retain the calculation method. History uses recent-day shortcuts and an on-demand date picker, with explicit coverage and streak measures. |
 | Qibla and Focus | Display-relative, declination-corrected heading rejects stale, low-quality and tilted measurements. The numeric bearing remains available. Focus allows staged bulk selection and cancellation, with unchanged opt-in and essential-app exclusions. |
 
-Automated evidence in progress at `059959e`. [Android](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45104731126), [performance](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45104731094), [reproducibility](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45104731109).
-The scripted Android suite covers the normal launcher activity, first-run confirmation, explicit record transitions, opt-in app selection, offline disambiguation, and Android rotation math using synthetic matrices. Screenshots cover normal and 200% LTR/RTL, including the Ink Blue selection and the status legend.
+Source `8b2eda7` passed 15 ordinary integration tests, one separate audio test
+and one permission-denial test on each of APIs 26, 31, 33 and 37, with no failures
+or skips. The API 37 locked-reboot report recorded active bundled Fajr audio while
+credential storage was locked. The post-unlock fixture verified imported audio
+and the saved record. The normal launcher flow covers first-run confirmation,
+inline explicit statuses and clearing, the legend, and staged Focus selection
+with cancel and apply. Android rotation and true-north correction use synthetic
+matrices. [Android run](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45205128442)
+
+Manual screenshot review covered Today, History, Settings and the selected Ink Blue
+palette in English LTR and Arabic RTL at actual 100% and 200% system font sizes.
+At normal size, all five prayers and sunrise appeared on Today without scrolling
+in the compact phone capture. At 200%, Today scrolls and the English Settings tab
+fits on one line. CI validated all 720 captures at `8b2eda7`.
+[Reviewed captures at `9273199`](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45202921114/artifacts/14833108145) ·
+[Build 94 capture matrix](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45205128442/artifacts/14835090790)
+
+Source `8b2eda7` passed the optimized emulator benchmarks and profile checks.
+Two clean workers produced byte-identical unsigned APKs.
+[Performance](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45205128371) ·
+[Reproducibility](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45205128323)
+
+Signed QA build 94 has package ID `org.hayya.salah.qa` and the previous QA
+certificate. The downloaded APK checksum and signature verified locally. Its
+SHA-256 is `727adcc063f67cd546a97f19d0706588ded015313198134397315345acc13ae1`.
+[Signed APK and checksum](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45205128442/artifacts/14833472002)
 
 Physical evidence for the follow-up build is pending. Build 74's observed Qibla symptom still needs a description and reproduction on the S23 Ultra. Sensor behavior and overnight delivery remain open.

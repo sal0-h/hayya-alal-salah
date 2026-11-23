@@ -16,15 +16,18 @@ calculation/tracking PR #2 and foundation PR #1. Nothing is merged or published.
 The full approved feature scope is implemented. Do not restart the interview or stop
 at the foundation milestone. `docs/PROGRESS.md` is the evidence authority.
 
-Server implementation and verification are complete at source `5bff9bb`. Android
+The original server implementation and verification baseline is source `5bff9bb`. Android
 run43553892997 passed all four APIs (13 ordinary + one separate audio test each),
 672 captures, denial/locked-reboot preservation, lint/privacy/build and QA signing.
 Performance43553892993 and reproducibility43553893029 passed. Downloaded reports and
 actual large-text keyboard images were reviewed. PROGRESS.md has exact evidence.
-The S23 follow-up is implemented in four reviewable commits through `059959e`; see
-the follow-up section of PROGRESS.md for CI and the next signed build. Salman
-confirmed record/theme/import preservation from 48 → 56 → 74 and ADB-confirmed both
-widget bindings from 56 → 74. Qibla, overnight, Arabic, signing and store gates remain open.
+The S23 follow-up source is `8b2eda7` in draft PR #7. The
+[signed QA build 94](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45205128442/artifacts/14833472002)
+is the in-place update from build 74. See PROGRESS.md for its verification and
+DEVICE_QA.md for the S23 spot checks. Salman confirmed record, theme and import
+preservation from 48 → 56 → 74. ADB confirmed both widget bindings from 56 → 74.
+Physical Qibla and overnight alarms, Arabic review, production signing and store
+review remain open.
 
 Real generated profiles and raw emulator measurements are committed. Clean independent
 unsigned builds are byte-identical; exact source/hash evidence is in PROGRESS.md and
@@ -37,9 +40,9 @@ No KVM exists here; use GitHub CI emulators. Avoid overlapping local Gradle buil
 `.local-qa/` holds an ignored private QA key; never commit it. Disk space is limited;
 remove only task-owned reproducible caches/downloads when necessary.
 
-Finish remaining CI failures/capture inspection/documentation autonomously. Physical
-S23/mid-range/overnight/TalkBack/sensors/power and Arabic review are external release
-gates, not coding blockers. Do not merge/publish without the agreed concrete review.
+Physical S23, mid-range, overnight, TalkBack, sensor and power checks and Arabic
+review are the remaining release gates. Merging and publication require the agreed
+release review.
 
 ## Non-negotiable decisions
 

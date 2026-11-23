@@ -70,7 +70,7 @@ and FGS declarations with a video from an actual accepted build.
 ## Review gate
 
 Require green correctness/privacy/license/reproducibility jobs, reviewed calculation
-comparisons, both QA update tests, full-route large-text/RTL evidence, Arabic review,
+comparisons, QA update preservation, full-route large-text/RTL evidence, Arabic review,
 S23 plus physical mid-range/overnight/API-boundary reliability, TalkBack/sensors/audio,
 performance/power budgets and no unresolved calculation/data-loss defects. Keep each
 evidence row honest. Only then prepare a concrete release approval request with
@@ -93,3 +93,8 @@ passed the same checks. Both unsigned APKs have SHA-256
 `5865029392bcd5602b5bc961dd2b3b334f831ce39fa67ccecc15769a73844a70`.
 The source, unsigned APK and bundle, mapping, and review materials are available in
 the [release review artifact](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43553893029/artifacts/14097168476).
+
+The S23 follow-up source `8b2eda74ec097220333a43d59c762bc804e7beb2` passed
+both clean builds and byte comparison. Both APKs have SHA-256
+`14930c63a619cfb059574abd27881f850c961e6482c34c05bd26c34888402b59`.
+The [follow-up review kit](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45205128323/artifacts/14834191412) contains the source, unsigned APK and bundle, and mapping. The [comparison report](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45205128323/artifacts/14832054882) records both checksums.

@@ -27,12 +27,18 @@ import playback, and alert readiness. Add both widgets at version 56 and verify 
 they remain bound and display the correct times at version 74.
 
 If the phone already has a newer QA build with data, preserve that installation and use
-higher version codes for the update test. Use version 74 for the other device journeys
-if the phone can install it. Record physical results separately from artifact verification.
+higher version codes for the update test. Use the latest signed QA build for the other
+device journeys. Record physical results separately from artifact verification.
 
 Salman confirmed record, theme, and imported audio preservation through this sequence
 on his S23 Ultra. ADB confirmed that both widget bindings survived 56 → 74. This result
 covers those updates. The S23 follow-up build still needs its own physical testing.
+
+For the follow-up, download the [signed QA build 94 and checksum](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45205128442/artifacts/14833472002)
+from source `8b2eda7`. Install it over build 74 with
+`adb install -r hayya-qa-8b2eda74ec097220333a43d59c762bc804e7beb2.apk`.
+Repeat the preservation checks before the spot checks below. The APK SHA-256 is
+`727adcc063f67cd546a97f19d0706588ded015313198134397315345acc13ae1`.
 
 ## Reliability and privacy journeys
 
