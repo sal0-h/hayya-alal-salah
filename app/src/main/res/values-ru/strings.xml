@@ -228,4 +228,5 @@
         <item>зуль-кады</item>
         <item>зуль-хиджи</item>
     </string-array>
+    <string name="theme_mode">Тема</string>
 </resources>

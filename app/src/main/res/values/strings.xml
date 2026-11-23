@@ -228,4 +228,5 @@
         <item>Dhu al-Qadah</item>
         <item>Dhu al-Hijjah</item>
     </string-array>
+    <string name="theme_mode">Theme</string>
 </resources>

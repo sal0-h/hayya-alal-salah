@@ -84,7 +84,7 @@ import java.time.ZoneId
     SectionTitle(stringResource(R.string.appearance))
     SelectionField(stringResource(R.string.language), config.language, listOf("system", "en", "ru", "az", "ar"), { languageName(it) }, onLanguage)
     PalettePicker(appearance) { selected -> update { it.copy(appearance = it.appearance.copy(palette = selected)) } }
-    SelectionField(stringResource(R.string.appearance), appearance.theme, ThemePreference.entries,
+    SelectionField(stringResource(R.string.theme_mode), appearance.theme, ThemePreference.entries,
         { stringResource(when (it) { ThemePreference.SYSTEM -> R.string.follow_system; ThemePreference.LIGHT -> R.string.light; ThemePreference.DARK -> R.string.dark }) }) { selected -> update { it.copy(appearance = it.appearance.copy(theme = selected)) } }
     SelectionField(stringResource(R.string.time_format), appearance.time, TimePreference.entries,
         { stringResource(when (it) { TimePreference.SYSTEM -> R.string.follow_system; TimePreference.TWELVE -> R.string.hour_12; TimePreference.TWENTY_FOUR -> R.string.hour_24 }) }) { selected -> update { it.copy(appearance = it.appearance.copy(time = selected)) } }

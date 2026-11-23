@@ -93,7 +93,9 @@ import java.time.*
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(prayerName(prayer), style = MaterialTheme.typography.titleMedium)
             Text(stringResource(R.string.streak_prayer, numberLabel(streak.count)), color = MaterialTheme.colorScheme.primary)
-            Text(stringResource(R.string.on_time_recorded, numberLabel(stats.onTime), numberLabel(stats.eligibleRecorded)))
+            if (stats.eligibleRecorded > 0) {
+                Text(stringResource(R.string.on_time_recorded, numberLabel(stats.onTime), numberLabel(stats.eligibleRecorded)))
+            }
             Text(stringResource(R.string.recorded_coverage, numberLabel(stats.eligibleRecorded), numberLabel(stats.eligibleTotal)),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)

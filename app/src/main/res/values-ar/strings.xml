@@ -228,4 +228,5 @@
         <item>ذو القعدة</item>
         <item>ذو الحجة</item>
     </string-array>
+    <string name="theme_mode">السمة</string>
 </resources>

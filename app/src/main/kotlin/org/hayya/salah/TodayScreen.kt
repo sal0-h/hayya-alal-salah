@@ -92,7 +92,7 @@ private val prayerRows = listOf(Prayer.FAJR, null, Prayer.DHUHR, Prayer.ASR, Pra
 
 @Composable internal fun DailyPrayerRows(date: LocalDate, schedule: DailySchedule?, zone: ZoneId,
     history: HistorySnapshot?, onRecord: (PrayerKey) -> Unit, nextAt: Instant? = null, now: Instant? = null,
-    onStatus: ((PrayerKey, PrayerStatus?, PrayerStatus?) -> Unit)? = null) {
+    onStatus: ((PrayerKey, PrayerStatus?, PrayerStatus?) -> Unit)? = null) = Column {
     prayerRows.forEach { prayer ->
         val key = prayer?.let { PrayerKey(date, it) }
         val label = prayer?.let { prayerName(it) } ?: stringResource(R.string.sunrise)
