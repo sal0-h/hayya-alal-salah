@@ -24,7 +24,7 @@ import java.time.ZoneId
 
 @Composable internal fun LocationControls(select: (String, GeoPoint, String, Instant?) -> Unit) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
     val owner = LocalLifecycleOwner.current
     var query by rememberSaveable { mutableStateOf("") }
     val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
@@ -61,7 +61,11 @@ import java.time.ZoneId
             java.util.Locale.Builder().setRegion(city.country).build().getDisplayCountry(locale)
         }
         val contextLabel = listOf(city.region, country).filter { it.isNotBlank() }.distinct().joinToString(" · ")
-        TextButton(onClick = { select(city.name, city.point, city.zone, null); query = "" },
+        TextButton(onClick = {
+            focusManager.clearFocus()
+            select(city.name, city.point, city.zone, null)
+            query = ""
+        },
             Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("city-${city.name.lowercase()}-${city.country.lowercase()}")) {
             Column(Modifier.fillMaxWidth()) {
                 Text(city.name, style = MaterialTheme.typography.titleMedium)

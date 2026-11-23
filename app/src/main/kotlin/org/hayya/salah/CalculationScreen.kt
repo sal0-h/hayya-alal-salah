@@ -22,7 +22,7 @@ import org.hayya.core.*
     var maghrib by rememberSaveable(place) { mutableStateOf(place.calculation.overrides.maghribAngle?.toString().orEmpty()) }
     val offsets = remember(place) { mutableStateMapOf<Prayer, String>().apply { Prayer.entries.forEach { put(it, (place.calculation.corrections[it] ?: 0).toString()) } } }
     var invalid by remember { mutableStateOf(false) }
-    SectionTitle(stringResource(R.string.prayer_time_method))
+    SectionTitle(stringResource(R.string.calculation))
     MethodPicker(place.zone, profile) {
         profile = it; fajr = ""; isha = ""; interval = ""; maghrib = ""; polar = PolarMode.ASK; reference = ""
     }

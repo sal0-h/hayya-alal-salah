@@ -4,12 +4,10 @@
     <string name="today">اليوم</string>
     <string name="history">السجل</string>
     <string name="settings">الإعدادات</string>
-    <string name="setup_intro">اختر مكانًا وأكّد طريقة الحساب. تُحسب أوقات الصلاة على جهازك دون الحاجة إلى إذن الموقع.</string>
     <string name="place_name">اسم المكان</string>
     <string name="latitude">خط العرض (−90 إلى 90)</string>
     <string name="longitude">خط الطول (−180 إلى 180)</string>
     <string name="timezone">المنطقة الزمنية، مثل Asia/Baku</string>
-    <string name="profile_explanation">أكّد الطريقة التي تتبعها. لا تحدد اللغة أو الموقع ممارستك الدينية.</string>
     <string name="confirm_setup">تأكيد وعرض الأوقات</string>
     <string name="cancel">إلغاء</string>
     <string name="invalid_setup">أدخل اسم المكان وإحداثيات صحيحة ومنطقة زمنية من IANA. استخدم النقطة العشرية في الإحداثيات.</string>
@@ -51,9 +49,6 @@
     <string name="status_unrecorded">غير مسجلة</string>
     <string name="clear_record">حذف التسجيل</string>
     <string name="choose_date">اختر التاريخ</string>
-    <string name="previous_month">الشهر السابق</string>
-    <string name="next_month">الشهر التالي</string>
-    <string name="streak_daily">تتابع الأيام المؤكد: %1$s</string>
     <string name="streak_prayer">تتابع الصلاة في وقتها: %1$s</string>
     <string name="streak_unknown">الاستمرارية قبل ذلك غير مؤكدة. الصلوات غير المسجلة لا تُحسب فائتة.</string>
     <string name="statistics">الإحصاءات والملخصات المحلية</string>
@@ -98,7 +93,6 @@
     <string name="invalid_parameters">تحقق من الأرقام: التصحيح −120…120، الزوايا 0.1…30، المدة 1…300. اختر تعديلًا واحدًا للعشاء.</string>
     <string name="reset_profile">استعادة إعدادات الطريقة</string>
     <string name="qibla">القبلة</string>
-    <string name="hijri_convention">أم القرى · %1$s</string>
     <string name="storage_error">تعذرت قراءة البيانات المحلية. لم يُحذف شيء.</string>
     <string name="no_records">لا توجد تسجيلات لهذه الفترة</string>
     <string name="not_available">غير متاح</string>
@@ -185,11 +179,8 @@
     <string name="confirm_location_zone">تأكيد الموقع والمنطقة الزمنية</string>
     <string name="automatic_location">تحديث الموقع أثناء استخدام التطبيق</string>
     <string name="foreground_location_note">يعمل التحديث التلقائي فقط عندما يكون التطبيق ظاهرًا. الوضع اليدوي لا يطلب الموقع. تغيير المنطقة الزمنية يتطلب التأكيد.</string>
-    <string name="location_observed_at">وقت تحديد الموقع: %1$s</string>
     <string name="qibla_true_bearing">القبلة: %1$s من الشمال الحقيقي</string>
-    <string name="qibla_actual_location">يستخدم الاتجاه إحداثياتك الفعلية حتى عند حساب المواقيت بخط عرض مرجعي قطبي.</string>
     <string name="qibla_numeric_fallback">لا تتوفر قراءة للبوصلة. استخدم الاتجاه الرقمي من الشمال الحقيقي مع خريطة أو بوصلة موثوقة.</string>
-    <string name="qibla_calibrate">دقة المستشعر منخفضة. ابتعد عن المعادن والمغناطيس وحرّك الهاتف برفق على شكل رقم ثمانية ثم أمسكه أفقيًا.</string>
     <string name="qibla_hold_flat">أمسك الهاتف أفقيًا بعيدًا عن المعادن والمغناطيس. قد تتغير قراءات البوصلة.</string>
     <string name="widget_setup">افتح حيّ على الصلاة لاختيار الموقع</string>
     <string name="widget_unlock">افتح القفل لعرض مواقيت الصلاة</string>
@@ -200,7 +191,6 @@
     <string name="focus_service_inactive">التركيز غير نشط حتى تفعّل خدمته في تسهيل الاستخدام في أندرويد.</string>
     <string name="loading">جارٍ التحميل…</string>
     <string name="regional_profiles">ملفات إقليمية للمقارنة: %1$s. اختر طريقة الحساب صراحةً؛ فالموقع لا يحدد ممارستك.</string>
-    <string name="calendar_scroll_hint">مرّر التقويم أفقيًا لرؤية جميع الأيام. يمكنك أيضًا اختيار تاريخ من الزر أعلاه.</string>
     <string name="reset_error">لم يكتمل الحذف. أعد المحاولة أو امسح تخزين التطبيق من إعدادات أندرويد.</string>
     <string name="audio_delete_error">تعذّر حذف الملف الصوتي. حاول مرة أخرى.</string>
     <string name="widget_estimated">تقديري %1$s°</string>

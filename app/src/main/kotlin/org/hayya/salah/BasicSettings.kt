@@ -22,7 +22,7 @@ import kotlinx.coroutines.withContext
 import org.hayya.core.*
 import java.time.ZoneId
 
-@Composable internal fun ManualLocationScreen(initial: ManualSetup?, save: (ManualSetup) -> Unit) {
+@Composable internal fun ManualLocationScreen(initial: ManualSetup?, firstRun: Boolean = initial == null, save: (ManualSetup) -> Unit) {
     var name by rememberSaveable(initial) { mutableStateOf(initial?.name.orEmpty()) }
     var latitude by rememberSaveable(initial) { mutableStateOf(initial?.point?.latitude?.toString().orEmpty()) }
     var longitude by rememberSaveable(initial) { mutableStateOf(initial?.point?.longitude?.toString().orEmpty()) }
@@ -72,7 +72,7 @@ import java.time.ZoneId
         invalid = place == null
         if (place == null) showCoordinates = true else save(place)
     }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("save-location")) {
-        Text(stringResource(if (initial == null) R.string.prayer_time_method else R.string.save_location))
+        Text(stringResource(if (firstRun) R.string.prayer_time_method else R.string.save_location))
     }
 }
 

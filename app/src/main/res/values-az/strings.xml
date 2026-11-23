@@ -4,12 +4,10 @@
     <string name="today">Bu gün</string>
     <string name="history">Tarixçə</string>
     <string name="settings">Ayarlar</string>
-    <string name="setup_intro">Məkan seçin və hesablama üsulunu təsdiqləyin. Namaz vaxtları cihazınızda hesablanır. Məkan icazəsi lazım deyil.</string>
     <string name="place_name">Məkan adı</string>
     <string name="latitude">En dairəsi (−90–90)</string>
     <string name="longitude">Uzunluq dairəsi (−180–180)</string>
     <string name="timezone">Saat qurşağı, məsələn Asia/Baku</string>
-    <string name="profile_explanation">İstifadə etdiyiniz üsulu təsdiqləyin. Dil və məkan dini təcrübənizi müəyyən etmir.</string>
     <string name="confirm_setup">Təsdiqlə və vaxtlara bax</string>
     <string name="cancel">Ləğv et</string>
     <string name="invalid_setup">Məkan adı, düzgün koordinatlar və IANA saat qurşağı daxil edin. Koordinatlarda onluq nöqtədən istifadə edin.</string>
@@ -51,9 +49,6 @@
     <string name="status_unrecorded">Qeyd edilməyib</string>
     <string name="clear_record">Qeydi sil</string>
     <string name="choose_date">Tarix seç</string>
-    <string name="previous_month">Əvvəlki ay</string>
-    <string name="next_month">Növbəti ay</string>
-    <string name="streak_daily">Təsdiqlənmiş gündəlik ardıcıllıq: %1$s</string>
     <string name="streak_prayer">Vaxtında ardıcıllıq: %1$s</string>
     <string name="streak_unknown">Əvvəlki ardıcıllıq təsdiqlənməyib. Qeyd edilməyən namazlar buraxılmış sayılmır.</string>
     <string name="statistics">Statistika və yerli nəticələr</string>
@@ -98,7 +93,6 @@
     <string name="invalid_parameters">Rəqəmləri yoxlayın: düzəliş −120…120, bucaq 0.1…30, interval 1…300. İşa üçün bir parametr seçin.</string>
     <string name="reset_profile">Üsulun standartlarını bərpa et</string>
     <string name="qibla">Qiblə</string>
-    <string name="hijri_convention">Ümmül-Qura · %1$s</string>
     <string name="storage_error">Yerli məlumatları oxumaq mümkün olmadı. Heç nə silinməyib.</string>
     <string name="no_records">Bu dövr üçün qeyd yoxdur</string>
     <string name="not_available">Mövcud deyil</string>
@@ -185,11 +179,8 @@
     <string name="confirm_location_zone">Mövqe və saat qurşağını təsdiqlə</string>
     <string name="automatic_location">Tətbiqdən istifadə zamanı mövqeni yenilə</string>
     <string name="foreground_location_note">Avtomatik yeniləmə yalnız tətbiq görünəndə işləyir. Əl rejimində mövqe sorğusu edilmir. Qurşaq dəyişikliyi təsdiq tələb edir.</string>
-    <string name="location_observed_at">Mövqe müəyyən edilib: %1$s</string>
     <string name="qibla_true_bearing">Qiblə: həqiqi şimaldan %1$s</string>
-    <string name="qibla_actual_location">Namaz vaxtları qütb istinad enliyindən hesablansa da istiqamət həqiqi koordinatlarınızdan istifadə edir.</string>
     <string name="qibla_numeric_fallback">Kompas göstəricisi yoxdur. Etibarlı xəritə və ya kompasla həqiqi şimaldan rəqəmsal istiqaməti istifadə edin.</string>
-    <string name="qibla_calibrate">Sensor dəqiqliyi aşağıdır. Metal və maqnitlərdən uzaqlaşın, telefonu yavaşca səkkiz şəklində hərəkət etdirin, sonra üfüqi saxlayın.</string>
     <string name="qibla_hold_flat">Telefonu metal və maqnitlərdən uzaqda üfüqi saxlayın. Kompas göstəriciləri dəyişə bilər.</string>
     <string name="widget_setup">Mövqe seçmək üçün tətbiqi açın</string>
     <string name="widget_unlock">Namaz vaxtları üçün kilidi açın</string>
@@ -200,7 +191,6 @@
     <string name="focus_service_inactive">Android əlçatanlıq xidmətini aktiv edənədək rejim qeyri-aktivdir.</string>
     <string name="loading">Yüklənir…</string>
     <string name="regional_profiles">Müqayisə üçün regional profillər: %1$s. Üsulu özünüz seçin; məkan dini praktikanızı müəyyən etmir.</string>
-    <string name="calendar_scroll_hint">Bütün günləri görmək üçün təqvimi yana sürüşdürün. Yuxarıdan tarix də seçə bilərsiniz.</string>
     <string name="reset_error">Silinmə tamamlanmadı. Tam sıfırlamanı təkrarlayın və ya Android ayarlarında tətbiq yaddaşını təmizləyin.</string>
     <string name="audio_delete_error">Audio faylı silinmədi. Yenidən cəhd edin.</string>
     <string name="widget_estimated">Təxmini %1$s°</string>

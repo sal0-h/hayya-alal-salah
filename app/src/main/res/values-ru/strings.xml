@@ -4,12 +4,10 @@
     <string name="today">Сегодня</string>
     <string name="history">История</string>
     <string name="settings">Настройки</string>
-    <string name="setup_intro">Выберите место и подтвердите метод расчёта. Время молитв рассчитывается на устройстве. Доступ к геолокации не нужен.</string>
     <string name="place_name">Название места</string>
     <string name="latitude">Широта (от −90 до 90)</string>
     <string name="longitude">Долгота (от −180 до 180)</string>
     <string name="timezone">Часовой пояс, например Asia/Baku</string>
-    <string name="profile_explanation">Подтвердите используемый метод. Язык и местоположение не определяют вашу религиозную практику.</string>
     <string name="confirm_setup">Подтвердить и показать время</string>
     <string name="cancel">Отмена</string>
     <string name="invalid_setup">Введите название, допустимые координаты и часовой пояс IANA. В координатах используйте десятичную точку.</string>
@@ -51,9 +49,6 @@
     <string name="status_unrecorded">Не отмечена</string>
     <string name="clear_record">Удалить отметку</string>
     <string name="choose_date">Выбрать дату</string>
-    <string name="previous_month">Предыдущий месяц</string>
-    <string name="next_month">Следующий месяц</string>
-    <string name="streak_daily">Подтверждённая серия дней: %1$s</string>
     <string name="streak_prayer">Серия вовремя: %1$s</string>
     <string name="streak_unknown">Предыдущая непрерывность не подтверждена. Неотмеченные молитвы не считаются пропущенными.</string>
     <string name="statistics">Статистика и локальные итоги</string>
@@ -98,7 +93,6 @@
     <string name="invalid_parameters">Проверьте числа: поправки −120…120, углы 0,1…30, интервал 1…300. Выберите один параметр Иша.</string>
     <string name="reset_profile">Восстановить параметры метода</string>
     <string name="qibla">Кыбла</string>
-    <string name="hijri_convention">Умм аль-Кура · %1$s</string>
     <string name="storage_error">Не удалось прочитать локальные данные. Ничего не удалено.</string>
     <string name="no_records">Нет отметок за этот период</string>
     <string name="not_available">Недоступно</string>
@@ -185,11 +179,8 @@
     <string name="confirm_location_zone">Подтвердите место и часовой пояс</string>
     <string name="automatic_location">Обновлять место при использовании приложения</string>
     <string name="foreground_location_note">Автообновление работает только при открытом приложении. В ручном режиме запросов местоположения нет. Изменение пояса требует подтверждения.</string>
-    <string name="location_observed_at">Место определено: %1$s</string>
     <string name="qibla_true_bearing">Кибла: %1$s от истинного севера</string>
-    <string name="qibla_actual_location">Направление использует ваши реальные координаты, даже если времена намаза рассчитаны по полярной опорной широте.</string>
     <string name="qibla_numeric_fallback">Показания компаса недоступны. Используйте числовой азимут от истинного севера с надёжной картой или компасом.</string>
-    <string name="qibla_calibrate">Низкая точность датчика. Отойдите от металла и магнитов, плавно опишите телефоном восьмёрку и держите его горизонтально.</string>
     <string name="qibla_hold_flat">Держите телефон горизонтально, вдали от металла и магнитов. Показания компаса могут меняться.</string>
     <string name="widget_setup">Откройте приложение и выберите место</string>
     <string name="widget_unlock">Разблокируйте для показа времени намаза</string>
@@ -200,7 +191,6 @@
     <string name="focus_service_inactive">Режим неактивен, пока его служба не включена в специальных возможностях Android.</string>
     <string name="loading">Загрузка…</string>
     <string name="regional_profiles">Региональные профили для сравнения: %1$s. Выберите метод самостоятельно; местоположение не определяет вашу практику.</string>
-    <string name="calendar_scroll_hint">Прокрутите календарь по горизонтали, чтобы увидеть все дни. Также можно выбрать дату выше.</string>
     <string name="reset_error">Удаление не завершено. Повторите полный сброс или очистите хранилище приложения в настройках Android.</string>
     <string name="audio_delete_error">Не удалось удалить аудиофайл. Повторите попытку.</string>
     <string name="widget_estimated">Оценка %1$s°</string>

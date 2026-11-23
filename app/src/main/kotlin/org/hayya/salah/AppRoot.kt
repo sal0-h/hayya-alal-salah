@@ -104,16 +104,21 @@ import java.time.ZoneId
         save = { PreferencesCodec.encode(AppPreferences(place = it)) },
         restore = { PreferencesCodec.decode(it).place }
     )) { mutableStateOf<ManualSetup?>(null) }
-    val choosingMethod = setupDraft != null
+    var choosingMethod by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(choosingMethod) { if (choosingMethod) scrollState.scrollTo(0) }
-    LaunchedEffect(config.place) { if (config.place != null) setupDraft = null }
+    LaunchedEffect(config.place) {
+        if (config.place != null) {
+            setupDraft = null
+            choosingMethod = false
+        }
+    }
     val roots = listOf("today", "history", "settings")
     val labels = listOf(R.string.today, R.string.history, R.string.settings)
     LaunchedEffect(requested, config.place) {
         if (requested != null && config.place != null) { route = "history"; historyDay = requested.date.toEpochDay(); onRecord(requested); consumeRequest() }
     }
-    BackHandler(route != "today" || setupDraft != null) {
-        if (setupDraft != null) setupDraft = null
+    BackHandler(route != "today" || choosingMethod) {
+        if (choosingMethod) choosingMethod = false
         else route = if (route in roots || route == "qibla") "today" else "settings"
     }
     Scaffold(modifier = Modifier.semantics { testTagsAsResourceId = true }, snackbarHost = { SnackbarHost(snackbar) }, bottomBar = {
@@ -143,12 +148,16 @@ import java.time.ZoneId
             if (place == null) {
                 SectionTitle(stringResource(R.string.app_name))
                 val draft = setupDraft
-                if (draft == null) {
+                if (!choosingMethod || draft == null) {
                     SelectionField(stringResource(R.string.language), config.language, listOf("system", "en", "ru", "az", "ar"), { languageName(it) }, onLanguage)
                     SectionTitle(stringResource(R.string.choose_location))
-                    ManualLocationScreen(null) { setupDraft = it; route = "today" }
+                    ManualLocationScreen(draft, firstRun = true) {
+                        setupDraft = it
+                        choosingMethod = true
+                        route = "today"
+                    }
                 } else {
-                    TextButton(onClick = { setupDraft = null }) { Text(stringResource(R.string.back)) }
+                    TextButton(onClick = { choosingMethod = false }, modifier = Modifier.testTag("setup-back")) { Text(stringResource(R.string.back)) }
                     MethodPicker(draft.zone, draft.profile) { setupDraft = draft.copy(calculation = CalculationSettings(it)) }
                     Button(onClick = { savePlace(draft) }, Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("finish-setup")) {
                         Text(stringResource(R.string.confirm_setup))
@@ -168,7 +177,7 @@ import java.time.ZoneId
                 }
                 "location" -> {
                     SectionTitle(stringResource(R.string.location))
-                    ManualLocationScreen(place, savePlace)
+                    ManualLocationScreen(place, save = savePlace)
                 }
                 "calculation" -> CalculationScreen(place, update)
                 "alerts" -> AlertsScreen(config, history, update)
