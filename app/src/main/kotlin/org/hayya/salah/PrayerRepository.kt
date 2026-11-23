@@ -37,6 +37,19 @@ class PrayerRepository(private val database: PrayerDatabase) {
         if (status == null) dao.deleteRecord(key.date.toEpochDay(), key.prayer.name)
         else dao.setRecord(key.date.toEpochDay(), key.prayer.name, status.name, now.toEpochMilli(), zone.id)
     }
+    /** A rapid second tap must not advance a stale status or overwrite a concurrent edit. */
+    suspend fun changeStatusIfCurrent(key: PrayerKey, expected: PrayerStatus?, status: PrayerStatus?, zone: ZoneId) =
+        withContext(Dispatchers.IO) {
+            database.runInTransaction {
+                val day = key.date.toEpochDay()
+                val prayer = key.prayer.name
+                if (dao.record(day, prayer)?.status == expected?.name &&
+                    (expected != null || dao.pauses().none { day in it.startDay..it.endDay })) {
+                    if (status == null) dao.deleteRecord(day, prayer)
+                    else dao.setRecord(day, prayer, status.name, Instant.now().toEpochMilli(), zone.id)
+                }
+            }
+        }
     suspend fun addPause(pause: PauseInterval) = withContext(Dispatchers.IO) { dao.addPause(PauseEntity(pause.start.toEpochDay(), pause.endInclusive.toEpochDay())) }
     suspend fun deletePause(pause: PauseInterval) = withContext(Dispatchers.IO) { dao.deletePause(pause.start.toEpochDay(), pause.endInclusive.toEpochDay()) }
     suspend fun putAudio(audio: AudioEntity) = withContext(Dispatchers.IO) { dao.putAudio(audio) }

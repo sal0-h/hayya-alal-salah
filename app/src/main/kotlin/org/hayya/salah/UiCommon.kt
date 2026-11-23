@@ -25,6 +25,10 @@ internal typealias PreferencesUpdate = ((AppPreferences) -> AppPreferences) -> U
     return date.format(DateTimeFormatter.ofLocalizedDate(style).withLocale(locale)
         .withDecimalStyle(decimalStyle(locale, LocalAppearance.current.numerals)))
 }
+@Composable internal fun hijriLabel(date: HijriDate): String {
+    val month = androidx.compose.ui.res.stringArrayResource(R.array.hijri_months)[date.month - 1]
+    return stringResource(R.string.hijri_date, numberLabel(date.day), month, numberLabel(date.year))
+}
 @Composable internal fun statusName(status: PrayerStatus?) = stringResource(when (status) {
     PrayerStatus.ON_TIME -> R.string.status_on_time; PrayerStatus.MADE_UP -> R.string.status_made_up
     PrayerStatus.MISSED -> R.string.status_missed; PrayerStatus.EXCUSED -> R.string.status_excused
@@ -98,6 +102,5 @@ internal fun statusSymbol(status: PrayerStatus?) = when (status) {
 }
 
 @Composable internal fun LoadingIndicator() {
-    if (LocalAppearance.current.reducedMotion) Text(stringResource(R.string.loading), modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
-    else CircularProgressIndicator()
+    Text(stringResource(R.string.loading), modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
 }

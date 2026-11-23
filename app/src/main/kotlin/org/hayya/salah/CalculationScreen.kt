@@ -22,10 +22,8 @@ import org.hayya.core.*
     var maghrib by rememberSaveable(place) { mutableStateOf(place.calculation.overrides.maghribAngle?.toString().orEmpty()) }
     val offsets = remember(place) { mutableStateMapOf<Prayer, String>().apply { Prayer.entries.forEach { put(it, (place.calculation.corrections[it] ?: 0).toString()) } } }
     var invalid by remember { mutableStateOf(false) }
-    SectionTitle(stringResource(R.string.calculation))
-    val regional = remember(place.zone) { regionalProfiles(place.zone) }
-    if (regional.isNotEmpty()) Text(stringResource(R.string.regional_profiles,regional.map { profileName(it) }.joinToString(" · ")),style = MaterialTheme.typography.bodySmall)
-    SelectionField(stringResource(R.string.calculation), profile, Profile.entries, { profileName(it) }) {
+    SectionTitle(stringResource(R.string.prayer_time_method))
+    MethodPicker(place.zone, profile) {
         profile = it; fajr = ""; isha = ""; interval = ""; maghrib = ""; polar = PolarMode.ASK; reference = ""
     }
     SelectionField(stringResource(R.string.asr_convention), asr, AsrConvention.entries,
@@ -61,4 +59,13 @@ import org.hayya.core.*
     TextButton(onClick = { update { it.copy(place = place.copy(calculation = CalculationSettings(profile))) } }, modifier = Modifier.heightIn(min = 48.dp)) {
         Text(stringResource(R.string.reset_profile))
     }
+}
+
+/** The calculation route and first-run confirmation share the same method choices. */
+@Composable internal fun MethodPicker(zone: java.time.ZoneId, profile: Profile, select: (Profile) -> Unit) {
+    val regional = remember(zone) { regionalProfiles(zone) }
+    if (regional.isNotEmpty()) Text(stringResource(R.string.regional_profiles,
+        regional.map { profileName(it) }.joinToString(" · ")),
+        style = MaterialTheme.typography.bodySmall)
+    SelectionField(stringResource(R.string.prayer_time_method), profile, Profile.entries, { profileName(it) }, select)
 }
