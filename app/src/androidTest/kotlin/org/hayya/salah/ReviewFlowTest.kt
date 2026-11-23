@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 package org.hayya.salah
 
+import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.os.Build
 import android.os.Bundle
@@ -55,7 +56,6 @@ class ReviewFlowTest {
                     }
                 }
                 fun clickTag(tag: String) = click(tag) { byTag(tag) }
-                fun clickText(text: String) = click(text) { byText(text) }
                 val search = awaitValue("offline city search") { byTag("search-city") }
                 assertTrue(search.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, Bundle().apply {
                     putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, "Baku")
@@ -113,7 +113,8 @@ class ReviewFlowTest {
                 }
                 clickTag("status-legend")
                 awaitValue("status legend") { byText(context.getString(R.string.status_legend_instructions)) }
-                clickText(context.getString(R.string.close))
+                assertTrue(automation.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK))
+                awaitValue("Today after dismissing the legend") { byTag("screen-today") }
                 assertNull(byTag("record-status-sunrise"))
                 clickTag("nav-settings")
                 clickTag("settings-focus")
@@ -121,7 +122,7 @@ class ReviewFlowTest {
                 clickTag("focus-select-all")
                 val packageName = InstrumentationRegistry.getInstrumentation().context.packageName
                 assertTrue(runBlocking { app.settings.preferences.first().focus.packages.isEmpty() })
-                clickText(context.getString(R.string.cancel))
+                assertTrue(automation.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK))
                 awaitValue("Focus screen") { byTag("focus-choose-apps") }
                 assertTrue(runBlocking { app.settings.preferences.first().focus.packages.isEmpty() })
                 clickTag("focus-choose-apps")
