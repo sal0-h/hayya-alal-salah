@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -26,8 +27,10 @@ import java.time.ZoneId
     val scope = rememberCoroutineScope()
     val owner = LocalLifecycleOwner.current
     var query by rememberSaveable { mutableStateOf("") }
-    val cities by produceState<List<OfflineCity>>(emptyList(), query) {
-        delay(250); value = OfflineCities(context).search(query)
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
+    val cities by produceState<List<OfflineCity>>(emptyList(), query, locale) {
+        value = emptyList()
+        delay(250); value = OfflineCities(context).search(query, locale)
     }
     var busy by remember { mutableStateOf(false) }
     var unavailable by remember { mutableStateOf(false) }
@@ -52,15 +55,26 @@ import java.time.ZoneId
             awaitCancellation()
         }
     }
-    OutlinedTextField(query, { query = it }, label = { Text(stringResource(R.string.search_city)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
-    cities.forEach { city -> TextButton(onClick = { select(city.name, city.point, city.zone, null); query = "" }, Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("${city.name} · ${city.country} · ${city.zone}") } }
+    OutlinedTextField(query, { query = it }, label = { Text(stringResource(R.string.search_city)) }, singleLine = true, modifier = Modifier.fillMaxWidth().testTag("search-city"))
+    cities.forEach { city ->
+        val country = remember(city.country, locale) {
+            java.util.Locale.Builder().setRegion(city.country).build().getDisplayCountry(locale)
+        }
+        val contextLabel = listOf(city.region, country).filter { it.isNotBlank() }.distinct().joinToString(" · ")
+        TextButton(onClick = { select(city.name, city.point, city.zone, null); query = "" },
+            Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("city-${city.name.lowercase()}-${city.country.lowercase()}")) {
+            Column(Modifier.fillMaxWidth()) {
+                Text(city.name, style = MaterialTheme.typography.titleMedium)
+                Text(contextLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
     OutlinedButton(onClick = {
         if (ForegroundLocation.allowed(context)) request++
         else permission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
     }, enabled = !busy) { Text(stringResource(R.string.use_device_location)) }
     if (busy) LoadingIndicator()
     if (unavailable) Text(stringResource(R.string.location_unavailable), color = MaterialTheme.colorScheme.error)
-    Text(stringResource(R.string.zone_suggestion_note))
 }
 
 /** Foreground-only automatic refresh; coordinate and confirmed zone change atomically. */
@@ -97,5 +111,5 @@ import java.time.ZoneId
             val selected = runCatching { candidate.copy(zone = ZoneId.of(zone.trim())) }.getOrNull()
             invalid = selected == null
             if (selected != null) { save(selected); pending = null }
-        }) { Text(stringResource(R.string.confirm_setup)) } }, dismissButton = { TextButton(onClick = { pending = null }) { Text(stringResource(R.string.cancel)) } }) }
+        }) { Text(stringResource(R.string.save_location)) } }, dismissButton = { TextButton(onClick = { pending = null }) { Text(stringResource(R.string.cancel)) } }) }
 }

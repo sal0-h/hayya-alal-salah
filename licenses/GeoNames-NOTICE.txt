@@ -1,6 +1,6 @@
-Geographic names, coordinates, country and time-zone identifiers: GeoNames.
+Geographic names, coordinates, country codes, regions and time zones: GeoNames.
 https://www.geonames.org/
-Source cities15000.zip, retrieved 2026-11-13.
+Sources cities5000.zip and admin1CodesASCII.txt, retrieved 2026-11-23.
 Creative Commons Attribution 4.0 International: https://creativecommons.org/licenses/by/4.0/
-Modified: filtered/reordered columns and bounded Latin/Cyrillic/Arabic aliases for
-a compact offline search index. No endorsement is implied.
+Modified: joined first-level regions, filtered and population-ranked populated places,
+and normalized searchable names and alternate names for the bundled offline index.
