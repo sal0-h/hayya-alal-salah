@@ -2,9 +2,13 @@
 package org.hayya.salah
 
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.graphics.Bitmap
+import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.view.InputDevice
+import android.view.MotionEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import android.view.Surface
@@ -136,14 +140,39 @@ class ReviewFlowTest {
                 assertTrue(runBlocking { app.settings.preferences.first().focus.packages.isEmpty() })
                 clickTag("focus-choose-apps")
                 clickTag("focus-select-all")
-                clickTag("focus-apply-apps")
-                runBlocking {
-                    kotlinx.coroutines.withTimeout(10_000) {
-                        app.settings.preferences.first { packageName in it.focus.packages }
+                try {
+                    val bounds = awaitValue("visible Apply button") {
+                        val button = byTag("focus-apply-apps") ?: byText(context.getString(R.string.apply))
+                        val rect = Rect()
+                        button?.getBoundsInScreen(rect)
+                        rect.takeUnless { it.isEmpty }
+                    }
+                    val downAt = SystemClock.uptimeMillis()
+                    for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {
+                        val event = MotionEvent.obtain(downAt, SystemClock.uptimeMillis(), action,
+                            bounds.exactCenterX(), bounds.exactCenterY(), 0)
+                        try {
+                            event.source = InputDevice.SOURCE_TOUCHSCREEN
+                            assertTrue(automation.injectInputEvent(event, true))
+                        } finally {
+                            event.recycle()
+                        }
+                    }
+                    awaitValue("applied Focus selection") {
+                        runBlocking { app.settings.preferences.first() }.takeIf { packageName in it.focus.packages }
                     }.let { prefs ->
                         assertFalse(prefs.focus.enabled)
                         assertTrue(prefs.focus.packages.intersect(org.hayya.salah.focus.EssentialApps.excluded(context)).isEmpty())
                     }
+                } catch (failure: AssertionError) {
+                    val directory = InstrumentationRegistry.getArguments().getString("additionalTestOutputDir")
+                    if (directory != null) runCatching {
+                        val screenshot = automation.takeScreenshot() ?: return@runCatching
+                        java.io.File(directory, "focus-picker-failure.png").outputStream().use {
+                            screenshot.compress(Bitmap.CompressFormat.PNG, 100, it)
+                        }
+                    }
+                    throw failure
                 }
             }
         } finally {

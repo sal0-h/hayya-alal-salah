@@ -18,6 +18,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -60,6 +62,12 @@ import org.hayya.salah.focus.EssentialApps
 
 @Composable private fun FocusAppPicker(apps: List<Pair<String, String>>, initial: Set<String>,
     apply: (Set<String>) -> Unit, cancel: () -> Unit) {
+    val focus = LocalFocusManager.current
+    val keyboard = LocalSoftwareKeyboardController.current
+    fun finishSearching() {
+        focus.clearFocus()
+        keyboard?.hide()
+    }
     var selected by remember { mutableStateOf(initial) }
     var query by remember { mutableStateOf("") }
     val matches = remember(query, apps) { apps.filter { (id, label) ->
@@ -78,11 +86,11 @@ import org.hayya.salah.focus.EssentialApps
                     singleLine = true, modifier = Modifier.fillMaxWidth().testTag("focus-app-search"))
                 Text(stringResource(R.string.focus_app_count, numberLabel(selected.size)),
                     Modifier.semantics { liveRegion = LiveRegionMode.Polite })
-                TextButton(onClick = { selected = selected + ids }, enabled = ids.any { it !in selected },
+                TextButton(onClick = { selected = selected + ids; finishSearching() }, enabled = ids.any { it !in selected },
                     modifier = Modifier.heightIn(min = 48.dp).testTag("focus-select-all")) {
                     Text(stringResource(R.string.focus_select_results))
                 }
-                TextButton(onClick = { selected = selected - ids }, enabled = ids.any { it in selected },
+                TextButton(onClick = { selected = selected - ids; finishSearching() }, enabled = ids.any { it in selected },
                     modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.focus_clear_results)) }
                 if (matches.isEmpty()) Text(stringResource(R.string.focus_no_apps))
                 else LazyColumn(Modifier.weight(1f, fill = false).heightIn(max = 280.dp)) {
