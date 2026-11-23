@@ -23,13 +23,10 @@ internal fun focusOverlayContent(base: Context, language: String, appearance: Ap
     fun dp(value: Int) = (value*density).toInt()
     val dark = appearance.theme == ThemePreference.DARK || appearance.theme == ThemePreference.SYSTEM &&
         context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
-    val backgroundColor = if (dark) 0xff101d26.toInt() else 0xfff8fafc.toInt()
-    val foreground = if (dark) 0xffe4edf2.toInt() else 0xff172d3a.toInt()
-    val accent = when (appearance.palette) {
-        Palette.TEAL -> if (dark) 0xff76c9cf.toInt() else 0xff086d79.toInt()
-        Palette.INK -> if (dark) 0xffa6c8ff.toInt() else 0xff204d86.toInt()
-        Palette.PLUM -> if (dark) 0xffe5aadc.toInt() else 0xff743768.toInt()
-    }
+    val colors = paletteColors(appearance.palette, dark)
+    val backgroundColor = colors.surface
+    val foreground = colors.ink
+    val accent = colors.accent
     val arabic = context.resources.configuration.locales[0].language == "ar"
     val font = ResourcesCompat.getFont(context,if (arabic) R.font.plex_arabic_regular else R.font.plex_sans_regular)
     val body = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER_VERTICAL; setPadding(dp(8),dp(16),dp(8),dp(24)) }

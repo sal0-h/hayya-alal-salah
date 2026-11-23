@@ -111,7 +111,7 @@
     <string name="light">Светлая</string>
     <string name="dark">Тёмная</string>
     <string name="palette">Палитра</string>
-    <string name="teal">Бирюзовая</string>
+    <string name="teal">Шалфей</string>
     <string name="ink">Чернильная</string>
     <string name="plum">Сливовая</string>
     <string name="time_format">Формат времени</string>
@@ -204,4 +204,38 @@
     <string name="reset_error">Удаление не завершено. Повторите полный сброс или очистите хранилище приложения в настройках Android.</string>
     <string name="audio_delete_error">Не удалось удалить аудиофайл. Повторите попытку.</string>
     <string name="widget_estimated">Оценка %1$s°</string>
+    <string name="status_legend">Статусы намаза</string>
+    <string name="status_legend_instructions">Нажимайте на значок, чтобы менять статус. Нажмите на название намаза, чтобы изменить или удалить запись. Пауза не создаёт запись.</string>
+    <string name="edit_prayer_status">Изменить запись: %1$s</string>
+    <string name="set_prayer_status">Изменить статус на «%1$s»</string>
+    <string name="hijri_date">%1$s %2$s %3$s г. х.</string>
+    <string name="hijri_calendar">Календарь хиджры</string>
+    <string name="hijri_umm_al_qura">Календарь Умм аль-Кура</string>
+    <string name="prayer_time_method">Метод расчёта времени намаза</string>
+    <string name="save_location">Сохранить место</string>
+    <string name="coordinates_and_zone">Координаты и часовой пояс</string>
+    <string name="choose_location">Выберите место</string>
+    <string name="recent_yesterday">Вчера</string>
+    <string name="on_time_streak">Подтверждённая серия дней</string>
+    <string name="choose_focus_apps">Выбрать приложения</string>
+    <string name="focus_app_count">Выбрано приложений: %1$s</string>
+    <string name="focus_app_search">Найти приложение</string>
+    <string name="focus_select_results">Выбрать результаты</string>
+    <string name="focus_clear_results">Снять выбор с результатов</string>
+    <string name="focus_no_apps">Нет подходящих приложений</string>
+    <string name="qibla_unstable_heading">Направление с датчика недоступно. Держите телефон горизонтально вдали от металла и магнитов.</string>
+    <string-array name="hijri_months">
+        <item>мухаррама</item>
+        <item>сафара</item>
+        <item>раби аль-авваля</item>
+        <item>раби ас-сани</item>
+        <item>джумада аль-уля</item>
+        <item>джумада ас-сания</item>
+        <item>раджаба</item>
+        <item>шаабана</item>
+        <item>рамадана</item>
+        <item>шавваля</item>
+        <item>зуль-кады</item>
+        <item>зуль-хиджи</item>
+    </string-array>
 </resources>

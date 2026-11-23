@@ -111,7 +111,7 @@
     <string name="light">فاتح</string>
     <string name="dark">داكن</string>
     <string name="palette">لوحة الألوان</string>
-    <string name="teal">فيروزي</string>
+    <string name="teal">أخضر مريمي</string>
     <string name="ink">أزرق حبري</string>
     <string name="plum">برقوقي</string>
     <string name="time_format">تنسيق الوقت</string>
@@ -204,4 +204,38 @@
     <string name="reset_error">لم يكتمل الحذف. أعد المحاولة أو امسح تخزين التطبيق من إعدادات أندرويد.</string>
     <string name="audio_delete_error">تعذّر حذف الملف الصوتي. حاول مرة أخرى.</string>
     <string name="widget_estimated">تقديري %1$s°</string>
+    <string name="status_legend">حالات الصلاة</string>
+    <string name="status_legend_instructions">اضغط على الرمز للتنقل بين الحالات. اضغط على اسم الصلاة لتعديل سجلها أو حذفه. الإيقاف المؤقت لا ينشئ سجلًا.</string>
+    <string name="edit_prayer_status">تعديل سجل %1$s</string>
+    <string name="set_prayer_status">تغيير الحالة إلى %1$s</string>
+    <string name="hijri_date">%1$s %2$s %3$s هـ</string>
+    <string name="hijri_calendar">التقويم الهجري</string>
+    <string name="hijri_umm_al_qura">تقويم أم القرى</string>
+    <string name="prayer_time_method">طريقة حساب أوقات الصلاة</string>
+    <string name="save_location">حفظ الموقع</string>
+    <string name="coordinates_and_zone">الإحداثيات والمنطقة الزمنية</string>
+    <string name="choose_location">اختر الموقع</string>
+    <string name="recent_yesterday">أمس</string>
+    <string name="on_time_streak">سلسلة أيام مؤكدة</string>
+    <string name="choose_focus_apps">اختيار التطبيقات</string>
+    <string name="focus_app_count">التطبيقات المحددة: %1$s</string>
+    <string name="focus_app_search">البحث عن تطبيق</string>
+    <string name="focus_select_results">تحديد النتائج</string>
+    <string name="focus_clear_results">إلغاء تحديد النتائج</string>
+    <string name="focus_no_apps">لا توجد تطبيقات مطابقة</string>
+    <string name="qibla_unstable_heading">الاتجاه المباشر غير متاح. أمسك الهاتف بشكل أفقي وأبعده عن المعادن والمغناطيس.</string>
+    <string-array name="hijri_months">
+        <item>محرم</item>
+        <item>صفر</item>
+        <item>ربيع الأول</item>
+        <item>ربيع الآخر</item>
+        <item>جمادى الأولى</item>
+        <item>جمادى الآخرة</item>
+        <item>رجب</item>
+        <item>شعبان</item>
+        <item>رمضان</item>
+        <item>شوال</item>
+        <item>ذو القعدة</item>
+        <item>ذو الحجة</item>
+    </string-array>
 </resources>

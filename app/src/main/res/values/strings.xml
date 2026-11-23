@@ -111,7 +111,7 @@
     <string name="light">Light</string>
     <string name="dark">Dark</string>
     <string name="palette">Palette</string>
-    <string name="teal">Teal</string>
+    <string name="teal">Sage</string>
     <string name="ink">Ink blue</string>
     <string name="plum">Plum</string>
     <string name="time_format">Time format</string>
@@ -204,4 +204,38 @@
     <string name="reset_error">Deletion did not finish. Retry full reset or clear app storage in Android settings.</string>
     <string name="audio_delete_error">The audio file could not be removed. Try again.</string>
     <string name="widget_estimated">Estimated %1$s°</string>
+    <string name="status_legend">Prayer statuses</string>
+    <string name="status_legend_instructions">Tap a status icon to cycle through choices. Tap the prayer name to edit or clear its record. A pause does not create a record.</string>
+    <string name="edit_prayer_status">Edit %1$s record</string>
+    <string name="set_prayer_status">Change status to %1$s</string>
+    <string name="hijri_date">%1$s %2$s %3$s AH</string>
+    <string name="hijri_calendar">Hijri calendar</string>
+    <string name="hijri_umm_al_qura">Umm al-Qura calendar</string>
+    <string name="prayer_time_method">Prayer time method</string>
+    <string name="save_location">Save location</string>
+    <string name="coordinates_and_zone">Coordinates and time zone</string>
+    <string name="choose_location">Choose a location</string>
+    <string name="recent_yesterday">Yesterday</string>
+    <string name="on_time_streak">Verified daily streak</string>
+    <string name="choose_focus_apps">Choose apps</string>
+    <string name="focus_app_count">Selected apps: %1$s</string>
+    <string name="focus_app_search">Find an app</string>
+    <string name="focus_select_results">Select results</string>
+    <string name="focus_clear_results">Deselect results</string>
+    <string name="focus_no_apps">No matching apps</string>
+    <string name="qibla_unstable_heading">Live heading is unavailable. Hold the phone flat and move it away from metal or magnets.</string>
+    <string-array name="hijri_months">
+        <item>Muharram</item>
+        <item>Safar</item>
+        <item>Rabi al-Awwal</item>
+        <item>Rabi al-Thani</item>
+        <item>Jumada al-Awwal</item>
+        <item>Jumada al-Thani</item>
+        <item>Rajab</item>
+        <item>Sha\'ban</item>
+        <item>Ramadan</item>
+        <item>Shawwal</item>
+        <item>Dhu al-Qadah</item>
+        <item>Dhu al-Hijjah</item>
+    </string-array>
 </resources>

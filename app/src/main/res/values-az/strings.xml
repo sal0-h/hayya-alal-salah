@@ -111,7 +111,7 @@
     <string name="light">Açıq</string>
     <string name="dark">Tünd</string>
     <string name="palette">Palitra</string>
-    <string name="teal">Firuzəyi</string>
+    <string name="teal">Adaçayı</string>
     <string name="ink">Mürəkkəb mavisi</string>
     <string name="plum">Gavalı rəngi</string>
     <string name="time_format">Saat formatı</string>
@@ -204,4 +204,38 @@
     <string name="reset_error">Silinmə tamamlanmadı. Tam sıfırlamanı təkrarlayın və ya Android ayarlarında tətbiq yaddaşını təmizləyin.</string>
     <string name="audio_delete_error">Audio faylı silinmədi. Yenidən cəhd edin.</string>
     <string name="widget_estimated">Təxmini %1$s°</string>
+    <string name="status_legend">Namaz statusları</string>
+    <string name="status_legend_instructions">Statusu dəyişmək üçün işarəyə toxunun. Qeydi dəyişmək və ya silmək üçün namazın adına toxunun. Fasilə qeyd yaratmır.</string>
+    <string name="edit_prayer_status">%1$s qeydini dəyiş</string>
+    <string name="set_prayer_status">Statusu dəyiş: %1$s</string>
+    <string name="hijri_date">%1$s %2$s %3$s hicri</string>
+    <string name="hijri_calendar">Hicri təqvim</string>
+    <string name="hijri_umm_al_qura">Ümmül-Qura təqvimi</string>
+    <string name="prayer_time_method">Namaz vaxtının hesablanma üsulu</string>
+    <string name="save_location">Məkanı yadda saxla</string>
+    <string name="coordinates_and_zone">Koordinatlar və saat qurşağı</string>
+    <string name="choose_location">Məkan seçin</string>
+    <string name="recent_yesterday">Dünən</string>
+    <string name="on_time_streak">Təsdiqlənmiş gündəlik ardıcıllıq</string>
+    <string name="choose_focus_apps">Tətbiqləri seç</string>
+    <string name="focus_app_count">Seçilmiş tətbiqlər: %1$s</string>
+    <string name="focus_app_search">Tətbiq axtar</string>
+    <string name="focus_select_results">Nəticələri seç</string>
+    <string name="focus_clear_results">Nəticələrin seçimini ləğv et</string>
+    <string name="focus_no_apps">Uyğun tətbiq yoxdur</string>
+    <string name="qibla_unstable_heading">Canlı istiqamət göstərilmir. Telefonu üfüqi tutun və metal və maqnitlərdən uzaqlaşdırın.</string>
+    <string-array name="hijri_months">
+        <item>Məhərrəm</item>
+        <item>Səfər</item>
+        <item>Rəbiüləvvəl</item>
+        <item>Rəbiülaxır</item>
+        <item>Cəmadiyüləvvəl</item>
+        <item>Cəmadiyülaxır</item>
+        <item>Rəcəb</item>
+        <item>Şaban</item>
+        <item>Ramazan</item>
+        <item>Şəvval</item>
+        <item>Zilqədə</item>
+        <item>Zilhiccə</item>
+    </string-array>
 </resources>
