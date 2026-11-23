@@ -108,6 +108,7 @@ import java.time.ZoneId
     LaunchedEffect(choosingMethod) { if (choosingMethod) scrollState.scrollTo(0) }
     LaunchedEffect(config.place) {
         if (config.place != null) {
+            if (choosingMethod) scrollState.scrollTo(0)
             setupDraft = null
             choosingMethod = false
         }

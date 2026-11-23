@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.onClick
@@ -152,13 +153,17 @@ internal fun nextExplicitStatus(status: PrayerStatus?): PrayerStatus? = when (st
 }
 
 @Composable private fun StatusLegend(close: () -> Unit) {
-    AlertDialog(onDismissRequest = close, title = { Text(stringResource(R.string.status_legend)) },
+    AlertDialog(onDismissRequest = close,
+        modifier = Modifier.semantics { testTagsAsResourceId = true },
+        title = { Text(stringResource(R.string.status_legend)) },
         text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             (listOf(null) + PrayerStatus.entries).forEach { status ->
                 Text("${statusSymbol(status)}  ${statusName(status)}")
             }
             Text(stringResource(R.string.status_legend_instructions))
-        } }, confirmButton = { TextButton(onClick = close) { Text(stringResource(R.string.close)) } })
+        } }, confirmButton = {
+            TextButton(onClick = close, modifier = Modifier.testTag("status-legend-close")) { Text(stringResource(R.string.close)) }
+        })
 }
 
 /** Same content for public synthetic screenshots, without reading private storage. */

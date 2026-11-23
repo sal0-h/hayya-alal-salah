@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 package org.hayya.salah
 
-import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.os.Build
 import android.os.Bundle
@@ -35,11 +34,17 @@ class ReviewFlowTest {
             ActivityScenario.launch(MainActivity::class.java).use {
                 val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
                 automation.serviceInfo = automation.serviceInfo.apply {
-                    flags = flags or AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS
+                    flags = flags or AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS or
+                        AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
                 }
-                fun root() = automation.rootInActiveWindow
-                fun byTag(tag: String) = findNode(root()) { it.viewIdResourceName == tag }
-                fun byText(text: String) = findNode(root()) { it.text?.toString() == text }
+                fun find(predicate: (AccessibilityNodeInfo) -> Boolean): AccessibilityNodeInfo? {
+                    val windows = automation.windows.asSequence().mapNotNull { it.root }
+                    return (sequenceOf(automation.rootInActiveWindow).filterNotNull() + windows)
+                        .filter { it.packageName?.toString() == context.packageName }
+                        .firstNotNullOfOrNull { root -> findNode(root) { it.isVisibleToUser && predicate(it) } }
+                }
+                fun byTag(tag: String) = find { it.viewIdResourceName == tag }
+                fun byText(text: String) = find { it.text?.toString() == text }
                 fun click(label: String, locate: () -> AccessibilityNodeInfo?) {
                     awaitValue(label) {
                         // Dialog labels can be exposed as children of the actionable node.
@@ -49,7 +54,7 @@ class ReviewFlowTest {
                         if (button != null) {
                             Unit.takeIf { button.performAction(AccessibilityNodeInfo.ACTION_CLICK) }
                         } else {
-                            findNode(root()) { it.isScrollable }
+                            find { it.isScrollable }
                                 ?.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
                             null
                         }
@@ -113,8 +118,10 @@ class ReviewFlowTest {
                 }
                 clickTag("status-legend")
                 awaitValue("status legend") { byText(context.getString(R.string.status_legend_instructions)) }
-                assertTrue(automation.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK))
-                awaitValue("Today after dismissing the legend") { byTag("screen-today") }
+                clickTag("status-legend-close")
+                awaitValue("Today after dismissing the legend") {
+                    byTag("screen-today")?.takeIf { byTag("status-legend-close") == null }
+                }
                 assertNull(byTag("record-status-sunrise"))
                 clickTag("nav-settings")
                 clickTag("settings-focus")
@@ -122,8 +129,10 @@ class ReviewFlowTest {
                 clickTag("focus-select-all")
                 val packageName = InstrumentationRegistry.getInstrumentation().context.packageName
                 assertTrue(runBlocking { app.settings.preferences.first().focus.packages.isEmpty() })
-                assertTrue(automation.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK))
-                awaitValue("Focus screen") { byTag("focus-choose-apps") }
+                clickTag("focus-cancel-apps")
+                awaitValue("Focus screen") {
+                    byTag("focus-choose-apps")?.takeIf { byTag("focus-apply-apps") == null }
+                }
                 assertTrue(runBlocking { app.settings.preferences.first().focus.packages.isEmpty() })
                 clickTag("focus-choose-apps")
                 clickTag("focus-select-all")

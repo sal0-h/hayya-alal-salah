@@ -95,5 +95,7 @@ import org.hayya.salah.focus.EssentialApps
             TextButton(onClick = { apply(selected) }, modifier = Modifier.testTag("focus-apply-apps")) {
                 Text(stringResource(R.string.apply))
             }
-        }, dismissButton = { TextButton(onClick = cancel) { Text(stringResource(R.string.cancel)) } })
+        }, dismissButton = {
+            TextButton(onClick = cancel, modifier = Modifier.testTag("focus-cancel-apps")) { Text(stringResource(R.string.cancel)) }
+        })
 }
