@@ -55,6 +55,23 @@ Do not install debug-only fixtures or run `integration_ci.sh`, `direct_boot_ci.s
 benchmark seed scripts on a personal phone. They deliberately reset isolated emulator
 state and are not the physical acceptance procedure.
 
+## S23 follow-up spot checks
+
+On Today, check that Fajr through Isha and sunrise fit at normal font size. At
+200%, scroll to the last row and check that the Settings tab stays on one line.
+Tap an elapsed prayer's status icon, tap its name to edit or clear it, and open the
+legend with the question-mark button. In Appearance, tap Ink Blue and check the
+swatch, selected marker, and immediate recoloring. Open History and try Yesterday
+and the date picker. Check that coverage distinguishes missing entries from explicit
+records and pause days.
+
+For Qibla, use a known public city and note the numeric bearing and any quality
+message. Hold the phone flat, away from a magnetic case or metal. Turn it slowly,
+first in portrait and then with Android auto-rotate enabled. Record whether the
+live arrow points the wrong way, jumps, or disappears, and note how the phone was
+held when it happens. The numeric bearing should stay the same as the phone turns.
+Tilt the phone up and verify that the live arrow yields to the numeric fallback.
+
 ## Human design/accessibility/language review
 
 Review all destinations and dialogs in EN/RU/AZ with Salman and AR with a fluent Arabic

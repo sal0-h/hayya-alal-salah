@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 package org.hayya.salah
 
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.os.Build
+import android.os.Bundle
+import android.os.SystemClock
+import android.view.accessibility.AccessibilityNodeInfo
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import android.view.Surface
-import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.*
-import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -13,7 +15,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.hayya.core.*
 import org.junit.Assert.*
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.Instant
@@ -22,9 +23,7 @@ import java.util.Locale
 
 @RunWith(AndroidJUnit4::class)
 class ReviewFlowTest {
-    @get:Rule val compose = createEmptyComposeRule()
-
-    @Test fun onboardingShowsTimesAndInlineStatusPersistsAndClears() {
+    @Test(timeout = 90_000) fun onboardingShowsTimesAndInlineStatusPersistsAndClears() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val app = context.appContainer
         val original = runBlocking { app.settings.preferences.first() }
@@ -33,22 +32,41 @@ class ReviewFlowTest {
         try {
             runBlocking { app.settings.update { AppPreferences() } }
             ActivityScenario.launch(MainActivity::class.java).use {
-                fun await(tag: String) = compose.waitUntil(20_000) {
-                    compose.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
+                val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+                automation.serviceInfo = automation.serviceInfo.apply {
+                    flags = flags or AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS
                 }
-                await("search-city")
-                compose.onNodeWithTag("search-city").performTextInput("Baku")
-                await("city-baku-az")
-                compose.onNodeWithTag("city-baku-az").performScrollTo().performClick()
-                compose.onNodeWithTag("save-location").performScrollTo().performClick()
-                await("finish-setup")
+                fun root() = automation.rootInActiveWindow
+                fun byTag(tag: String) = findNode(root()) { it.viewIdResourceName == tag }
+                fun byText(text: String) = findNode(root()) { it.text?.toString() == text }
+                fun click(label: String, locate: () -> AccessibilityNodeInfo?) {
+                    val node = awaitValue(label) {
+                        locate()?.takeIf { it.isVisibleToUser && it.isEnabled }
+                            ?: run {
+                                findNode(root()) { it.isScrollable }
+                                    ?.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
+                                null
+                            }
+                    }
+                    assertTrue("Could not activate $label", node.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+                }
+                fun clickTag(tag: String) = click(tag) { byTag(tag) }
+                fun clickText(text: String) = click(text) { byText(text) }
+                val search = awaitValue("offline city search") { byTag("search-city") }
+                assertTrue(search.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, Bundle().apply {
+                    putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, "Baku")
+                }))
+                // Wait for the result before scrolling. Search is deliberately debounced.
+                awaitValue("Baku search result") { byTag("city-baku-az") }
+                clickTag("city-baku-az")
+                clickTag("save-location")
+                awaitValue("method confirmation") { byTag("finish-setup") }
                 assertNull(runBlocking { app.settings.preferences.first().place })
-                compose.onNodeWithTag("setup-back").performClick()
-                compose.onNodeWithText("Baku").assertExists()
-                compose.onNodeWithTag("save-location").performScrollTo().performClick()
-                await("finish-setup")
-                compose.onNodeWithTag("finish-setup").performScrollTo().performClick()
-                await("prayer-data-ready")
+                clickTag("setup-back")
+                awaitValue("retained location") { byText("Baku") }
+                clickTag("save-location")
+                clickTag("finish-setup")
+                awaitValue("first-run times") { byTag("prayer-data-ready") }
                 assertEquals("Asia/Baku", runBlocking { app.settings.preferences.first().place?.zone?.id })
 
                 val now = Instant.now()
@@ -64,14 +82,12 @@ class ReviewFlowTest {
                 }
                 if (place != currentPlace) {
                     runBlocking { app.settings.save(place) }
-                    compose.waitUntil(10_000) { compose.onAllNodesWithText(place.name).fetchSemanticsNodes().isNotEmpty() }
+                    awaitValue("fixture location") { byText(place.name) }
                 }
                 tracked = key
                 val tag = "record-status-${key.prayer.name.lowercase(Locale.ROOT)}"
-                await(tag)
-                val button = compose.onNodeWithTag(tag).performScrollTo()
-                val states = listOf(PrayerStatus.ON_TIME, PrayerStatus.MADE_UP, PrayerStatus.MISSED, PrayerStatus.EXCUSED, null)
-                for (status in states) {
+                val statuses = listOf(PrayerStatus.ON_TIME, PrayerStatus.MADE_UP, PrayerStatus.MISSED, PrayerStatus.EXCUSED, null)
+                for (status in statuses) {
                     val label = context.getString(when (status) {
                         PrayerStatus.ON_TIME -> R.string.status_on_time
                         PrayerStatus.MADE_UP -> R.string.status_made_up
@@ -79,31 +95,34 @@ class ReviewFlowTest {
                         PrayerStatus.EXCUSED -> R.string.status_excused
                         null -> R.string.status_unrecorded
                     })
-                    button.performClick()
-                    compose.waitUntil(10_000) {
-                        button.fetchSemanticsNode().config.getOrElse(SemanticsProperties.StateDescription) { "" } == label
+                    val action = context.getString(R.string.set_prayer_status, label)
+                    click(tag) {
+                        byTag(tag)?.takeIf { node ->
+                            node.actionList.any { it.id == AccessibilityNodeInfo.ACTION_CLICK && it.label?.toString() == action }
+                        }
                     }
-                    assertEquals(status, runBlocking { app.repository.snapshot().records[key]?.status })
+                    awaitValue("saved $label") {
+                        val stored = runBlocking { app.repository.snapshot().records[key]?.status }
+                        val announced = byTag(tag)?.let { AccessibilityNodeInfoCompat.wrap(it).stateDescription?.toString() }
+                        Unit.takeIf { stored == status && announced == label }
+                    }
                 }
-                compose.onNodeWithTag("status-legend").performScrollTo().performClick()
-                compose.onNodeWithText(context.getString(R.string.status_legend_instructions)).assertExists()
-                compose.onNodeWithTag("record-status-sunrise").assertDoesNotExist()
-                compose.onNodeWithText(context.getString(R.string.close)).performClick()
-                compose.onNodeWithTag("nav-settings").performClick()
-                compose.onNodeWithTag("settings-focus").performScrollTo().performClick()
-                await("focus-choose-apps")
-                compose.waitUntil(10_000) {
-                    runCatching { compose.onNodeWithTag("focus-choose-apps").assertIsEnabled() }.isSuccess
-                }
-                compose.onNodeWithTag("focus-choose-apps").performScrollTo().performClick()
-                compose.onNodeWithTag("focus-select-all").performClick()
+                clickTag("status-legend")
+                awaitValue("status legend") { byText(context.getString(R.string.status_legend_instructions)) }
+                clickText(context.getString(R.string.close))
+                assertNull(byTag("record-status-sunrise"))
+                clickTag("nav-settings")
+                clickTag("settings-focus")
+                clickTag("focus-choose-apps")
+                clickTag("focus-select-all")
                 val packageName = InstrumentationRegistry.getInstrumentation().context.packageName
                 assertTrue(runBlocking { app.settings.preferences.first().focus.packages.isEmpty() })
-                compose.onNodeWithText(context.getString(R.string.cancel)).performClick()
+                clickText(context.getString(R.string.cancel))
+                awaitValue("Focus screen") { byTag("focus-choose-apps") }
                 assertTrue(runBlocking { app.settings.preferences.first().focus.packages.isEmpty() })
-                compose.onNodeWithTag("focus-choose-apps").performClick()
-                compose.onNodeWithTag("focus-select-all").performClick()
-                compose.onNodeWithTag("focus-apply-apps").performClick()
+                clickTag("focus-choose-apps")
+                clickTag("focus-select-all")
+                clickTag("focus-apply-apps")
                 runBlocking {
                     kotlinx.coroutines.withTimeout(10_000) {
                         app.settings.preferences.first { packageName in it.focus.packages }
@@ -132,4 +151,21 @@ class ReviewFlowTest {
         val vertical = floatArrayOf(1f, 0f, 0f, 0f, 0f, -1f, 0f, 1f, 0f)
         assertNull(compass.trueHeading(vertical, Surface.ROTATION_0, 0f))
     }
+}
+
+private fun findNode(root: AccessibilityNodeInfo?, predicate: (AccessibilityNodeInfo) -> Boolean): AccessibilityNodeInfo? {
+    if (root == null || predicate(root)) return root
+    for (index in 0 until root.childCount) {
+        findNode(root.getChild(index), predicate)?.let { return it }
+    }
+    return null
+}
+
+private fun <T : Any> awaitValue(label: String, read: () -> T?): T {
+    val deadline = SystemClock.uptimeMillis() + 10_000
+    do {
+        read()?.let { return it }
+        Thread.sleep(120)
+    } while (SystemClock.uptimeMillis() < deadline)
+    throw AssertionError("Timed out waiting for $label")
 }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.foundation.rememberScrollState
@@ -68,7 +69,9 @@ import org.hayya.salah.focus.EssentialApps
     val reviewOrder = remember(matches, initial) {
         if (query.isBlank()) matches.sortedByDescending { it.first in initial } else matches
     }
-    AlertDialog(onDismissRequest = cancel, title = { Text(stringResource(R.string.choose_focus_apps)) },
+    AlertDialog(onDismissRequest = cancel,
+        modifier = Modifier.semantics { testTagsAsResourceId = true },
+        title = { Text(stringResource(R.string.choose_focus_apps)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 OutlinedTextField(query, { query = it }, label = { Text(stringResource(R.string.focus_app_search)) },
