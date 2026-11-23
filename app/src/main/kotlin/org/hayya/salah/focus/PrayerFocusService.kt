@@ -10,6 +10,7 @@ import android.view.*
 import android.view.accessibility.AccessibilityEvent
 import android.widget.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import org.hayya.core.*
@@ -66,7 +67,10 @@ class PrayerFocusService : AccessibilityService() {
             val schedules = withContext(Dispatchers.Default) { (-1L..2L).mapNotNull { day ->
                 (LocalPrayerCalculator().calculate(now.atZone(place.zone).toLocalDate().plusDays(day), place.point, place.zone, place.calculation) as? CalculationResult.Available)?.schedule
             } }
-            val window = focusWindow(schedules, prefs.focus.prayers, records.records, records.pauses, now, sessionBypass?.takeIf { it.expiresAt > now } ?: prefs.focus.bypass)
+            // DataStore may commit and emit a newer bypass while schedules are being calculated.
+            val bypass = sessionBypass?.takeIf { it.expiresAt > now }
+                ?: appContainer.settings.preferences.catch { emit(prefs) }.first().focus.bypass
+            val window = focusWindow(schedules, prefs.focus.prayers, records.records, records.pauses, now, bypass)
             val nextBoundary = (schedules.flatMap { it.prayers.values + it.sunrise } + listOfNotNull(window?.expiresAt)).filter { it > now }.minOrNull()
             nextBoundary?.let { handler.postDelayed(boundary, Duration.between(now, it).toMillis().coerceAtLeast(1)) }
             if (ownWindowFocused || foreground !in prefs.focus.packages || foreground in EssentialApps.excluded(this@PrayerFocusService) || window == null) hide()
@@ -88,12 +92,7 @@ class PrayerFocusService : AccessibilityService() {
                 scope.launch {
                     try {
                         appContainer.settings.update { it.copy(focus = it.focus.copy(bypass = bypass)) }
-                        // The preference observer can run before this continuation, including
-                        // a later explicit bypass reset. Refresh from the latest committed value
-                        // when handing off the immediate in-memory emergency escape.
-                        val latest = appContainer.settings.preferences.first()
                         if (sessionBypass == bypass) {
-                            config = latest
                             sessionBypass = null
                             refresh()
                         }
