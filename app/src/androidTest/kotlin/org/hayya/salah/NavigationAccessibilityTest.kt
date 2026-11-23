@@ -27,6 +27,9 @@ class NavigationAccessibilityTest {
         compose.onNodeWithTag("nav-settings").performClick()
         compose.onNodeWithTag("settings-appearance").performScrollTo().performClick()
         compose.onNodeWithTag("screen-appearance").assertIsDisplayed()
+        compose.onNodeWithTag("palette-ink").performScrollTo().assertIsNotSelected().performClick()
+        compose.onNodeWithTag("palette-ink").assertIsSelected()
+        compose.onNodeWithTag("palette-teal").assertIsNotSelected()
         compose.onNodeWithText("Reduce motion").performScrollTo().performClick()
         compose.onNodeWithText("Reduce motion").assertIsOn()
     }
