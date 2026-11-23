@@ -21,8 +21,10 @@ run43553892997 passed all four APIs (13 ordinary + one separate audio test each)
 672 captures, denial/locked-reboot preservation, lint/privacy/build and QA signing.
 Performance43553892993 and reproducibility43553893029 passed. Downloaded reports and
 actual large-text keyboard images were reviewed. PROGRESS.md has exact evidence.
-No independent coding task or current approval/usage blocker is known. Physical,
-Arabic, signing and store review gates remain open; no PR merge or publication.
+The S23 follow-up is implemented in four reviewable commits through `059959e`; see
+the follow-up section of PROGRESS.md for CI and the next signed build. Salman
+confirmed record/theme/import preservation from 48 → 56 → 74 and ADB-confirmed both
+widget bindings from 56 → 74. Qibla, overnight, Arabic, signing and store gates remain open.
 
 Real generated profiles and raw emulator measurements are committed. Clean independent
 unsigned builds are byte-identical; exact source/hash evidence is in PROGRESS.md and

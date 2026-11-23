@@ -1,6 +1,6 @@
 # Physical release acceptance
 
-This is a prepared test protocol, not a completed result. Use the stable signed QA
+Use the stable signed QA
 application and synthetic records/public locations. Record commit, QA version code,
 device model, exact Android/One UI build, locale/font scale and relevant Android
 permission/channel/battery settings. Keep personal coordinates/history/audio out of
@@ -29,6 +29,10 @@ they remain bound and display the correct times at version 74.
 If the phone already has a newer QA build with data, preserve that installation and use
 higher version codes for the update test. Use version 74 for the other device journeys
 if the phone can install it. Record physical results separately from artifact verification.
+
+Salman confirmed record, theme, and imported audio preservation through this sequence
+on his S23 Ultra. ADB confirmed that both widget bindings survived 56 → 74. This result
+covers those updates. The S23 follow-up build still needs its own physical testing.
 
 ## Reliability and privacy journeys
 
