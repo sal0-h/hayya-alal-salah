@@ -147,17 +147,21 @@ class ReviewFlowTest {
                 clickTag("focus-choose-apps")
                 clickTag("focus-select-all")
                 try {
-                    clickTag("focus-app-search")
-                    val keyboard = awaitValue("Focus search keyboard") {
-                        automation.windows.firstOrNull { it.type == AccessibilityWindowInfo.TYPE_INPUT_METHOD }
-                            ?.let { window -> Rect().also(window::getBoundsInScreen) }
-                            ?.takeUnless { it.isEmpty }
-                    }
-                    val bounds = awaitValue("Apply button above the keyboard") {
+                    // Android 8 reproduced the covered footer. Newer emulator
+                    // images can focus the field without opening a soft keyboard.
+                    val keyboardTop = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+                        clickTag("focus-app-search")
+                        awaitValue("Focus search keyboard") {
+                            automation.windows.firstOrNull { it.type == AccessibilityWindowInfo.TYPE_INPUT_METHOD }
+                                ?.let { window -> Rect().also(window::getBoundsInScreen) }
+                                ?.takeUnless { it.isEmpty }?.top
+                        }
+                    } else Int.MAX_VALUE
+                    val bounds = awaitValue("visible Apply button") {
                         val button = byTag("focus-apply-apps") ?: byText(context.getString(R.string.apply))
                         val rect = Rect()
                         button?.getBoundsInScreen(rect)
-                        rect.takeUnless { it.isEmpty || it.bottom > keyboard.top }
+                        rect.takeUnless { it.isEmpty || it.bottom > keyboardTop }
                     }
                     val downAt = SystemClock.uptimeMillis()
                     for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {
