@@ -80,10 +80,12 @@ Tilt the phone up and verify that the live arrow yields to the numeric fallback.
 
 ## QA 94 follow-up spot checks
 
-Download [signed QA build 103](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45739619637/artifacts/15080697574) and install over build 94 with
-`adb install -r hayya-qa-8798816c20c131a9b1eb7d8529fd746eb2162f3b.apk`.
-The APK SHA-256 is `d8a122cf9be0be948d368ce2821a89ff8e2e361ec9e77256f94791dd72314a44`. Check record, theme, audio import and widget
-preservation after the update, then follow the spot checks below.
+Download [signed QA build 108](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45856475811/artifacts/15136427874) and install over the existing QA app with
+`adb install -r hayya-qa-f9540dc61453a01b142efb865da991fa5ac7f8a0.apk`.
+The APK SHA-256 is `5545e071037207787d2390f238ef3f66309ce51afa96b400b3100b72f902f190`. Check record,
+theme, audio import and widget preservation after the update, then follow the
+spot checks below. [Build 103](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45739619637/artifacts/15080697574)
+remains available as the first follow-up to build 94.
 
 - From Today, open Location by tapping the city and return to Today. Tap the date,
   choose tomorrow, and check that tomorrow's times appear without a countdown or

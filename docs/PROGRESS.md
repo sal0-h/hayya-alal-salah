@@ -233,3 +233,27 @@ actions, and Return to today restores the live schedule. Appearance now has
 independent midnight and last-third switches. Saved single-row preferences
 migrate to their matching switch. The two rows use the Sunrise layout with dated
 rollover and estimated or unavailable states.
+
+Build 108 at `f9540dc` passed local core tests, Android test compilation and lint.
+Each of APIs 26, 31, 33 and 37 passed 17 integration tests plus separate audio and
+permission-denial fixtures. The API 37 emulator reported that Fajr was active and
+playing bundled audio while credential storage was locked. The optimized emulator
+benchmark passed, and independent unsigned builds were byte-identical with SHA-256
+`8334fcebe1612ca4ca9f5d575f8b20d5fb37f435c0b4ba74c2ea0cc86ac62ff5`.
+[Android](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45856475811) ·
+[Performance](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45856475807) ·
+[Reproducibility](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45856475859)
+
+CI validated 816 full-shell screenshots. Manual review of Today at actual
+100% and 200% in English LTR and Arabic RTL checked the swiped date, its read-only
+schedule, night-row alignment and after-midnight dates. The final large-text
+layout keeps the English Midnight label on one line in the narrow phone capture.
+[Reviewed captures](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45856475811/artifacts/15137426424)
+
+Signed QA build 108 uses the existing `org.hayya.salah.qa` ID and QA certificate.
+The downloaded signature and checksum verified. APK SHA-256
+`5545e071037207787d2390f238ef3f66309ce51afa96b400b3100b72f902f190`.
+[Signed APK and checksum](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45856475811/artifacts/15136427874)
+
+Build 108 swipe feel, in-place update, TalkBack, overnight alarms, live Qibla,
+Arabic language review and mid-range checks remain pending on physical devices.

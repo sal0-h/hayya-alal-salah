@@ -29,7 +29,9 @@ preservation from 48 → 56 → 74. ADB confirmed both widget bindings from 56 �
 Salman then reviewed build 94. The follow-up at `8798816` adds Today date
 browsing and a city shortcut, one explicit record editor, night-time options,
 simpler reminders, fixed or relative Fajr timing and a clearer Pause screen.
-[Signed QA build 103](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45739619637/artifacts/15080697574) is the next in-place update.
+The next follow-up at `f9540dc` adds horizontal Today date browsing and lets
+Appearance show either or both night times.
+[Signed QA build 108](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45856475811/artifacts/15136427874) is the current in-place update.
 See PROGRESS.md for CI evidence and DEVICE_QA.md for the spot checks.
 Physical Qibla and overnight alarms, Arabic review, production signing and store
 review remain open.
