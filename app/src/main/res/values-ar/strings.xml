@@ -220,7 +220,7 @@
     </string-array>
     <string name="theme_mode">السمة</string>
     <string name="return_today">العودة إلى اليوم</string>
-    <string name="today_night_time">وقت الليل في شاشة اليوم</string>
+    <string name="today_night_time">أوقات الليل في شاشة اليوم</string>
     <string name="midpoint_sunrise">منتصف الليل (من الغروب إلى الشروق)</string>
     <string name="midpoint_fajr">منتصف الليل (من الغروب إلى الفجر)</string>
     <string name="last_third_fajr">الثلث الأخير (من الغروب إلى الفجر)</string>
@@ -250,4 +250,6 @@
     <string name="remove_pause">حذف التوقف المؤقت</string>
     <string name="pause_invalid_dates">اختر تاريخ نهاية يوافق تاريخ البداية أو يليه.</string>
     <string name="pause_date_range">%1$s – %2$s</string>
+    <string name="previous_day">اليوم السابق</string>
+    <string name="next_day">اليوم التالي</string>
 </resources>

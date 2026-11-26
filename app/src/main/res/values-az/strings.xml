@@ -220,11 +220,11 @@
     </string-array>
     <string name="theme_mode">Mövzu</string>
     <string name="return_today">Bu günə qayıt</string>
-    <string name="today_night_time">Bu gün ekranında gecə vaxtı</string>
+    <string name="today_night_time">Bu gün ekranında gecə vaxtları</string>
     <string name="midpoint_sunrise">Gecə yarısı (günbatımından günçıxana qədər)</string>
     <string name="midpoint_fajr">Gecə yarısı (günbatımından sübhə qədər)</string>
     <string name="last_third_fajr">Son üçdəbir (günbatımından sübhə qədər)</string>
-    <string name="night_midpoint">Gecənin ortası</string>
+    <string name="night_midpoint">Gecə yarısı</string>
     <string name="last_third">Gecənin son üçdəbirinin başlanğıcı</string>
     <string name="dated_clock_time">%1$s · %2$s</string>
     <string name="estimated_clock_time">%1$s (təxmini)</string>
@@ -250,4 +250,6 @@
     <string name="remove_pause">Fasiləni sil</string>
     <string name="pause_invalid_dates">Bitmə tarixi başlama tarixindən əvvəl ola bilməz.</string>
     <string name="pause_date_range">%1$s – %2$s</string>
+    <string name="previous_day">Əvvəlki gün</string>
+    <string name="next_day">Növbəti gün</string>
 </resources>

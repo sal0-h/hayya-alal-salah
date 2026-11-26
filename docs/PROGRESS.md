@@ -224,3 +224,12 @@ downloaded APK checksum and signature verified locally. The APK SHA-256 is
 
 The new build still needs S23 update and physical acceptance checks. Overnight
 delivery, live Qibla, Arabic review and the mid-range device checks remain open.
+
+## Today swipes and night rows
+
+Today pages horizontally one date at a time with RTL direction, short settling
+motion and date-picker navigation. The date button exposes previous and next day
+actions, and Return to today restores the live schedule. Appearance now has
+independent midnight and last-third switches. Saved single-row preferences
+migrate to their matching switch. The two rows use the Sunrise layout with dated
+rollover and estimated or unavailable states.

@@ -32,7 +32,7 @@ enum class TimePreference { SYSTEM, TWELVE, TWENTY_FOUR }
 enum class NumeralPreference { SYSTEM, LATIN, ARABIC_INDIC }
 data class AppearancePreferences(val theme: ThemePreference = ThemePreference.SYSTEM, val palette: Palette = Palette.TEAL,
     val time: TimePreference = TimePreference.SYSTEM, val numerals: NumeralPreference = NumeralPreference.SYSTEM,
-    val reducedMotion: Boolean = false, val nightTime: NightTime = NightTime.OFF)
+    val reducedMotion: Boolean = false, val showMidnight: Boolean = false, val showLastThird: Boolean = false)
 data class AppPreferences(val place: ManualSetup? = null,
     val alerts: Map<Prayer, PrayerAlert> = Prayer.entries.associateWith { PrayerAlert() },
     val fajr: FajrPreferences = FajrPreferences(), val focus: FocusPreferences = FocusPreferences(),
@@ -75,6 +75,7 @@ internal object PreferencesCodec {
         val fajr = root.optJSONObject("fajr") ?: JSONObject()
         val focus = root.optJSONObject("focus") ?: JSONObject()
         val appearance = root.optJSONObject("appearance") ?: JSONObject()
+        val legacyNightTime = appearance.enum("nightTime", NightTime.OFF)
         return AppPreferences(place,
             Prayer.entries.associateWith { prayer -> (alerts.optJSONObject(prayer.name) ?: JSONObject()).let {
                 PrayerAlert(it.enum("mode", AlertMode.OFF), it.optionalInt("before"), it.optionalInt("after"), it.optString("sound", "builtin_adhan")) } },
@@ -84,7 +85,9 @@ internal object PreferencesCodec {
                 focus.optJSONArray("prayers")?.strings()?.map(Prayer::valueOf)?.toSet() ?: Prayer.entries.toSet(),
                 focus.optJSONObject("bypass")?.let { FocusBypass(PrayerKey(LocalDate.parse(it.getString("date")), Prayer.valueOf(it.getString("prayer"))), Instant.parse(it.getString("expires"))) }),
             AppearancePreferences(appearance.enum("theme", ThemePreference.SYSTEM), appearance.enum("palette", Palette.TEAL),
-                appearance.enum("time", TimePreference.SYSTEM), appearance.enum("numerals", NumeralPreference.SYSTEM), appearance.optBoolean("reducedMotion", false), appearance.enum("nightTime", NightTime.OFF)),
+                appearance.enum("time", TimePreference.SYSTEM), appearance.enum("numerals", NumeralPreference.SYSTEM), appearance.optBoolean("reducedMotion", false),
+                appearance.optBoolean("showMidnight", legacyNightTime == NightTime.MIDPOINT),
+                appearance.optBoolean("showLastThird", legacyNightTime == NightTime.LAST_THIRD)),
             root.optString("language", "system"), root.optInt("hijriAdjustment", 0), root.optionalString("trackingSince")?.let(LocalDate::parse))
     }
     fun encode(config: AppPreferences): String = JSONObject().apply {
@@ -104,7 +107,7 @@ internal object PreferencesCodec {
         put("focus", JSONObject().apply { put("enabled", config.focus.enabled); put("packages", JSONArray(config.focus.packages.toList())); put("prayers", JSONArray(config.focus.prayers.map { it.name }))
             config.focus.bypass?.let { put("bypass", JSONObject().apply { put("date", it.target.date.toString()); put("prayer", it.target.prayer.name); put("expires", it.expiresAt.toString()) }) }
         })
-        put("appearance", JSONObject().apply { put("theme", config.appearance.theme.name); put("palette", config.appearance.palette.name); put("time", config.appearance.time.name); put("numerals", config.appearance.numerals.name); put("reducedMotion", config.appearance.reducedMotion); put("nightTime", config.appearance.nightTime.name) })
+        put("appearance", JSONObject().apply { put("theme", config.appearance.theme.name); put("palette", config.appearance.palette.name); put("time", config.appearance.time.name); put("numerals", config.appearance.numerals.name); put("reducedMotion", config.appearance.reducedMotion); put("showMidnight", config.appearance.showMidnight); put("showLastThird", config.appearance.showLastThird) })
         put("language", config.language); put("hijriAdjustment", config.hijriAdjustment); put("trackingSince", config.trackingSince?.toString())
     }.toString()
 }

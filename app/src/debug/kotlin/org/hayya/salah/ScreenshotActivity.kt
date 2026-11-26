@@ -70,7 +70,7 @@ class ScreenshotActivity : ComponentActivity() {
                 fajr = if (route == "fajr") FajrPreferences(enabled = true, mode = FajrMode.FIXED, fixedTime = LocalTime.of(5, 30))
                     else FajrPreferences(),
                 appearance = AppearancePreferences(theme = if (dark) ThemePreference.DARK else ThemePreference.LIGHT,
-                    nightTime = if (showNight) NightTime.LAST_THIRD else NightTime.OFF),
+                    showMidnight = showNight, showLastThird = showNight),
                 trackingSince = today.minusDays(30))) }
             var history by remember { mutableStateOf(HistorySnapshot(PrayerStatus.entries.mapIndexed { index, status ->
                 val key = PrayerKey(today.minusDays(1), Prayer.entries[index]); key to PrayerRecord(key, status, fixed.instant(), fixed.instant(), place.zone)

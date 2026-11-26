@@ -220,11 +220,11 @@
     </string-array>
     <string name="theme_mode">Тема</string>
     <string name="return_today">К сегодняшнему дню</string>
-    <string name="today_night_time">Ночное время на экране «Сегодня»</string>
+    <string name="today_night_time">Ночные времена на экране «Сегодня»</string>
     <string name="midpoint_sunrise">Полночь (от заката до восхода)</string>
     <string name="midpoint_fajr">Полночь (от заката до фаджра)</string>
     <string name="last_third_fajr">Последняя треть (от заката до фаджра)</string>
-    <string name="night_midpoint">Середина ночи</string>
+    <string name="night_midpoint">Полночь</string>
     <string name="last_third">Начало последней трети ночи</string>
     <string name="dated_clock_time">%1$s · %2$s</string>
     <string name="estimated_clock_time">%1$s (приблизительно)</string>
@@ -250,4 +250,6 @@
     <string name="remove_pause">Удалить паузу</string>
     <string name="pause_invalid_dates">Дата окончания должна совпадать с датой начала или быть позже.</string>
     <string name="pause_date_range">%1$s – %2$s</string>
+    <string name="previous_day">Предыдущий день</string>
+    <string name="next_day">Следующий день</string>
 </resources>

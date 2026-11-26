@@ -220,11 +220,11 @@
     </string-array>
     <string name="theme_mode">Theme</string>
     <string name="return_today">Return to today</string>
-    <string name="today_night_time">Night time on Today</string>
+    <string name="today_night_time">Night times on Today</string>
     <string name="midpoint_sunrise">Midnight (sunset to sunrise)</string>
     <string name="midpoint_fajr">Midnight (sunset to Fajr)</string>
     <string name="last_third_fajr">Last third (sunset to Fajr)</string>
-    <string name="night_midpoint">Night midpoint</string>
+    <string name="night_midpoint">Midnight</string>
     <string name="last_third">Last third starts</string>
     <string name="dated_clock_time">%1$s · %2$s</string>
     <string name="estimated_clock_time">%1$s (estimated)</string>
@@ -250,4 +250,6 @@
     <string name="remove_pause">Remove pause</string>
     <string name="pause_invalid_dates">Choose an end date on or after the start date.</string>
     <string name="pause_date_range">%1$s – %2$s</string>
+    <string name="previous_day">Previous day</string>
+    <string name="next_day">Next day</string>
 </resources>

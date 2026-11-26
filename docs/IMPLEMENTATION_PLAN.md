@@ -56,7 +56,7 @@ Short action-responsive motion only; no constant animated background. Status mea
 
 ### Screen responsibilities
 
-- Today: location shortcut and date picker, geometric next prayer with a live countdown on the current date, daily times and sunrise, optional night time, and explicit status actions on current and past dates.
+- Today has a location shortcut, horizontal day swipes and a date picker. It shows a live next-prayer countdown on the current date, daily times, sunrise, and independently optional midnight and last-third rows. Current and past dates allow explicit status edits.
 - History: compact recent dated shortcuts, on-demand date picker, correction and statistical views.
 - Qibla: bearing/live dial, sensor quality and fallback.
 - Fajr settings: enabled state, fixed time or offset, next dated occurrence, sound, difficulty and test alarm.

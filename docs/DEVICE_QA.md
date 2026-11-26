@@ -91,9 +91,13 @@ preservation after the update, then follow the spot checks below.
   Confirm that an elapsed and an upcoming prayer both open the same record editor.
 - Check recent dates in History and the divider above the navigation bar. At 200%,
   scroll through the schedule and try the calendar's text input.
-- In Appearance, try both night display choices. Check that only one row appears,
-  that a time after midnight shows its actual date, and that missing solar times
-  are reported as unavailable.
+- Swipe the Today timetable forward and back by one date, then use the date picker
+  and Return to today. Check RTL direction, vertical scrolling at 200%, and reduced
+  motion. Verify that future dates have no record controls.
+- In Appearance, try midnight alone, last third alone, both and neither. The rows
+  should line up with Sunrise. After-midnight times show their actual dates and
+  unavailable solar times are announced as unavailable. On update from build 103,
+  the previously selected night row should still be enabled.
 - Under Prayer alerts, set a before and after reminder, verify the summary, then
   turn one off. Test initial notification access and a disabled channel separately.
 - In Fajr settings, compare the next timestamp with an offset before and after

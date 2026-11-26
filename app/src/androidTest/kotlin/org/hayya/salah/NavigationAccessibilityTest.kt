@@ -11,7 +11,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class NavigationAccessibilityTest {
-    init { ScreenshotActivity.language = "en"; ScreenshotActivity.dark = false; ScreenshotActivity.route = "today"; ScreenshotActivity.recordDialog = false }
+    init { ScreenshotActivity.language = "en"; ScreenshotActivity.dark = false; ScreenshotActivity.route = "today"; ScreenshotActivity.recordDialog = false; ScreenshotActivity.showNight = false }
     @get:Rule val compose = createAndroidComposeRule<ScreenshotActivity>()
     @Test fun navigationExplicitRecordCorrectionAndLabeledControls() {
         if (android.os.Build.VERSION.SDK_INT >= 34) compose.enableAccessibilityChecks()
@@ -51,5 +51,32 @@ class NavigationAccessibilityTest {
         compose.onNodeWithTag("record-status-fajr").assertDoesNotExist()
         compose.onNodeWithTag("today-return").performClick()
         compose.onNodeWithTag("record-status-fajr").assertExists()
+    }
+
+    @Test fun todaySwipesOneDateAndShowsEitherNightRowOrBoth() {
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("prayer-data-ready").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("today-pager").performTouchInput { swipeLeft() }
+        compose.onNodeWithText("Saturday, November 14, 2026").assertExists()
+        compose.onNodeWithTag("record-status-fajr").assertDoesNotExist()
+        compose.onNodeWithTag("today-pager").performTouchInput { swipeRight() }
+        compose.onNodeWithTag("today-return").assertDoesNotExist()
+        compose.onNodeWithTag("record-status-fajr").assertExists()
+
+        compose.onNodeWithTag("nav-settings").performClick()
+        compose.onNodeWithTag("settings-appearance").performScrollTo().performClick()
+        val midnight = compose.onNodeWithText("Midnight (sunset to Fajr)")
+        val lastThird = compose.onNodeWithText("Last third (sunset to Fajr)")
+        midnight.performScrollTo().assertIsOff().performClick()
+        lastThird.performScrollTo().assertIsOff().performClick()
+        midnight.assertIsOn()
+        lastThird.assertIsOn()
+        compose.onNodeWithTag("screen-back").performScrollTo().performClick()
+        compose.onNodeWithTag("nav-today").performClick()
+        compose.waitUntil(10_000) {
+            compose.onAllNodesWithTag("today-night-last-third").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithTag("today-night-midnight").assertExists()
+        compose.onNodeWithTag("today-night-last-third").assertExists()
+        compose.onNodeWithTag("record-status-sunrise").assertDoesNotExist()
     }
 }

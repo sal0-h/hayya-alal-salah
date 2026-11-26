@@ -91,14 +91,15 @@ import java.time.ZoneId
     SelectionField(stringResource(R.string.numerals), appearance.numerals, NumeralPreference.entries,
         { stringResource(when (it) { NumeralPreference.SYSTEM -> R.string.follow_system; NumeralPreference.LATIN -> R.string.latin_digits; NumeralPreference.ARABIC_INDIC -> R.string.arabic_digits }) }) { selected -> update { it.copy(appearance = it.appearance.copy(numerals = selected)) } }
     ToggleRow(stringResource(R.string.reduced_motion), appearance.reducedMotion) { selected -> update { it.copy(appearance = it.appearance.copy(reducedMotion = selected)) } }
-    SelectionField(stringResource(R.string.today_night_time), appearance.nightTime, NightTime.entries, {
-        stringResource(when (it) {
-            NightTime.OFF -> R.string.alert_off
-            NightTime.MIDPOINT -> if (config.place?.profile?.let(::midpointEndsAtSunrise) == true)
-                R.string.midpoint_sunrise else R.string.midpoint_fajr
-            NightTime.LAST_THIRD -> R.string.last_third_fajr
-        })
-    }) { selected -> update { it.copy(appearance = it.appearance.copy(nightTime = selected)) } }
+    Text(stringResource(R.string.today_night_time), style = MaterialTheme.typography.titleMedium)
+    val midpoint = if (config.place?.profile?.let(::midpointEndsAtSunrise) == true)
+        R.string.midpoint_sunrise else R.string.midpoint_fajr
+    ToggleRow(stringResource(midpoint), appearance.showMidnight) { checked ->
+        update { it.copy(appearance = it.appearance.copy(showMidnight = checked)) }
+    }
+    ToggleRow(stringResource(R.string.last_third_fajr), appearance.showLastThird) { checked ->
+        update { it.copy(appearance = it.appearance.copy(showLastThird = checked)) }
+    }
     Text(stringResource(R.string.hijri_calendar), style = MaterialTheme.typography.titleMedium)
     Text(stringResource(R.string.hijri_umm_al_qura), color = MaterialTheme.colorScheme.onSurfaceVariant)
     SelectionField(stringResource(R.string.hijri_adjustment), config.hijriAdjustment, (-2..2).toList(), { numberLabel(it) }) { selected -> update { it.copy(hijriAdjustment = selected) } }
