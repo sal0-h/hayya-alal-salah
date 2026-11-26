@@ -30,14 +30,15 @@ class AppearanceCaptureTest {
         try {
             for (width in listOf("phone","tablet")) {
                 shell(if (width == "phone") "wm size 840x1960" else "wm size 1800x2400")
-                val routes = if (width == "phone") listOf("today","history","settings","onboarding","location","calculation","alerts","fajr","focus","qibla","pause","appearance","privacy","credits","record","date","focus-consent","privacy-confirm","polar","focus-overlay","ringing","ringing-keyboard")
+                val routes = if (width == "phone") listOf("today","history","settings","onboarding","location","calculation","alerts","fajr","focus","qibla","pause","appearance","appearance-ink","status-legend","today-date","today-night","today-next","alerts-reminders","fajr-picker","privacy","credits","record","date","focus-consent","privacy-confirm","polar","focus-overlay","ringing","ringing-keyboard")
                     else listOf("today","history","settings")
                 for (scale in listOf(1,2)) {
                     shell("settings put system font_scale $scale"); Thread.sleep(600)
                     for (language in listOf("en","ru","az","ar")) for (dark in listOf(false,true)) for (route in routes) {
                         ScreenshotActivity.language = language; ScreenshotActivity.dark = dark
-                        ScreenshotActivity.route = when (route) { "record" -> "today"; "date" -> "history"; "focus-consent" -> "focus"; "privacy-confirm" -> "privacy"; else -> route }
+                        ScreenshotActivity.route = when (route) { "record", "status-legend", "today-date", "today-night", "today-next" -> "today"; "alerts-reminders" -> "alerts"; "fajr-picker" -> "fajr"; "appearance-ink" -> "appearance"; "date" -> "history"; "focus-consent" -> "focus"; "privacy-confirm" -> "privacy"; else -> route }
                         ScreenshotActivity.recordDialog = route == "record"
+                        ScreenshotActivity.showNight = route == "today-night"
                         Locale.setDefault(Locale.forLanguageTag(language))
                         val activity = instrumentation.startActivitySync(Intent(context,ScreenshotActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as ScreenshotActivity
                         try {
@@ -46,7 +47,23 @@ class AppearanceCaptureTest {
                             check(activity.fullyDrawnReporter.isFullyDrawnReported) { "Fixture did not finish drawing: $route" }
                             instrumentation.waitForIdleSync(); Thread.sleep(200)
                             check(kotlin.math.abs(activity.resources.configuration.fontScale - scale) < 0.05) { "Actual system font scale did not update" }
-                            val trigger = when (route) { "date" -> "history-date"; "focus-consent" -> "focus-permission"; "privacy-confirm" -> "privacy-delete"; "ringing-keyboard" -> "alarm-answer"; else -> null }
+                            if (route == "today-next") {
+                                val swipe = if (language == "ar") "150 640 690 640" else "690 640 150 640"
+                                shell("input swipe $swipe 300")
+                                instrumentation.waitForIdleSync()
+                                val locale = Locale.forLanguageTag(language)
+                                val expected = java.time.LocalDate.of(2026, 11, 14).format(
+                                    java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.LONG)
+                                        .withLocale(locale).withDecimalStyle(java.time.format.DecimalStyle.of(locale)))
+                                fun nextDate(node: android.view.accessibility.AccessibilityNodeInfo?): Boolean =
+                                    node != null && (node.text?.toString()?.contains(expected) == true ||
+                                        (0 until node.childCount).any { nextDate(node.getChild(it)) })
+                                val deadline = android.os.SystemClock.uptimeMillis() + 5_000
+                                while (!nextDate(instrumentation.uiAutomation.rootInActiveWindow) &&
+                                    android.os.SystemClock.uptimeMillis() < deadline) Thread.sleep(50)
+                                check(nextDate(instrumentation.uiAutomation.rootInActiveWindow)) { "Date swipe failed in $language" }
+                            }
+                            val trigger = when (route) { "date" -> "history-date"; "focus-consent" -> "focus-permission"; "privacy-confirm" -> "privacy-delete"; "ringing-keyboard" -> "alarm-answer"; "appearance-ink" -> "palette-ink"; "status-legend" -> "status-legend"; "today-date" -> "today-date"; "alerts-reminders" -> "edit-reminders-fajr"; "fajr-picker" -> "fajr-fixed-clock"; else -> null }
                             if (trigger != null) {
                                 fun find(node: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
                                     if (node == null || node.viewIdResourceName == trigger) return node
@@ -56,19 +73,61 @@ class AppearanceCaptureTest {
                                 var node = find(instrumentation.uiAutomation.rootInActiveWindow)
                                 var attempts = 0
                                 while (node?.isVisibleToUser != true && attempts++ < 12) {
-                                    fun scrollable(n: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
-                                        if (n == null || n.isScrollable) return n
-                                        for (i in 0 until n.childCount) scrollable(n.getChild(i))?.let { return it }
+                                    val down = android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_DOWN.id
+                                    fun findScroll(n: android.view.accessibility.AccessibilityNodeInfo?,
+                                        matches: (android.view.accessibility.AccessibilityNodeInfo) -> Boolean
+                                    ): android.view.accessibility.AccessibilityNodeInfo? {
+                                        if (n == null || matches(n)) return n
+                                        for (i in 0 until n.childCount) findScroll(n.getChild(i), matches)?.let { return it }
                                         return null
                                     }
-                                    checkNotNull(scrollable(instrumentation.uiAutomation.rootInActiveWindow)).performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
+                                    val root = instrumentation.uiAutomation.rootInActiveWindow
+                                    val vertical = findScroll(root) { n -> n.actionList.any { it.id == down } }
+                                    if (vertical != null) vertical.performAction(down)
+                                    else checkNotNull(findScroll(root) { it.isScrollable && it.viewIdResourceName != "today-pager" })
+                                        .performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
                                     instrumentation.waitForIdleSync(); Thread.sleep(150)
                                     node = find(instrumentation.uiAutomation.rootInActiveWindow)
                                 }
-                                checkNotNull(node).performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK)
+                                check(checkNotNull(node).performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK)) { "Could not activate $trigger in $route" }
                                 instrumentation.waitForIdleSync(); Thread.sleep(200)
+                                if (route == "appearance-ink") {
+                                    val swatch = find(instrumentation.uiAutomation.rootInActiveWindow)
+                                    check(swatch?.isSelected == true || swatch?.isChecked == true) { "Ink swatch must be selected after tapping" }
+                                }
+                                if (route == "ringing-keyboard") {
+                                    val keyboardDeadline = android.os.SystemClock.uptimeMillis()+5000
+                                    fun answerVisible(): Boolean {
+                                        val windows = instrumentation.uiAutomation.windows
+                                        val root = windows.firstOrNull {
+                                            it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION && it.root?.packageName?.toString() == context.packageName
+                                        }?.root
+                                        val ime = windows.firstOrNull { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD } ?: return false
+                                        val answer = find(root) ?: return false
+                                        fun tagged(n: android.view.accessibility.AccessibilityNodeInfo?, tag: String): android.view.accessibility.AccessibilityNodeInfo? {
+                                            if (n == null || n.viewIdResourceName == tag) return n
+                                            for (i in 0 until n.childCount) tagged(n.getChild(i),tag)?.let { return it }
+                                            return null
+                                        }
+                                        val stop = tagged(root,"alarm-emergency-stop") ?: return false
+                                        val content = tagged(root,"alarm-content") ?: return false
+                                        val answerBounds = android.graphics.Rect().also(answer::getBoundsInScreen)
+                                        val stopBounds = android.graphics.Rect().also(stop::getBoundsInScreen)
+                                        val imeBounds = android.graphics.Rect().also(ime::getBoundsInScreen)
+                                        val contentBounds = android.graphics.Rect().also(content::getBoundsInScreen)
+                                        val statusTop = windows.filter { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SYSTEM }
+                                            .map { android.graphics.Rect().also(it::getBoundsInScreen) }
+                                            .filter { it.top == 0 && it.height() < activity.resources.displayMetrics.heightPixels/4 }
+                                            .maxOfOrNull { it.bottom } ?: 0
+                                        return answer.isVisibleToUser && stop.isVisibleToUser && answerBounds.height() > 0 &&
+                                            contentBounds.top >= statusTop && answerBounds.top >= statusTop && answerBounds.bottom <= stopBounds.top &&
+                                            stopBounds.bottom <= imeBounds.top && imeBounds.top-stopBounds.bottom <= 64*activity.resources.displayMetrics.density
+                                    }
+                                    while (!answerVisible() && android.os.SystemClock.uptimeMillis() < keyboardDeadline) Thread.sleep(100)
+                                    check(answerVisible()) { "Fajr answer field disappeared behind keyboard at ${scale}x/$language" }
+                                }
                             }
-                            for (position in if (width == "phone" && route !in listOf("record","date","focus-consent","privacy-confirm","focus-overlay","ringing","ringing-keyboard")) listOf("top","bottom") else listOf("top")) {
+                            for (position in if (width == "phone" && route !in listOf("record","date","status-legend","today-date","today-next","alerts-reminders","fajr-picker","focus-consent","privacy-confirm","focus-overlay","ringing","ringing-keyboard")) listOf("top","bottom") else listOf("top")) {
                                 if (position == "bottom") { instrumentation.runOnMainSync { activity.bottom() }; instrumentation.waitForIdleSync(); Thread.sleep(100) }
                                 var active = instrumentation.uiAutomation.windows.firstOrNull { it.isActive }
                                 val windowDeadline = android.os.SystemClock.uptimeMillis() + 5000
@@ -90,7 +149,7 @@ class AppearanceCaptureTest {
             Locale.setDefault(oldLocale)
             shell(if (oldScale == "null") "settings delete system font_scale" else "settings put system font_scale $oldScale")
             shell(if (oldSize == null) "wm size reset" else "wm size $oldSize")
-            ScreenshotActivity.route = "today"; ScreenshotActivity.recordDialog = false; ScreenshotActivity.language = "en"; ScreenshotActivity.dark = false
+            ScreenshotActivity.route = "today"; ScreenshotActivity.recordDialog = false; ScreenshotActivity.showNight = false; ScreenshotActivity.language = "en"; ScreenshotActivity.dark = false
         }
     }
 }

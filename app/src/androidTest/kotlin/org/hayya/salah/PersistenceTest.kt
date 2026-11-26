@@ -69,9 +69,9 @@ class PersistenceTest {
                 mapOf(Prayer.ISHA to 3), ParameterOverrides(fajrAngle = 16.0, ishaInterval = 100, maghribAngle = 4.0),
                 PolarMode.REFERENCE, 48.5), automatic = true, refreshedAt = Instant.EPOCH)
         val config = AppPreferences(place, alerts = Prayer.entries.associateWith { PrayerAlert(AlertMode.ADHAN, 10, 15, "user-sound") },
-            fajr = FajrPreferences(true, -30, "builtin_fajr", ChallengeDifficulty.HARD),
+            fajr = FajrPreferences(true, -30, "builtin_fajr", ChallengeDifficulty.HARD, FajrMode.FIXED, java.time.LocalTime.of(4, 45)),
             focus = FocusPreferences(true, setOf("example.selected"), setOf(Prayer.FAJR)),
-            appearance = AppearancePreferences(ThemePreference.DARK, Palette.PLUM, TimePreference.TWENTY_FOUR, NumeralPreference.ARABIC_INDIC, true),
+            appearance = AppearancePreferences(ThemePreference.DARK, Palette.PLUM, TimePreference.TWENTY_FOUR, NumeralPreference.ARABIC_INDIC, true, showMidnight = true, showLastThird = true),
             language = "ar", hijriAdjustment = 2, trackingSince = LocalDate.of(2026, 1, 1))
         assertEquals(config, PreferencesCodec.decode(PreferencesCodec.encode(config)))
         val defaults = PreferencesCodec.decode("{\"version\":1}")
@@ -79,5 +79,12 @@ class PersistenceTest {
         assertFalse(defaults.fajr.enabled)
         assertFalse(defaults.focus.enabled)
         assertTrue(defaults.alerts.values.all { it.mode == AlertMode.OFF })
+        assertFalse(defaults.appearance.showMidnight)
+        assertFalse(defaults.appearance.showLastThird)
+        for (legacy in NightTime.entries) {
+            val appearance = PreferencesCodec.decode("{\"appearance\":{\"nightTime\":\"$legacy\"}}").appearance
+            assertEquals(legacy == NightTime.MIDPOINT, appearance.showMidnight)
+            assertEquals(legacy == NightTime.LAST_THIRD, appearance.showLastThird)
+        }
     }
 }

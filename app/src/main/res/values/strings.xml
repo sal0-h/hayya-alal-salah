@@ -4,12 +4,10 @@
     <string name="today">Today</string>
     <string name="history">History</string>
     <string name="settings">Settings</string>
-    <string name="setup_intro">Choose a place and confirm your calculation profile. Prayer times are calculated on your device. No location permission is needed.</string>
     <string name="place_name">Place name</string>
     <string name="latitude">Latitude (−90 to 90)</string>
     <string name="longitude">Longitude (−180 to 180)</string>
     <string name="timezone">Time zone, e.g. Asia/Baku</string>
-    <string name="profile_explanation">Confirm the method you follow. Language and location do not determine your religious practice.</string>
     <string name="confirm_setup">Confirm and see times</string>
     <string name="cancel">Cancel</string>
     <string name="invalid_setup">Enter a place name, valid coordinates and an IANA time zone. Use a decimal point in coordinates.</string>
@@ -43,7 +41,6 @@
     <string name="save">Save</string>
     <string name="apply">Apply</string>
     <string name="record_prayer">Record prayer</string>
-    <string name="record_explanation">Choose how you prayed. A late check-in does not mean the prayer was late.</string>
     <string name="status_on_time">On time</string>
     <string name="status_made_up">Made up</string>
     <string name="status_missed">Missed</string>
@@ -51,9 +48,6 @@
     <string name="status_unrecorded">Unrecorded</string>
     <string name="clear_record">Remove record</string>
     <string name="choose_date">Choose date</string>
-    <string name="previous_month">Previous month</string>
-    <string name="next_month">Next month</string>
-    <string name="streak_daily">Verified daily streak: %1$s</string>
     <string name="streak_prayer">On-time streak: %1$s</string>
     <string name="streak_unknown">Continuity before this is unconfirmed. Unrecorded prayers are not counted as missed.</string>
     <string name="statistics">Statistics and local insights</string>
@@ -61,12 +55,12 @@
     <string name="on_time_recorded">On time among recorded: %1$s / %2$s</string>
     <string name="period_last_30">Last 30 completed days</string>
     <string name="pause">Pause</string>
-    <string name="pause_explanation">Set dates manually. Relevant alerts and Focus stop during this pause. Completed records stay unchanged. No cycle prediction.</string>
+    <string name="pause_explanation">Choose dates to pause alerts, Fajr alarms and Focus. Saved records stay. Unrecorded prayers are left out of stats.</string>
     <string name="start_date">Start date</string>
     <string name="end_date">End date</string>
     <string name="add_pause">Add pause</string>
     <string name="remove">Remove</string>
-    <string name="paused_today">Paused for this date</string>
+    <string name="paused_today">Tracking paused</string>
     <string name="calculation">Calculation</string>
     <string name="location">Location</string>
     <string name="appearance">Appearance and language</string>
@@ -98,7 +92,6 @@
     <string name="invalid_parameters">Check the numbers: corrections −120…120, angles 0.1…30, interval 1…300. Choose one Isha override.</string>
     <string name="reset_profile">Restore profile defaults</string>
     <string name="qibla">Qibla</string>
-    <string name="hijri_convention">Umm al-Qura · %1$s</string>
     <string name="storage_error">Local data could not be read. Nothing has been deleted.</string>
     <string name="no_records">No records in this period</string>
     <string name="not_available">Not available</string>
@@ -111,7 +104,7 @@
     <string name="light">Light</string>
     <string name="dark">Dark</string>
     <string name="palette">Palette</string>
-    <string name="teal">Teal</string>
+    <string name="teal">Sage</string>
     <string name="ink">Ink blue</string>
     <string name="plum">Plum</string>
     <string name="time_format">Time format</string>
@@ -133,7 +126,6 @@
     <string name="open_alarm">Open alarm</string>
     <string name="record_on_time">Record: on time</string>
     <string name="stop_audio">Stop audio</string>
-    <string name="dismiss_not_record">Stopping this alarm does not record a prayer.</string>
     <string name="alarm_finished">The alarm is no longer ringing.</string>
     <string name="close">Close</string>
     <string name="question_progress">Question %1$s / %2$s</string>
@@ -144,20 +136,15 @@
     <string name="alert_off">Off</string>
     <string name="alert_notification">Notification</string>
     <string name="alert_adhan">Adhan audio</string>
-    <string name="alert_delivery_note">Primary alerts use exact alarms when allowed. Before/after reminders are best-effort; delayed reminders are discarded.</string>
     <string name="notification_access">Allow notifications</string>
     <string name="exact_access">Allow precise alarms</string>
     <string name="channel_settings">Notification settings</string>
     <string name="fullscreen_access">Lock-screen alarm access</string>
-    <string name="alert_not_ready">Notifications are blocked. Review permission and channel settings.</string>
-    <string name="exact_not_ready">Precise alarms are unavailable. Prayer notifications may be delayed; Fajr wake-up stays inactive.</string>
-    <string name="before_minutes">Before (minutes; empty = off)</string>
-    <string name="after_minutes">After (minutes; empty = off)</string>
+    <string name="alert_not_ready">Notifications are blocked.</string>
+    <string name="exact_not_ready">Prayer alerts may be delayed.</string>
     <string name="sound">Sound</string>
     <string name="import_audio">Import local audio</string>
-    <string name="import_note">Choose audio you have permission to use. Imports stay on this device. Before first unlock after reboot, bundled audio is used instead.</string>
     <string name="import_error">Cannot import this audio. Choose a decodable file, up to 25 MB and 10 minutes.</string>
-    <string name="fajr_offset">Minutes relative to Fajr (−180…180)</string>
     <string name="enable_fajr">Enable wake-up alarm</string>
     <string name="challenge">Arithmetic challenge</string>
     <string name="challenge_easy">Easy · 1 question</string>
@@ -165,7 +152,6 @@
     <string name="challenge_hard">Hard · 5 questions</string>
     <string name="alarm_test">Test alarm now</string>
     <string name="alert_test">Test notification</string>
-    <string name="normal_sound_note">Normal Adhan respects silent mode and Do Not Disturb. Fajr uses alarm audio; your Android alarm volume and DND settings apply. Emergency stop is always available.</string>
     <string name="builtin_adhan_1">Ahmed Khalaf · Adhan 1</string>
     <string name="builtin_adhan_2">Ahmed Khalaf · Adhan 2</string>
     <string name="builtin_fajr">Ahmed Khalaf · Fajr</string>
@@ -185,11 +171,8 @@
     <string name="confirm_location_zone">Confirm location and time zone</string>
     <string name="automatic_location">Refresh location while using the app</string>
     <string name="foreground_location_note">Automatic refresh runs only while the app is visible. Manual mode makes no location requests. Zone changes need confirmation.</string>
-    <string name="location_observed_at">Location observed: %1$s</string>
     <string name="qibla_true_bearing">Qibla: %1$s from true north</string>
-    <string name="qibla_actual_location">Bearing uses your actual coordinates, including when prayer times use a polar reference.</string>
     <string name="qibla_numeric_fallback">No compass reading is available. Use the numerical true-north bearing with a reliable map or compass.</string>
-    <string name="qibla_calibrate">Low sensor accuracy. Move away from metal and magnets; gently move the phone in a figure eight, then hold it flat.</string>
     <string name="qibla_hold_flat">Hold the phone flat, away from metal and magnets. Compass readings can vary.</string>
     <string name="widget_setup">Open Hayya to choose a location</string>
     <string name="widget_unlock">Unlock to show prayer times</string>
@@ -200,5 +183,73 @@
     <string name="focus_service_inactive">Focus is inactive until you enable its Android Accessibility service.</string>
     <string name="loading">Loading…</string>
     <string name="regional_profiles">Regional presets to compare: %1$s. Choose your method explicitly; location does not determine your practice.</string>
-    <string name="calendar_scroll_hint">Scroll the calendar sideways to see all days. You can also choose a date above.</string>
+    <string name="reset_error">Deletion did not finish. Retry full reset or clear app storage in Android settings.</string>
+    <string name="audio_delete_error">The audio file could not be removed. Try again.</string>
+    <string name="widget_estimated">Estimated %1$s°</string>
+    <string name="status_legend">Prayer statuses</string>
+    <string name="status_legend_instructions">Tap a prayer or its status to choose or clear a record.</string>
+    <string name="edit_prayer_status">Edit %1$s record</string>
+    <string name="hijri_date">%1$s %2$s %3$s AH</string>
+    <string name="hijri_calendar">Hijri calendar</string>
+    <string name="hijri_umm_al_qura">Umm al-Qura calendar</string>
+    <string name="prayer_time_method">Prayer time method</string>
+    <string name="save_location">Save location</string>
+    <string name="coordinates_and_zone">Coordinates and time zone</string>
+    <string name="choose_location">Choose a location</string>
+    <string name="on_time_streak">Verified daily streak</string>
+    <string name="choose_focus_apps">Choose apps</string>
+    <string name="focus_app_count">Selected apps: %1$s</string>
+    <string name="focus_app_search">Find an app</string>
+    <string name="focus_select_results">Select results</string>
+    <string name="focus_clear_results">Deselect results</string>
+    <string name="focus_no_apps">No matching apps</string>
+    <string name="qibla_unstable_heading">Live heading is unavailable. Hold the phone flat and move it away from metal or magnets.</string>
+    <string-array name="hijri_months">
+        <item>Muharram</item>
+        <item>Safar</item>
+        <item>Rabi al-Awwal</item>
+        <item>Rabi al-Thani</item>
+        <item>Jumada al-Awwal</item>
+        <item>Jumada al-Thani</item>
+        <item>Rajab</item>
+        <item>Sha\'ban</item>
+        <item>Ramadan</item>
+        <item>Shawwal</item>
+        <item>Dhu al-Qadah</item>
+        <item>Dhu al-Hijjah</item>
+    </string-array>
+    <string name="theme_mode">Theme</string>
+    <string name="return_today">Return to today</string>
+    <string name="today_night_time">Night times on Today</string>
+    <string name="midpoint_sunrise">Midnight (sunset to sunrise)</string>
+    <string name="midpoint_fajr">Midnight (sunset to Fajr)</string>
+    <string name="last_third_fajr">Last third (sunset to Fajr)</string>
+    <string name="night_midpoint">Midnight</string>
+    <string name="last_third">Last third starts</string>
+    <string name="dated_clock_time">%1$s · %2$s</string>
+    <string name="estimated_clock_time">%1$s (estimated)</string>
+    <string name="extra_reminders">Extra reminders</string>
+    <string name="minutes_before">%1$s min before</string>
+    <string name="minutes_after">%1$s min after</string>
+    <string name="minutes">Minutes</string>
+    <string name="minutes_range">Enter %1$s–%2$s minutes.</string>
+    <string name="extras_may_delay">Extra reminders may be delayed.</string>
+    <string name="fajr_exact_required">Allow precise alarms for the Fajr alarm to ring.</string>
+    <string name="alarm_timing">Alarm timing</string>
+    <string name="fajr_relative">Relative to Fajr</string>
+    <string name="fajr_fixed">Fixed time</string>
+    <string name="fajr_location_zone">Uses the time zone for %1$s.</string>
+    <string name="before_fajr">Before Fajr</string>
+    <string name="after_fajr">After Fajr</string>
+    <string name="at_fajr">At Fajr</string>
+    <string name="next_alarm">Next alarm</string>
+    <string name="configured_alarm_time">Configured time</string>
+    <string name="fajr_times_unavailable">Fajr times are unavailable.</string>
+    <string name="no_upcoming_fajr_alarm">No alarm scheduled in the coming week.</string>
+    <string name="end_pause">End pause now</string>
+    <string name="remove_pause">Remove pause</string>
+    <string name="pause_invalid_dates">Choose an end date on or after the start date.</string>
+    <string name="pause_date_range">%1$s – %2$s</string>
+    <string name="previous_day">Previous day</string>
+    <string name="next_day">Next day</string>
 </resources>

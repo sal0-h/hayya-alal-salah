@@ -67,7 +67,14 @@ class AdhanCalculator : PrayerCalculator {
             try {
                 CalculationResult.Available(DailySchedule(date, zone, prayers,
                     instant(times.sunrise.toEpochMilliseconds()),
-                    Provenance("adhan2:0.0.7", settings.profile, point, point, settings)))
+                    Provenance("adhan2:0.0.7", settings.profile, point, point, settings),
+                    NightBoundaries(
+                        sunset = instant(times.maghrib.toEpochMilliseconds())
+                            .minusSeconds(60L * (params.methodAdjustments.maghrib + params.prayerAdjustments.maghrib)),
+                        dawn = instant(times.fajr.toEpochMilliseconds()),
+                        sunrise = instant(times.sunrise.toEpochMilliseconds())
+                            .minusSeconds(60L * (params.methodAdjustments.sunrise + params.prayerAdjustments.sunrise)),
+                    )))
             } catch (_: IllegalArgumentException) {
                 CalculationResult.Unavailable(CalculationResult.Reason.INVALID_ORDER_OR_DATE)
             }

@@ -1,18 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 package org.hayya.salah
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -27,36 +20,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.hayya.core.*
-import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 
 internal val LocalAppearance = staticCompositionLocalOf { AppearancePreferences() }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable internal fun HayyaTheme(appearance: AppearancePreferences = AppearancePreferences(), content: @Composable () -> Unit) {
-    val scheme = if (appearance.theme == ThemePreference.DARK || (appearance.theme == ThemePreference.SYSTEM && isSystemInDarkTheme())) darkColorScheme(
-        background = Color(0xFF101D26), surface = Color(0xFF101D26),
-        onBackground = Color(0xFFE4EDF2), onSurface = Color(0xFFE4EDF2),
-        onSurfaceVariant = Color(0xFFA9B9C5), primary = Color(0xFF76C9CF), outlineVariant = Color(0xFF354A59),
-    ) else lightColorScheme(
-        background = Color(0xFFF8FAFC), surface = Color(0xFFF8FAFC),
-        onBackground = Color(0xFF172D3A), onSurface = Color(0xFF172D3A),
-        onSurfaceVariant = Color(0xFF526875), primary = Color(0xFF086D79), outlineVariant = Color(0xFFCFD9DF),
-    )
+    val dark = appearance.theme == ThemePreference.DARK || (appearance.theme == ThemePreference.SYSTEM && isSystemInDarkTheme())
+    val palette = paletteColors(appearance.palette, dark)
+    val scheme = if (dark) darkColorScheme() else lightColorScheme()
     val arabic = androidx.compose.ui.platform.LocalConfiguration.current.locales[0].language == "ar"
     val family = if (arabic) FontFamily(Font(R.font.plex_arabic_regular), Font(R.font.plex_arabic_medium, FontWeight.Medium))
         else FontFamily(Font(R.font.plex_sans_regular), Font(R.font.plex_sans_medium, FontWeight.Medium))
@@ -78,33 +58,35 @@ internal val LocalAppearance = staticCompositionLocalOf { AppearancePreferences(
         labelMedium = base.labelMedium.copy(fontFamily = family),
         labelSmall = base.labelSmall.copy(fontFamily = family),
     )
-    val dark = appearance.theme == ThemePreference.DARK || (appearance.theme == ThemePreference.SYSTEM && isSystemInDarkTheme())
     val view = androidx.compose.ui.platform.LocalView.current
     SideEffect {
-        val activity = view.context as? android.app.Activity
+        val activity = view.context.findActivity()
         activity?.window?.let { window ->
             androidx.core.view.WindowCompat.getInsetsController(window, view).apply {
                 isAppearanceLightStatusBars = !dark; isAppearanceLightNavigationBars = !dark
             }
         }
     }
-    val accent = when (appearance.palette) {
-        Palette.TEAL -> scheme.primary
-        Palette.INK -> if (dark) Color(0xFFA6C8FF) else Color(0xFF204D86)
-        Palette.PLUM -> if (dark) Color(0xFFE5AADC) else Color(0xFF743768)
-    }
-    val colors = scheme.copy(primary = accent, secondary = accent,
-        secondaryContainer = androidx.compose.ui.graphics.lerp(scheme.background, accent, .14f),
-        onSecondaryContainer = scheme.onSurface)
+    val accent = Color(palette.accent)
+    val surface = Color(palette.surface)
+    val ink = Color(palette.ink)
+    val secondary = Color(palette.secondary)
+    val wash = androidx.compose.ui.graphics.lerp(surface, accent, if (dark) .18f else .10f)
+    val onAccent = if (dark) Color(0xFF112019) else Color.White
+    val colors = scheme.copy(background = surface, surface = surface, onBackground = ink, onSurface = ink,
+        onSurfaceVariant = secondary, outline = secondary, outlineVariant = Color(palette.line),
+        primary = accent, onPrimary = onAccent, secondary = accent, onSecondary = onAccent,
+        primaryContainer = wash, onPrimaryContainer = ink, secondaryContainer = wash, onSecondaryContainer = ink,
+        surfaceVariant = wash, surfaceContainerLow = wash)
     CompositionLocalProvider(LocalAppearance provides appearance,
         LocalRippleConfiguration provides if (appearance.reducedMotion) null else LocalRippleConfiguration.current) {
         MaterialTheme(colorScheme = colors, typography = typography, content = content)
     }
 }
 
-@Composable internal fun NextPrayerMarker(name: String, time: String) {
+@Composable internal fun NextPrayerMarker(name: String, time: String, remaining: String) {
     val accent = MaterialTheme.colorScheme.primary
-    Box(Modifier.fillMaxWidth().then(Modifier.testTag("prayer-data-ready")).heightIn(min = 216.dp), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxWidth().then(Modifier.testTag("prayer-data-ready")).heightIn(min = 122.dp), contentAlignment = Alignment.Center) {
         Canvas(Modifier.matchParentSize().clearAndSetSemantics { }) {
             // An open eight-sided time frame; the upper split gives the marker a clear direction.
             val inset = 8.dp.toPx(); val cut = 28.dp.toPx(); val w = size.width; val h = size.height
@@ -118,12 +100,13 @@ internal val LocalAppearance = staticCompositionLocalOf { AppearancePreferences(
                 lineTo(w / 2, inset * 2); lineTo(w / 2 - 6.dp.toPx(), inset); close() }
             drawPath(diamond, accent)
         }
-        Column(Modifier.padding(horizontal = 32.dp, vertical = 36.dp), horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.next_prayer), style = MaterialTheme.typography.labelLarge, color = accent, textAlign = TextAlign.Center)
-            Text(name, style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
-            Text(time, style = MaterialTheme.typography.displayMedium.copy(textDirection = TextDirection.Ltr,
-                fontFeatureSettings = "tnum"), fontWeight = FontWeight.Light, textAlign = TextAlign.Center)
+        Column(Modifier.padding(horizontal = 32.dp, vertical = 16.dp), horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(0.dp)) {
+            Text(stringResource(R.string.next_prayer), style = MaterialTheme.typography.labelSmall, color = accent, textAlign = TextAlign.Center)
+            Text(name, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
+            Text(time, style = MaterialTheme.typography.displaySmall.copy(textDirection = TextDirection.Ltr,
+                fontFeatureSettings = "tnum"), fontWeight = FontWeight.Medium, textAlign = TextAlign.Center)
+            Text(remaining, style = MaterialTheme.typography.bodySmall, color = accent, textAlign = TextAlign.Center)
         }
     }
 }
@@ -140,16 +123,21 @@ internal val LocalAppearance = staticCompositionLocalOf { AppearancePreferences(
     Profile.TURKEY -> R.string.profile_turkey; Profile.FRANCE -> R.string.profile_france; Profile.RUSSIA -> R.string.profile_russia
     Profile.TEHRAN -> R.string.profile_tehran; Profile.JAFARI -> R.string.profile_jafari
 })
-@Composable internal fun timeLabel(instant: Instant, zone: ZoneId): String {
-    val context = androidx.compose.ui.platform.LocalContext.current
+@Composable internal fun uses24HourClock(): Boolean = when (LocalAppearance.current.time) {
+    TimePreference.SYSTEM -> android.text.format.DateFormat.is24HourFormat(androidx.compose.ui.platform.LocalContext.current)
+    TimePreference.TWELVE -> false
+    TimePreference.TWENTY_FOUR -> true
+}
+
+@Composable internal fun timeLabel(instant: Instant, zone: ZoneId): String =
+    wallTimeLabel(instant.atZone(zone).toLocalTime())
+
+@Composable internal fun wallTimeLabel(time: java.time.LocalTime): String {
     val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
-    val preference = LocalAppearance.current
-    val use24 = when (preference.time) { TimePreference.SYSTEM -> android.text.format.DateFormat.is24HourFormat(context)
-        TimePreference.TWELVE -> false; TimePreference.TWENTY_FOUR -> true }
-    val skeleton = if (use24) "Hm" else "hm"
+    val skeleton = if (uses24HourClock()) "Hm" else "hm"
     val pattern = android.text.format.DateFormat.getBestDateTimePattern(locale, skeleton)
-    return instant.atZone(zone).format(DateTimeFormatter.ofPattern(pattern, locale)
-        .withDecimalStyle(decimalStyle(locale, preference.numerals)))
+    return time.format(DateTimeFormatter.ofPattern(pattern, locale)
+        .withDecimalStyle(decimalStyle(locale, LocalAppearance.current.numerals)))
 }
 
 internal fun decimalStyle(locale: java.util.Locale, numerals: NumeralPreference) = when (numerals) {
@@ -169,4 +157,10 @@ internal fun normalizeNumber(text: String): String = buildString {
         while (true) { now = clock.instant(); delay(30_000) }
     } }
     return now
+}
+
+private tailrec fun android.content.Context.findActivity(): android.app.Activity? = when (this) {
+    is android.app.Activity -> this
+    is android.content.ContextWrapper -> if (baseContext === this) null else baseContext.findActivity()
+    else -> null
 }

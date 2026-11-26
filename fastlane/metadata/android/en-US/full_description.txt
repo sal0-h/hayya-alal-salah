@@ -1,0 +1,15 @@
+Prayer times and personal records, kept on your device.
+
+Choose from 15 calculation profiles, Asr conventions and advanced controls. Use an offline city, manual coordinates or optional foreground location. Polar estimates require confirmation and disclose the reference latitude. Regional presets are not promises of agreement with every local timetable.
+
+Record prayers explicitly as on time, made up, missed or excused. Correct past entries, use dated pause mode, and view history, coverage and verified streaks. Unrecorded prayers are never silently counted as missed.
+
+Configure per-prayer alerts and audio, import local audio, and optionally enable a Fajr-relative wake-up alarm with arithmetic and an emergency stop. Dismissal never records completion. Android permissions, DND and device restrictions affect delivery.
+
+Optional Prayer Focus uses Android AccessibilityService package/window events to display a blocking overlay over apps you select during selected prayer windows. It does not read screen contents or keystrokes, take screenshots, perform gestures or transmit usage data. Phone, launcher, settings and essential functions remain available. Separate disclosure, affirmative consent and emergency bypass are provided; bypass does not record prayer.
+
+Qibla includes numerical bearing and sensor feedback. Umm al-Qura Hijri dates have an independent adjustment. Next-prayer and daily widgets, four languages, RTL, themes and large text are included.
+
+No accounts, ads, analytics, subscriptions or app Internet permission. No background travel tracking. Data and imported audio stay local. V1 has no export/sync/recovery; uninstalling or clearing storage removes your data.
+
+Free software under GPL-3.0-or-later; third-party assets retain their licenses.

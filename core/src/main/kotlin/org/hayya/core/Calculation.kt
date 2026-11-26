@@ -63,7 +63,7 @@ data class DailySchedule(
     val prayers: Map<Prayer, Instant>,
     val sunrise: Instant,
     val provenance: Provenance,
-    val midnight: Instant? = null,
+    val nightBoundaries: NightBoundaries? = null,
 ) {
     init {
         require(prayers.keys == Prayer.entries.toSet())
@@ -72,7 +72,6 @@ data class DailySchedule(
         require(ordered.zipWithNext().all { (a, b) -> a < b })
         require(prayers.getValue(Prayer.DHUHR).atZone(zone).toLocalDate() == date)
         require(java.time.Duration.between(ordered.first(), ordered.last()).toHours() < 24)
-        require(midnight == null || midnight > prayers.getValue(Prayer.MAGHRIB))
     }
 }
 sealed interface CalculationResult {

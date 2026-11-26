@@ -25,6 +25,7 @@ class ScreenshotActivity : ComponentActivity() {
         var dark = false
         var route = "today"
         var recordDialog = false
+        var showNight = false
     }
     private var scrolling: ScrollState? = null
     override fun attachBaseContext(base: Context) {
@@ -62,7 +63,15 @@ class ScreenshotActivity : ComponentActivity() {
             val place = remember { ManualSetup("Baku · Bakı", GeoPoint(40.4093,49.8671), ZoneId.of("Asia/Baku"), Profile.MWL) }
             val polarPlace = remember { ManualSetup("Longyearbyen", GeoPoint(78.22,15.65), ZoneId.of("Europe/Oslo"), Profile.MWL) }
             var config by remember { mutableStateOf(AppPreferences(if (route == "onboarding") null else if (route == "polar") polarPlace else place,
-                appearance = AppearancePreferences(theme = if (dark) ThemePreference.DARK else ThemePreference.LIGHT), trackingSince = today.minusDays(30))) }
+                alerts = Prayer.entries.associateWith { prayer ->
+                    if (route == "alerts" && prayer == Prayer.FAJR) PrayerAlert(AlertMode.NOTIFICATION, beforeMinutes = 10)
+                    else PrayerAlert()
+                },
+                fajr = if (route == "fajr") FajrPreferences(enabled = true, mode = FajrMode.FIXED, fixedTime = LocalTime.of(5, 30))
+                    else FajrPreferences(),
+                appearance = AppearancePreferences(theme = if (dark) ThemePreference.DARK else ThemePreference.LIGHT,
+                    showMidnight = showNight, showLastThird = showNight),
+                trackingSince = today.minusDays(30))) }
             var history by remember { mutableStateOf(HistorySnapshot(PrayerStatus.entries.mapIndexed { index, status ->
                 val key = PrayerKey(today.minusDays(1), Prayer.entries[index]); key to PrayerRecord(key, status, fixed.instant(), fixed.instant(), place.zone)
             }.toMap(), listOf(PauseInterval(today.minusDays(3),today.minusDays(2))), emptyList())) }
@@ -84,6 +93,7 @@ class ScreenshotActivity : ComponentActivity() {
 
 /** Stable native underlay while capture activities/configurations change; never a launcher. */
 class CaptureHostActivity : ComponentActivity() {
+    override fun attachBaseContext(base: Context) { super.attachBaseContext(DeliveryLocale.context(base)) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.decorView.setBackgroundColor(android.graphics.Color.BLACK)

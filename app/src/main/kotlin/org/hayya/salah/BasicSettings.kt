@@ -2,6 +2,12 @@
 package org.hayya.salah
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,44 +22,58 @@ import kotlinx.coroutines.withContext
 import org.hayya.core.*
 import java.time.ZoneId
 
-@Composable internal fun ManualLocationScreen(initial: ManualSetup?, save: (ManualSetup) -> Unit) {
+@Composable internal fun ManualLocationScreen(initial: ManualSetup?, firstRun: Boolean = initial == null, save: (ManualSetup) -> Unit) {
     var name by rememberSaveable(initial) { mutableStateOf(initial?.name.orEmpty()) }
     var latitude by rememberSaveable(initial) { mutableStateOf(initial?.point?.latitude?.toString().orEmpty()) }
     var longitude by rememberSaveable(initial) { mutableStateOf(initial?.point?.longitude?.toString().orEmpty()) }
     var zone by rememberSaveable(initial) { mutableStateOf(initial?.zone?.id ?: ZoneId.systemDefault().id) }
-    var profile by rememberSaveable(initial) { mutableStateOf(initial?.profile ?: Profile.MWL) }
     var invalid by remember { mutableStateOf(false) }
+    var showCoordinates by rememberSaveable { mutableStateOf(false) }
     var automatic by rememberSaveable(initial) { mutableStateOf(initial?.automatic ?: false) }
     var refreshedAt by remember(initial) { mutableStateOf(initial?.refreshedAt) }
-    Text(stringResource(R.string.setup_intro))
     LocationControls { selectedName, point, selectedZone, refreshed ->
-        name = selectedName; latitude = point.latitude.toString(); longitude = point.longitude.toString(); zone = selectedZone
-        refreshedAt = refreshed; automatic = refreshed != null
+        name = selectedName
+        latitude = point.latitude.toString()
+        longitude = point.longitude.toString()
+        zone = selectedZone
+        refreshedAt = refreshed
+        automatic = refreshed != null
+        showCoordinates = refreshed != null || selectedZone !in ZoneId.getAvailableZoneIds()
+        invalid = false
+    }
+    if (name.isNotBlank()) {
+        Text(name, style = MaterialTheme.typography.titleMedium)
+        Text(zone, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+    TextButton(onClick = { showCoordinates = !showCoordinates }, modifier = Modifier.heightIn(min = 48.dp)) {
+        Text(stringResource(R.string.coordinates_and_zone))
+    }
+    if (showCoordinates) {
+        if (refreshedAt != null) Text(stringResource(R.string.zone_suggestion_note))
+        if (zone.trim() !in ZoneId.getAvailableZoneIds())
+            Text(stringResource(R.string.zone_not_supported), color = MaterialTheme.colorScheme.error)
+        listOf(Triple(R.string.place_name, name, { value: String -> name = value }),
+            Triple(R.string.latitude, latitude, { value: String -> latitude = value; refreshedAt = null }),
+            Triple(R.string.longitude, longitude, { value: String -> longitude = value; refreshedAt = null }),
+            Triple(R.string.timezone, zone, { value: String -> zone = value })).forEach { (label, value, change) ->
+            OutlinedTextField(value, change, label = { Text(stringResource(label)) }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+        }
     }
     ToggleRow(stringResource(R.string.automatic_location), automatic) { automatic = it }
-    Text(stringResource(R.string.foreground_location_note))
-    if (automatic && !org.hayya.salah.location.ForegroundLocation.allowed(LocalContext.current)) Text(stringResource(R.string.location_permission_needed), color = MaterialTheme.colorScheme.error)
-    if (zone !in ZoneId.getAvailableZoneIds()) Text(stringResource(R.string.zone_not_supported), color = MaterialTheme.colorScheme.error)
-    refreshedAt?.let { Text(stringResource(R.string.location_observed_at, it.toString())) }
-    listOf(Triple(R.string.place_name, name, { value: String -> name = value }),
-        Triple(R.string.latitude, latitude, { value: String -> latitude = value }),
-        Triple(R.string.longitude, longitude, { value: String -> longitude = value }),
-        Triple(R.string.timezone, zone, { value: String -> zone = value })).forEach { (label, value, change) ->
-        OutlinedTextField(value, change, label = { Text(stringResource(label)) }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+    if (automatic) {
+        Text(stringResource(R.string.foreground_location_note))
+        if (!org.hayya.salah.location.ForegroundLocation.allowed(LocalContext.current))
+            Text(stringResource(R.string.location_permission_needed), color = MaterialTheme.colorScheme.error)
     }
-    Text(stringResource(R.string.profile_explanation))
-    val regional = remember(zone) { runCatching { regionalProfiles(ZoneId.of(zone.trim())) }.getOrDefault(emptyList()) }
-    if (regional.isNotEmpty()) Text(stringResource(R.string.regional_profiles,
-        regional.map { profileName(it) }.joinToString(" · ")),style = MaterialTheme.typography.bodySmall)
-
-    SelectionField(stringResource(R.string.calculation), profile, Profile.entries, { profileName(it) }) { profile = it }
     if (invalid) Text(stringResource(R.string.invalid_setup), color = MaterialTheme.colorScheme.error)
     Button(onClick = {
         val place = runCatching { ManualSetup(name.trim(), GeoPoint(normalizeNumber(latitude).toDouble(), normalizeNumber(longitude).toDouble()),
-            ZoneId.of(zone.trim()), if (profile == initial?.profile) initial.calculation else CalculationSettings(profile), automatic, refreshedAt) }.getOrNull()
+            ZoneId.of(zone.trim()), initial?.calculation ?: CalculationSettings(), automatic, refreshedAt) }.getOrNull()
         invalid = place == null
-        place?.let(save)
-    }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(stringResource(R.string.confirm_setup)) }
+        if (place == null) showCoordinates = true else save(place)
+    }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("save-location")) {
+        Text(stringResource(if (firstRun) R.string.prayer_time_method else R.string.save_location))
+    }
 }
 
 @Composable internal fun languageName(language: String): String = when (language) {
@@ -63,17 +83,51 @@ import java.time.ZoneId
     val appearance = config.appearance
     SectionTitle(stringResource(R.string.appearance))
     SelectionField(stringResource(R.string.language), config.language, listOf("system", "en", "ru", "az", "ar"), { languageName(it) }, onLanguage)
-    SelectionField(stringResource(R.string.appearance), appearance.theme, ThemePreference.entries,
+    PalettePicker(appearance) { selected -> update { it.copy(appearance = it.appearance.copy(palette = selected)) } }
+    SelectionField(stringResource(R.string.theme_mode), appearance.theme, ThemePreference.entries,
         { stringResource(when (it) { ThemePreference.SYSTEM -> R.string.follow_system; ThemePreference.LIGHT -> R.string.light; ThemePreference.DARK -> R.string.dark }) }) { selected -> update { it.copy(appearance = it.appearance.copy(theme = selected)) } }
-    SelectionField(stringResource(R.string.palette), appearance.palette, Palette.entries,
-        { stringResource(when (it) { Palette.TEAL -> R.string.teal; Palette.INK -> R.string.ink; Palette.PLUM -> R.string.plum }) }) { selected -> update { it.copy(appearance = it.appearance.copy(palette = selected)) } }
     SelectionField(stringResource(R.string.time_format), appearance.time, TimePreference.entries,
         { stringResource(when (it) { TimePreference.SYSTEM -> R.string.follow_system; TimePreference.TWELVE -> R.string.hour_12; TimePreference.TWENTY_FOUR -> R.string.hour_24 }) }) { selected -> update { it.copy(appearance = it.appearance.copy(time = selected)) } }
     SelectionField(stringResource(R.string.numerals), appearance.numerals, NumeralPreference.entries,
         { stringResource(when (it) { NumeralPreference.SYSTEM -> R.string.follow_system; NumeralPreference.LATIN -> R.string.latin_digits; NumeralPreference.ARABIC_INDIC -> R.string.arabic_digits }) }) { selected -> update { it.copy(appearance = it.appearance.copy(numerals = selected)) } }
     ToggleRow(stringResource(R.string.reduced_motion), appearance.reducedMotion) { selected -> update { it.copy(appearance = it.appearance.copy(reducedMotion = selected)) } }
-    SelectionField(stringResource(R.string.hijri_adjustment), config.hijriAdjustment, (-2..2).toList(), { it.toString() }) { selected -> update { it.copy(hijriAdjustment = selected) } }
+    Text(stringResource(R.string.today_night_time), style = MaterialTheme.typography.titleMedium)
+    val midpoint = if (config.place?.profile?.let(::midpointEndsAtSunrise) == true)
+        R.string.midpoint_sunrise else R.string.midpoint_fajr
+    ToggleRow(stringResource(midpoint), appearance.showMidnight) { checked ->
+        update { it.copy(appearance = it.appearance.copy(showMidnight = checked)) }
+    }
+    ToggleRow(stringResource(R.string.last_third_fajr), appearance.showLastThird) { checked ->
+        update { it.copy(appearance = it.appearance.copy(showLastThird = checked)) }
+    }
+    Text(stringResource(R.string.hijri_calendar), style = MaterialTheme.typography.titleMedium)
+    Text(stringResource(R.string.hijri_umm_al_qura), color = MaterialTheme.colorScheme.onSurfaceVariant)
+    SelectionField(stringResource(R.string.hijri_adjustment), config.hijriAdjustment, (-2..2).toList(), { numberLabel(it) }) { selected -> update { it.copy(hijriAdjustment = selected) } }
 }
+@Composable private fun PalettePicker(appearance: AppearancePreferences, select: (Palette) -> Unit) {
+    val dark = appearance.theme == ThemePreference.DARK ||
+        appearance.theme == ThemePreference.SYSTEM && androidx.compose.foundation.isSystemInDarkTheme()
+    Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(stringResource(R.string.palette), style = MaterialTheme.typography.labelLarge)
+        Palette.entries.forEach { palette ->
+            val colors = paletteColors(palette, dark)
+            val selected = appearance.palette == palette
+            Surface(shape = MaterialTheme.shapes.small,
+                color = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface,
+                border = androidx.compose.foundation.BorderStroke(1.dp, if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant)) {
+                Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("palette-${palette.name.lowercase()}")
+                    .selectable(selected, role = Role.RadioButton) { select(palette) }.padding(horizontal = 12.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(24.dp).background(androidx.compose.ui.graphics.Color(colors.accent), MaterialTheme.shapes.extraSmall))
+                    Text(stringResource(when (palette) { Palette.TEAL -> R.string.teal; Palette.INK -> R.string.ink; Palette.PLUM -> R.string.plum }),
+                        Modifier.weight(1f))
+                    if (selected) Text("✓", Modifier.clearAndSetSemantics { }, color = MaterialTheme.colorScheme.primary)
+                }
+            }
+        }
+    }
+}
+
 @Composable internal fun PrivacyScreen(deleteRecords: () -> Unit, reset: () -> Unit) {
     var confirmation by remember { mutableStateOf<Int?>(null) }
     SectionTitle(stringResource(R.string.privacy_data))

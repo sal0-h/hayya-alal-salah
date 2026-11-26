@@ -13,7 +13,8 @@ fun focusWindow(schedules: List<DailySchedule>, selected: Set<Prayer>, records: 
     val schedule = schedules.first { it.date == current.key.date }
     val expiry = if (current.key.prayer == Prayer.FAJR) schedule.sunrise
         else occurrences.firstOrNull { it.at > current.at }?.at ?: return null
-    if (now >= expiry || pauses.any { current.key.date in it }) return null
+    val localDate = now.atZone(schedule.zone).toLocalDate()
+    if (now >= expiry || pauses.any { current.key.date in it || localDate in it }) return null
     if (effectiveStatus(current.key, records, pauses) in setOf(PrayerStatus.ON_TIME, PrayerStatus.MADE_UP, PrayerStatus.EXCUSED)) return null
     if (bypass?.target == current.key && bypass.expiresAt > now) return null
     // MISSED is not completion or a routine skip; the window still expires normally.

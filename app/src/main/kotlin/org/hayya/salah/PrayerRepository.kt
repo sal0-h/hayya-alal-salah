@@ -39,6 +39,10 @@ class PrayerRepository(private val database: PrayerDatabase) {
     }
     suspend fun addPause(pause: PauseInterval) = withContext(Dispatchers.IO) { dao.addPause(PauseEntity(pause.start.toEpochDay(), pause.endInclusive.toEpochDay())) }
     suspend fun deletePause(pause: PauseInterval) = withContext(Dispatchers.IO) { dao.deletePause(pause.start.toEpochDay(), pause.endInclusive.toEpochDay()) }
+    suspend fun endPause(pause: PauseInterval, date: LocalDate) = withContext(Dispatchers.IO) {
+        if (date !in pause) return@withContext
+        dao.endPause(pause.start.toEpochDay(), pause.endInclusive.toEpochDay(), date.toEpochDay())
+    }
     suspend fun putAudio(audio: AudioEntity) = withContext(Dispatchers.IO) { dao.putAudio(audio) }
     suspend fun deleteAudio(id: String) = withContext(Dispatchers.IO) { dao.deleteAudio(id) }
     suspend fun deleteRecords() = withContext(Dispatchers.IO) { dao.deleteAllRecords() }

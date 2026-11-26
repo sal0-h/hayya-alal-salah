@@ -63,14 +63,17 @@ object AlarmCoordinator {
                 alert.beforeMinutes?.let { add(AlertRule(prayer, EventKind.BEFORE, Duration.ofMinutes(-it.toLong()))) }
                 alert.afterMinutes?.let { add(AlertRule(prayer, EventKind.AFTER, Duration.ofMinutes(it.toLong()))) }
             } }
-            if (prefs.fajr.enabled && exactAccess(context) && AlertNotifications.ready(context, true))
-                add(AlertRule(Prayer.FAJR, EventKind.FAJR_WAKE_UP, Duration.ofMinutes(prefs.fajr.offsetMinutes.toLong())))
         }
-        val schedules = if (place == null || rules.isEmpty()) emptyList() else (-1L..7L).mapNotNull { offset ->
-            (LocalPrayerCalculator().calculate(now.atZone(place.zone).toLocalDate().plusDays(offset), place.point, place.zone, place.calculation) as? CalculationResult.Available)?.schedule
-        }
+        val scheduleFajr = prefs.fajr.enabled && exactAccess(context) && AlertNotifications.ready(context, true)
+        val dates = place?.let { alarmDates(now, it.zone) }.orEmpty()
+        val schedules = if (place == null || (rules.isEmpty() && !(scheduleFajr && prefs.fajr.mode == FajrMode.RELATIVE)))
+            emptyList() else calculateAlarmDays(place, dates)
+        val fajrEvents = if (scheduleFajr && place != null)
+            compileFajrAlarms(dates, place.zone, prefs.fajr.timing, fajrByDate(schedules), history.records, history.pauses, now)
+            else emptyList()
         val previous = store.read().associateBy { it.id }
-        val desired = compileSchedule(schedules, rules, history.records, history.pauses, now, 0).map { event ->
+        val events = compileSchedule(schedules, rules, history.records, history.pauses, now, 0) + fajrEvents
+        val desired = events.map { event ->
             val sound = when {
                 event.kind == EventKind.FAJR_WAKE_UP -> prefs.fajr.sound
                 event.kind == EventKind.AT_TIME && prefs.alerts[event.target.prayer]?.mode == AlertMode.ADHAN -> prefs.alerts[event.target.prayer]?.sound
@@ -86,8 +89,7 @@ object AlarmCoordinator {
         desired.forEach { install(context, it) }
         val active = AlarmPlayback.active
         if (active != null && (place == null || (active.isFajr && !prefs.fajr.enabled) ||
-                (!active.isFajr && prefs.alerts[active.target.prayer]?.mode != AlertMode.ADHAN) || history.pauses.any { active.target.date in it } ||
-                history.records[active.target]?.status in setOf(PrayerStatus.ON_TIME, PrayerStatus.MADE_UP, PrayerStatus.EXCUSED))) {
+                (!active.isFajr && prefs.alerts[active.target.prayer]?.mode != AlertMode.ADHAN) || reminderSuppressed(active.target, now, place.zone, history.records, history.pauses))) {
             AlarmPlayback.stop(context)
         }
         AlertNotifications.cancelSuppressed(context, history)
@@ -100,20 +102,35 @@ object AlarmCoordinator {
             val history = app.repository.snapshot()
             val prefs = app.settings.preferences.first()
             val place = prefs.place ?: return@withLock null
-            val rule = prefs.alerts.getValue(entry.target.prayer)
-            val offset = when (entry.kind) {
-                EventKind.AT_TIME -> if (rule.mode != AlertMode.OFF) 0 else return@withLock null
-                EventKind.BEFORE -> if (rule.mode != AlertMode.OFF) -(rule.beforeMinutes ?: return@withLock null) else return@withLock null
-                EventKind.AFTER -> if (rule.mode != AlertMode.OFF) rule.afterMinutes ?: return@withLock null else return@withLock null
-                EventKind.FAJR_WAKE_UP -> if (prefs.fajr.enabled) prefs.fajr.offsetMinutes else return@withLock null
-            }
-            val schedule = (LocalPrayerCalculator().calculate(entry.target.date, place.point, place.zone, place.calculation) as? CalculationResult.Available)?.schedule ?: return@withLock null
-            if (place.zone.id != entry.zone || schedule.prayers.getValue(entry.target.prayer).plusSeconds(offset * 60L) != entry.at) return@withLock null
-            if (history.pauses.any { entry.target.date in it } || history.records[entry.target]?.status in
-                setOf(PrayerStatus.ON_TIME, PrayerStatus.MADE_UP, PrayerStatus.EXCUSED)) return@withLock null
+            if (place.zone.id != entry.zone) return@withLock null
+            val expected = expectedTime(entry, place, prefs) ?: return@withLock null
+            val now = Instant.now()
+            if (expected != entry.at ||
+                reminderSuppressed(entry.target, entry.at, place.zone, history.records, history.pauses) ||
+                reminderSuppressed(entry.target, now, place.zone, history.records, history.pauses)) return@withLock null
         }
         entry
     }
+    private fun expectedTime(entry: AlarmEntry, place: ManualSetup, prefs: AppPreferences): Instant? {
+        if (entry.isFajr) {
+            if (!prefs.fajr.enabled) return null
+            val timing = prefs.fajr.timing
+            val fajr = if (timing is FajrTiming.Relative)
+                calculateAlarmDays(place, listOf(entry.target.date)).singleOrNull()?.prayers?.get(Prayer.FAJR) else null
+            return fajrAlarmAt(entry.target.date, place.zone, timing, fajr)
+        }
+        val rule = prefs.alerts.getValue(entry.target.prayer)
+        if (rule.mode == AlertMode.OFF) return null
+        val minutes = when (entry.kind) {
+            EventKind.AT_TIME -> 0
+            EventKind.BEFORE -> -(rule.beforeMinutes ?: return null)
+            EventKind.AFTER -> rule.afterMinutes ?: return null
+            EventKind.FAJR_WAKE_UP -> return null
+        }
+        val schedule = calculateAlarmDays(place, listOf(entry.target.date)).singleOrNull() ?: return null
+        return schedule.prayers.getValue(entry.target.prayer).plusSeconds(minutes * 60L)
+    }
+
     suspend fun cancelAll(context: Context) = mutex.withLock {
         val store = AlarmSnapshot(context)
         store.read().forEach { manager(context).cancel(pending(context, it)) }

@@ -6,6 +6,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 
 enum class AlertMode { OFF, NOTIFICATION, ADHAN }
@@ -13,9 +14,15 @@ data class PrayerAlert(val mode: AlertMode = AlertMode.OFF, val beforeMinutes: I
     val afterMinutes: Int? = null, val sound: String = "builtin_adhan") {
     init { require(listOfNotNull(beforeMinutes, afterMinutes).all { it in 1..120 }) }
 }
+enum class FajrMode { RELATIVE, FIXED }
 data class FajrPreferences(val enabled: Boolean = false, val offsetMinutes: Int = 0,
-    val sound: String = "builtin_fajr", val difficulty: ChallengeDifficulty = ChallengeDifficulty.OFF) {
-    init { require(offsetMinutes in -180..180) }
+    val sound: String = "builtin_fajr", val difficulty: ChallengeDifficulty = ChallengeDifficulty.OFF,
+    val mode: FajrMode = FajrMode.RELATIVE, val fixedTime: LocalTime = LocalTime.of(5, 0)) {
+    init { require(offsetMinutes in -180..180); require(fixedTime.second == 0 && fixedTime.nano == 0) }
+    val timing: FajrTiming get() = when (mode) {
+        FajrMode.RELATIVE -> FajrTiming.Relative(offsetMinutes)
+        FajrMode.FIXED -> FajrTiming.Fixed(fixedTime)
+    }
 }
 data class FocusPreferences(val enabled: Boolean = false, val packages: Set<String> = emptySet(),
     val prayers: Set<Prayer> = Prayer.entries.toSet(), val bypass: FocusBypass? = null)
@@ -25,7 +32,7 @@ enum class TimePreference { SYSTEM, TWELVE, TWENTY_FOUR }
 enum class NumeralPreference { SYSTEM, LATIN, ARABIC_INDIC }
 data class AppearancePreferences(val theme: ThemePreference = ThemePreference.SYSTEM, val palette: Palette = Palette.TEAL,
     val time: TimePreference = TimePreference.SYSTEM, val numerals: NumeralPreference = NumeralPreference.SYSTEM,
-    val reducedMotion: Boolean = false)
+    val reducedMotion: Boolean = false, val showMidnight: Boolean = false, val showLastThird: Boolean = false)
 data class AppPreferences(val place: ManualSetup? = null,
     val alerts: Map<Prayer, PrayerAlert> = Prayer.entries.associateWith { PrayerAlert() },
     val fajr: FajrPreferences = FajrPreferences(), val focus: FocusPreferences = FocusPreferences(),
@@ -68,15 +75,19 @@ internal object PreferencesCodec {
         val fajr = root.optJSONObject("fajr") ?: JSONObject()
         val focus = root.optJSONObject("focus") ?: JSONObject()
         val appearance = root.optJSONObject("appearance") ?: JSONObject()
+        val legacyNightTime = appearance.enum("nightTime", NightTime.OFF)
         return AppPreferences(place,
             Prayer.entries.associateWith { prayer -> (alerts.optJSONObject(prayer.name) ?: JSONObject()).let {
                 PrayerAlert(it.enum("mode", AlertMode.OFF), it.optionalInt("before"), it.optionalInt("after"), it.optString("sound", "builtin_adhan")) } },
-            FajrPreferences(fajr.optBoolean("enabled", false), fajr.optInt("offset", 0), fajr.optString("sound", "builtin_fajr"), fajr.enum("difficulty", ChallengeDifficulty.OFF)),
+            FajrPreferences(fajr.optBoolean("enabled", false), fajr.optInt("offset", 0), fajr.optString("sound", "builtin_fajr"), fajr.enum("difficulty", ChallengeDifficulty.OFF),
+                fajr.enum("mode", FajrMode.RELATIVE), fajr.optionalString("fixedTime")?.let(LocalTime::parse) ?: LocalTime.of(5, 0)),
             FocusPreferences(focus.optBoolean("enabled", false), focus.optJSONArray("packages")?.strings()?.toSet() ?: emptySet(),
                 focus.optJSONArray("prayers")?.strings()?.map(Prayer::valueOf)?.toSet() ?: Prayer.entries.toSet(),
                 focus.optJSONObject("bypass")?.let { FocusBypass(PrayerKey(LocalDate.parse(it.getString("date")), Prayer.valueOf(it.getString("prayer"))), Instant.parse(it.getString("expires"))) }),
             AppearancePreferences(appearance.enum("theme", ThemePreference.SYSTEM), appearance.enum("palette", Palette.TEAL),
-                appearance.enum("time", TimePreference.SYSTEM), appearance.enum("numerals", NumeralPreference.SYSTEM), appearance.optBoolean("reducedMotion", false)),
+                appearance.enum("time", TimePreference.SYSTEM), appearance.enum("numerals", NumeralPreference.SYSTEM), appearance.optBoolean("reducedMotion", false),
+                appearance.optBoolean("showMidnight", legacyNightTime == NightTime.MIDPOINT),
+                appearance.optBoolean("showLastThird", legacyNightTime == NightTime.LAST_THIRD)),
             root.optString("language", "system"), root.optInt("hijriAdjustment", 0), root.optionalString("trackingSince")?.let(LocalDate::parse))
     }
     fun encode(config: AppPreferences): String = JSONObject().apply {
@@ -92,11 +103,11 @@ internal object PreferencesCodec {
         put("alerts", JSONObject().apply { config.alerts.forEach { (prayer, alert) -> put(prayer.name, JSONObject().apply {
             put("mode", alert.mode.name); put("before", alert.beforeMinutes); put("after", alert.afterMinutes); put("sound", alert.sound)
         }) } })
-        put("fajr", JSONObject().apply { put("enabled", config.fajr.enabled); put("offset", config.fajr.offsetMinutes); put("sound", config.fajr.sound); put("difficulty", config.fajr.difficulty.name) })
+        put("fajr", JSONObject().apply { put("enabled", config.fajr.enabled); put("offset", config.fajr.offsetMinutes); put("sound", config.fajr.sound); put("difficulty", config.fajr.difficulty.name); put("mode", config.fajr.mode.name); put("fixedTime", config.fajr.fixedTime.toString()) })
         put("focus", JSONObject().apply { put("enabled", config.focus.enabled); put("packages", JSONArray(config.focus.packages.toList())); put("prayers", JSONArray(config.focus.prayers.map { it.name }))
             config.focus.bypass?.let { put("bypass", JSONObject().apply { put("date", it.target.date.toString()); put("prayer", it.target.prayer.name); put("expires", it.expiresAt.toString()) }) }
         })
-        put("appearance", JSONObject().apply { put("theme", config.appearance.theme.name); put("palette", config.appearance.palette.name); put("time", config.appearance.time.name); put("numerals", config.appearance.numerals.name); put("reducedMotion", config.appearance.reducedMotion) })
+        put("appearance", JSONObject().apply { put("theme", config.appearance.theme.name); put("palette", config.appearance.palette.name); put("time", config.appearance.time.name); put("numerals", config.appearance.numerals.name); put("reducedMotion", config.appearance.reducedMotion); put("showMidnight", config.appearance.showMidnight); put("showLastThird", config.appearance.showLastThird) })
         put("language", config.language); put("hijriAdjustment", config.hijriAdjustment); put("trackingSince", config.trackingSince?.toString())
     }.toString()
 }

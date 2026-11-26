@@ -1,0 +1,29 @@
+# Preparation only. Do not submit/publish until release gates, tag and signing are reviewed.
+Categories:
+  - Time
+License: GPL-3.0-or-later
+SourceCode: https://github.com/sal0-h/hayya-alal-salah
+IssueTracker: https://github.com/sal0-h/hayya-alal-salah/issues
+AutoName: Hayya alal Salah
+Summary: Offline prayer times, explicit records and optional Prayer Focus
+Description: |-
+    Native offline prayer times, explicit tracking and pause mode, Fajr wake-up,
+    optional AccessibilityService-based Prayer Focus, Qibla, Hijri and widgets.
+    No accounts, advertising, analytics or runtime Internet permission.
+
+Builds:
+  - versionName: 0.1.0-internal
+    versionCode: 1
+    disable: Unreleased; physical/reviewer/signing/reproducibility gates are open
+    commit: 8ca0458ab395bc466fd308915a8859f585c04acc
+    subdir: app
+    gradle:
+      - yes
+
+AutoUpdateMode: None
+UpdateCheckMode: None
+# Replace the internal commit with the reviewed release tag and exact version.
+# Configure upstream Binaries and AllowedAPKSigningKeys only after key custody and
+# cross-store update compatibility are decided. Never substitute the QA certificate.
+# Builder needs pinned JDK21, Gradle9.6.0, platform37.0 and build-tools36.0.0.
+# Run check_manifest.py and check_release.py after the build in the review pipeline.

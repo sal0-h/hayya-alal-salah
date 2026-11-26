@@ -17,7 +17,7 @@ only exists while future alert events exist. Force-stop and OEM restrictions are
 not bypassed; reopening the app reconciles future events without replaying old ones.
 
 Device-protected preferences contain upcoming alarm targets, instants, zone IDs,
-kind, sound ID, challenge difficulty, generation token/claim and selected language.
+kind, sound ID, challenge difficulty, generation token/claim and selected language/appearance.
 They contain no coordinates, history records or pause dates. Both credential and
 device-protected domains are excluded from backup/transfer. Imported audio stays in
 credential-private files; pre-unlock/missing imports use bundled audio.
@@ -41,10 +41,14 @@ review and physical OEM/accessibility validation remain external release gates.
 
 ## Actual validation limits
 
-JVM calculation/suppression/focus rules and local Android compilation/lint pass.
-Instrumentation covers snapshot claim durability/stale tokens, bundled media
-preparation and installed accessibility capabilities; check PROGRESS.md for actual
-CI execution rather than assuming those tests have run. No physical alarm, Doze,
-call interruption, pre-unlock playback, overlay, TalkBack or overnight test has run.
-Android 17 background audio, permission boundaries and OEM behavior require the
-emulator/device matrix in IMPLEMENTATION_PLAN.md. Compilation is not delivery proof.
+JVM rules, Android lint and optimized assemblies pass. Actual platform delivery,
+permission denial, duplicate/original-target actions, Focus lifecycle, import and
+locked-reboot Fajr fallback have executed across the CI API matrix. New playback
+policy tests exercise MediaPlayer/audio-focus pause/regain, Fajr priority and emergency
+stop without fabricating records. PROGRESS.md records exact source/run evidence and
+pending reruns; do not infer execution from a test's presence in source.
+
+No physical audible playback, call/headphone/DND interruption, Doze/OEM timing,
+sensors, TalkBack or overnight acceptance has run. Emulator Direct Boot/idle delivery
+is narrower evidence than Samsung/mid-range reliability. These remain external gates
+in IMPLEMENTATION_PLAN.md. Compilation is not delivery proof.

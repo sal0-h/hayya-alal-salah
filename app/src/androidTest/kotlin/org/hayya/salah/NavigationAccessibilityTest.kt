@@ -2,7 +2,7 @@
 package org.hayya.salah
 
 import androidx.compose.ui.test.*
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.junit4.accessibility.enableAccessibilityChecks
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
@@ -11,7 +11,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class NavigationAccessibilityTest {
-    init { ScreenshotActivity.language = "en"; ScreenshotActivity.dark = false; ScreenshotActivity.route = "today"; ScreenshotActivity.recordDialog = false }
+    init { ScreenshotActivity.language = "en"; ScreenshotActivity.dark = false; ScreenshotActivity.route = "today"; ScreenshotActivity.recordDialog = false; ScreenshotActivity.showNight = false }
     @get:Rule val compose = createAndroidComposeRule<ScreenshotActivity>()
     @Test fun navigationExplicitRecordCorrectionAndLabeledControls() {
         if (android.os.Build.VERSION.SDK_INT >= 34) compose.enableAccessibilityChecks()
@@ -27,7 +27,56 @@ class NavigationAccessibilityTest {
         compose.onNodeWithTag("nav-settings").performClick()
         compose.onNodeWithTag("settings-appearance").performScrollTo().performClick()
         compose.onNodeWithTag("screen-appearance").assertIsDisplayed()
+        compose.onNodeWithTag("palette-ink").performScrollTo().assertIsNotSelected().performClick()
+        compose.onNodeWithTag("palette-ink").assertIsSelected()
+        compose.onNodeWithTag("palette-teal").assertIsNotSelected()
         compose.onNodeWithText("Reduce motion").performScrollTo().performClick()
         compose.onNodeWithText("Reduce motion").assertIsOn()
+    }
+
+    @Test fun todayCalendarShowsFutureScheduleWithNoRecordingAndReturnsToLiveDay() {
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("prayer-data-ready").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("today-date").performClick()
+        val inCalendar = hasAnyAncestor(hasTestTag("prayer-date-picker"))
+        val day = compose.onAllNodes(inCalendar and hasClickAction() and hasText("November 14, 2026", substring = true))
+        if (day.fetchSemanticsNodes().isNotEmpty()) {
+            day[0].performClick()
+        } else {
+            compose.onNode(inCalendar and hasSetTextAction()).performTextReplacement("11142026")
+        }
+        compose.onNodeWithTag("apply-prayer-date").performClick()
+        compose.onNodeWithTag("today-return").assertIsDisplayed()
+        compose.onNodeWithText("Saturday, November 14, 2026").assertExists()
+        compose.onNodeWithTag("prayer-data-ready").assertDoesNotExist()
+        compose.onNodeWithTag("record-status-fajr").assertDoesNotExist()
+        compose.onNodeWithTag("today-return").performClick()
+        compose.onNodeWithTag("record-status-fajr").assertExists()
+    }
+
+    @Test fun todaySwipesOneDateAndShowsEitherNightRowOrBoth() {
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("prayer-data-ready").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("today-pager").performTouchInput { swipeLeft() }
+        compose.onNodeWithText("Saturday, November 14, 2026").assertExists()
+        compose.onNodeWithTag("record-status-fajr").assertDoesNotExist()
+        compose.onNodeWithTag("today-pager").performTouchInput { swipeRight() }
+        compose.onNodeWithTag("today-return").assertDoesNotExist()
+        compose.onNodeWithTag("record-status-fajr").assertExists()
+
+        compose.onNodeWithTag("nav-settings").performClick()
+        compose.onNodeWithTag("settings-appearance").performScrollTo().performClick()
+        val midnight = compose.onNodeWithText("Midnight (sunset to Fajr)")
+        val lastThird = compose.onNodeWithText("Last third (sunset to Fajr)")
+        midnight.performScrollTo().assertIsOff().performClick()
+        lastThird.performScrollTo().assertIsOff().performClick()
+        midnight.assertIsOn()
+        lastThird.assertIsOn()
+        compose.onNodeWithTag("screen-back").performScrollTo().performClick()
+        compose.onNodeWithTag("nav-today").performClick()
+        compose.waitUntil(10_000) {
+            compose.onAllNodesWithTag("today-night-last-third").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithTag("today-night-midnight").assertExists()
+        compose.onNodeWithTag("today-night-last-third").assertExists()
+        compose.onNodeWithTag("record-status-sunrise").assertDoesNotExist()
     }
 }

@@ -41,11 +41,12 @@ import java.time.ZoneId
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
     val errorMessage = stringResource(R.string.save_error)
+    val resetError = stringResource(R.string.reset_error)
     val context = LocalContext.current
     var recordTarget by remember { mutableStateOf<Pair<PrayerKey, ZoneId>?>(null) }
     var recordBusy by remember { mutableStateOf(false) }
-    fun perform(action: suspend () -> Unit) { scope.launch {
-        try { action() } catch (e: CancellationException) { throw e } catch (_: Exception) { snackbar.showSnackbar(errorMessage) }
+    fun perform(message: String = errorMessage, action: suspend () -> Unit) { scope.launch {
+        try { action() } catch (e: CancellationException) { throw e } catch (_: Exception) { snackbar.showSnackbar(message) }
     } }
     val update: PreferencesUpdate = { transform -> perform { app.settings.update(transform) } }
     HayyaTheme(config?.appearance ?: remember { DeliveryLocale.appearance(context) }) {
@@ -61,16 +62,10 @@ import java.time.ZoneId
                 savePlace = { place -> perform { app.settings.save(place) } },
                 addPause = { perform { app.repository.addPause(it) } },
                 removePause = { perform { app.repository.deletePause(it) } },
+                endPause = { pause, day -> perform { app.repository.endPause(pause, day) } },
                 deleteRecords = { perform { app.repository.deleteRecords() } },
-                reset = { perform {
-                    app.settings.reset()
-                    DeliveryLocale.clear(context)
-                    org.hayya.salah.focus.PrayerFocusService.releaseOverlay()
-                    org.hayya.salah.alerts.AlarmCoordinator.cancelAll(context)
-                    org.hayya.salah.widgets.WidgetUpdater.update(context)
-                    app.repository.reset()
-                    context.filesDir.resolve("audio").deleteRecursively()
-                    context.getSharedPreferences("locale-bootstrap", 0).edit { clear() }
+                reset = { perform(resetError) {
+                    app.resetLocalData()
                     if (Build.VERSION.SDK_INT >= 33) context.getSystemService(LocaleManager::class.java).applicationLocales = LocaleList.getEmptyLocaleList()
                     else (context as? Activity)?.recreate()
                 } },
@@ -96,46 +91,90 @@ import java.time.ZoneId
     onRecord: (PrayerKey) -> Unit, update: PreferencesUpdate, savePlace: (ManualSetup) -> Unit,
     addPause: (PauseInterval) -> Unit, removePause: (PauseInterval) -> Unit, deleteRecords: () -> Unit,
     reset: () -> Unit, onLanguage: (String) -> Unit, retryHistory: () -> Unit = {},
+    endPause: (PauseInterval, LocalDate) -> Unit = { _, _ -> },
     initialRoute: String = "today", clock: java.time.Clock = java.time.Clock.systemUTC(),
     scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()) {
     var route by rememberSaveable { mutableStateOf(initialRoute) }
+    var locationParent by rememberSaveable { mutableStateOf("settings") }
+    var pauseParent by rememberSaveable { mutableStateOf("settings") }
     var historyDay by rememberSaveable { mutableLongStateOf(clock.instant().atZone(config.place?.zone ?: ZoneId.systemDefault()).toLocalDate().toEpochDay()) }
     LaunchedEffect(route) { scrollState.scrollTo(0) }
+    var setupDraft by rememberSaveable(stateSaver = androidx.compose.runtime.saveable.Saver(
+        save = { PreferencesCodec.encode(AppPreferences(place = it)) },
+        restore = { PreferencesCodec.decode(it).place }
+    )) { mutableStateOf<ManualSetup?>(null) }
+    var choosingMethod by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(choosingMethod) { if (choosingMethod) scrollState.scrollTo(0) }
+    LaunchedEffect(config.place) {
+        if (config.place != null) {
+            if (choosingMethod) scrollState.scrollTo(0)
+            setupDraft = null
+            choosingMethod = false
+        }
+    }
     val roots = listOf("today", "history", "settings")
     val labels = listOf(R.string.today, R.string.history, R.string.settings)
     LaunchedEffect(requested, config.place) {
         if (requested != null && config.place != null) { route = "history"; historyDay = requested.date.toEpochDay(); onRecord(requested); consumeRequest() }
     }
-    BackHandler(route != "today") { route = if (route in roots || route == "qibla") "today" else "settings" }
+    fun goBack() {
+        if (choosingMethod) choosingMethod = false
+        else route = when {
+            route == "location" -> locationParent
+            route == "pause" -> pauseParent
+            route in roots || route == "qibla" -> "today"
+            else -> "settings"
+        }
+    }
+    BackHandler(route != "today" || choosingMethod, onBack = ::goBack)
     Scaffold(modifier = Modifier.semantics { testTagsAsResourceId = true }, snackbarHost = { SnackbarHost(snackbar) }, bottomBar = {
-        if (config.place != null && route in roots) Surface {
-            Row(Modifier.fillMaxWidth().navigationBarsPadding(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                roots.forEachIndexed { index, target ->
-                    val selected = route == target
-                    val accent = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                    Column(Modifier.weight(1f).testTag("nav-$target").selectable(selected,role = Role.Tab,onClick = { route = target })
-                        .heightIn(min = 64.dp).padding(horizontal = 4.dp,vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(stringResource(labels[index]), color = accent, style = MaterialTheme.typography.labelLarge, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                        androidx.compose.foundation.Canvas(Modifier.size(24.dp,4.dp).clearAndSetSemantics { }) {
-                            if (selected) drawLine(accent, androidx.compose.ui.geometry.Offset.Zero, androidx.compose.ui.geometry.Offset(size.width,0f),strokeWidth = 2.dp.toPx())
+        if (config.place != null && route in roots) Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
+            Column {
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Row(Modifier.fillMaxWidth().navigationBarsPadding(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                    roots.forEachIndexed { index, target ->
+                        val selected = route == target
+                        val accent = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        Column(Modifier.weight(1f).testTag("nav-$target").selectable(selected,role = Role.Tab,onClick = { route = target })
+                            .heightIn(min = 48.dp).padding(horizontal = 2.dp,vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(stringResource(labels[index]), color = accent, style = MaterialTheme.typography.labelMedium, maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                            androidx.compose.foundation.Canvas(Modifier.size(24.dp,4.dp).clearAndSetSemantics { }) {
+                                if (selected) drawLine(accent, androidx.compose.ui.geometry.Offset.Zero, androidx.compose.ui.geometry.Offset(size.width,0f),strokeWidth = 2.dp.toPx())
+                            }
                         }
                     }
                 }
             }
         }
     }) { padding ->
-        Column(Modifier.padding(padding).fillMaxSize().testTag("screen-$route").semantics { testTagsAsResourceId = true }.verticalScroll(scrollState).padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            if (route !in roots && config.place != null) TextButton(onClick = { route = if (route == "qibla") "today" else "settings" }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.back)) }
+        Column(Modifier.padding(padding).fillMaxSize().testTag("screen-$route").semantics { testTagsAsResourceId = true }.verticalScroll(scrollState).padding(horizontal = 20.dp, vertical = if (route == "today") 4.dp else 12.dp),
+            verticalArrangement = Arrangement.spacedBy(if (route == "today") 6.dp else 12.dp)) {
+            if (route !in roots && config.place != null) TextButton(onClick = ::goBack, modifier = Modifier.heightIn(min = 48.dp).testTag("screen-back")) { Text(stringResource(R.string.back)) }
             if (config.place != null && history == null) OutlinedButton(onClick = retryHistory) { Text(stringResource(R.string.retry)) }
             val place = config.place
             if (place == null) {
                 SectionTitle(stringResource(R.string.app_name))
-                SelectionField(stringResource(R.string.language), config.language, listOf("system", "en", "ru", "az", "ar"), { languageName(it) }, onLanguage)
-                ManualLocationScreen(null, savePlace)
+                val draft = setupDraft
+                if (!choosingMethod || draft == null) {
+                    SelectionField(stringResource(R.string.language), config.language, listOf("system", "en", "ru", "az", "ar"), { languageName(it) }, onLanguage)
+                    SectionTitle(stringResource(R.string.choose_location))
+                    ManualLocationScreen(draft, firstRun = true) {
+                        setupDraft = it
+                        choosingMethod = true
+                        route = "today"
+                    }
+                } else {
+                    TextButton(onClick = { choosingMethod = false }, modifier = Modifier.testTag("setup-back")) { Text(stringResource(R.string.back)) }
+                    MethodPicker(draft.zone, draft.profile) { setupDraft = draft.copy(calculation = CalculationSettings(it)) }
+                    Button(onClick = { savePlace(draft) }, Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("finish-setup")) {
+                        Text(stringResource(R.string.confirm_setup))
+                    }
+                }
             } else when (route) {
-                "today" -> TodayScreen(config, history, onRecord, update, { route = "qibla" }, clock)
+                "today" -> TodayScreen(config, history, onRecord, update, { route = "qibla" },
+                    { locationParent = "today"; route = "location" }, { pauseParent = "today"; route = "pause" }, clock)
                 "history" -> HistoryScreen(config, history, LocalDate.ofEpochDay(historyDay), { historyDay = it.toEpochDay() }, onRecord, clock)
                 "settings" -> {
                     SectionTitle(stringResource(R.string.settings))
@@ -143,15 +182,22 @@ import java.time.ZoneId
                         "alerts" to R.string.prayer_alerts, "fajr" to R.string.fajr_alarm, "focus" to R.string.prayer_focus,
                         "pause" to R.string.pause, "appearance" to R.string.appearance,
                         "privacy" to R.string.privacy_data, "credits" to R.string.credits).forEach { (target, label) ->
-                        OutlinedButton(onClick = { route = target }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("settings-$target")) { Text(stringResource(label)) }
+                        OutlinedButton(onClick = {
+                            if (target == "location") locationParent = "settings"
+                            if (target == "pause") pauseParent = "settings"
+                            route = target
+                        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("settings-$target")) { Text(stringResource(label)) }
                     }
                 }
-                "location" -> ManualLocationScreen(place, savePlace)
+                "location" -> {
+                    SectionTitle(stringResource(R.string.location))
+                    ManualLocationScreen(place, save = savePlace)
+                }
                 "calculation" -> CalculationScreen(place, update)
                 "alerts" -> AlertsScreen(config, history, update)
-                "fajr" -> FajrScreen(config, history, update)
+                "fajr" -> FajrScreen(config, history, update, clock)
                 "focus" -> FocusScreen(config, update)
-                "pause" -> PauseScreen(history, place.zone, addPause, removePause)
+                "pause" -> PauseScreen(history, place.zone, addPause, removePause, endPause, clock)
                 "appearance" -> AppearanceScreen(config, update, onLanguage)
                 "privacy" -> PrivacyScreen(deleteRecords, reset)
                 "credits" -> CreditsScreen()

@@ -33,14 +33,13 @@ class DirectBootFixtureTest {
         app.repository.record(recordKey,PrayerStatus.EXCUSED,ZoneId.of("UTC"),Instant.parse("2026-11-01T00:00:00Z"))
         prefs.edit(commit = true) { putString("original",PreferencesCodec.encode(original)); putString("audio",audio.id); putInt("records",count) }
         val target = Instant.now().truncatedTo(ChronoUnit.MINUTES).plusSeconds(240)
-        val date = target.atZone(ZoneOffset.UTC).toLocalDate()
-        val choice = (-1L..1L).flatMap { offset -> (-180..180 step 15).mapNotNull { longitude ->
-            val point = GeoPoint(40.0,longitude.toDouble())
-            val schedule = (LocalPrayerCalculator().calculate(date.plusDays(offset),point,ZoneId.of("UTC"),CalculationSettings()) as? CalculationResult.Available)?.schedule ?: return@mapNotNull null
-            val minutes = Duration.between(schedule.prayers.getValue(Prayer.FAJR),target).toMinutes().toInt()
-            if (minutes in -180..180) point to minutes else null
-        } }.minBy { kotlin.math.abs(it.second) }
-        app.settings.update { AppPreferences(ManualSetup("Synthetic reboot fixture",choice.first,ZoneId.of("UTC"),Profile.MWL),fajr = FajrPreferences(true,choice.second,audio.id,ChallengeDifficulty.EASY)) }
+        val time = target.atZone(ZoneOffset.UTC).toLocalTime()
+        val polar = ManualSetup("Synthetic reboot fixture", GeoPoint(78.22, 15.65), ZoneId.of("UTC"),
+            CalculationSettings(polar = PolarMode.DISABLED))
+        app.settings.update {
+            AppPreferences(place = polar, fajr = FajrPreferences(enabled = true, sound = audio.id,
+                difficulty = ChallengeDifficulty.EASY, mode = FajrMode.FIXED, fixedTime = time))
+        }
         AlarmCoordinator.reconcile(context)
         assertTrue(AlarmSnapshot(context).read().any { it.isFajr && it.at == target })
         assertFalse(AlarmPlayback.active?.isFajr == true)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="16dp">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="12dp">
     <TextView android:id="@+id/widget_place" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#A9B9C5" android:textSize="12sp" android:maxLines="2" />
     <TextView android:id="@+id/widget_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#E4EDF2" android:textSize="18sp" android:textStyle="bold" />
-    <TextView android:id="@+id/widget_time" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#76C9CF" android:textSize="26sp" />
+    <TextView android:id="@+id/widget_time" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#76C9CF" android:textSize="26sp" android:maxLines="1" android:autoSizeTextType="uniform" android:autoSizeMinTextSize="16sp" android:autoSizeMaxTextSize="26sp" android:autoSizeStepGranularity="1sp" />
     <Chronometer android:id="@+id/widget_countdown" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#E4EDF2" android:textSize="16sp" />
 </LinearLayout>

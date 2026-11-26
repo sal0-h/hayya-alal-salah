@@ -41,7 +41,7 @@ class PrayTimesCalculator : PrayerCalculator {
         if (!times.dhuhr.isFinite()) return CalculationResult.Unavailable(CalculationResult.Reason.NO_VALID_SOLAR_EVENTS)
         val delta = ChronoUnit.DAYS.between(toInstant(anchor, times.dhuhr).atZone(zone).toLocalDate(), date)
         if (delta != 0L) { anchor = date.plusDays(delta); times = compute(anchor) }
-        val raw = listOf(times.fajr, times.sunrise, times.dhuhr, times.asr, times.maghrib, times.isha, times.midnight)
+        val raw = listOf(times.fajr, times.sunrise, times.dhuhr, times.asr, times.sunset, times.maghrib, times.isha)
         if (raw.any { !it.isFinite() }) return CalculationResult.Unavailable(CalculationResult.Reason.NO_VALID_SOLAR_EVENTS)
         val prayers = listOf(times.fajr, times.dhuhr, times.asr, times.maghrib, times.isha)
             .mapIndexed { i, hour -> Prayer.entries[i] to toInstant(anchor, hour)
@@ -49,7 +49,7 @@ class PrayTimesCalculator : PrayerCalculator {
         return try {
             CalculationResult.Available(DailySchedule(date, zone, prayers, toInstant(anchor, times.sunrise),
                 Provenance("praytimes:1d1b4b5", settings.profile, point, point, settings),
-                toInstant(anchor, times.midnight)))
+                NightBoundaries(toInstant(anchor, times.sunset), toInstant(anchor, times.fajr), toInstant(anchor, times.sunrise))))
         } catch (_: IllegalArgumentException) {
             CalculationResult.Unavailable(CalculationResult.Reason.INVALID_ORDER_OR_DATE)
         }

@@ -87,7 +87,7 @@ class AlarmPlayback : Service() {
                 media.setAudioAttributes(attributes)
                 media.setWakeMode(this@AlarmPlayback, PowerManager.PARTIAL_WAKE_LOCK)
                 if (file != null) media.setDataSource(file.absolutePath)
-                else assets.openFd(when (entry.sound) { "builtin_adhan_2" -> "audio/adhan_2.mp3"; "builtin_fajr" -> "audio/fajr.mp3"; else -> if (entry.isFajr) "audio/fajr.mp3" else "audio/adhan_1.mp3" }).use {
+                else assets.openFd(when (entry.sound) { "builtin_adhan" -> "audio/adhan_1.mp3"; "builtin_adhan_2" -> "audio/adhan_2.mp3"; "builtin_fajr" -> "audio/fajr.mp3"; else -> if (entry.isFajr) "audio/fajr.mp3" else "audio/adhan_1.mp3" }).use {
                     media.setDataSource(it.fileDescriptor, it.startOffset, it.length)
                 }
                 media.isLooping = entry.isFajr

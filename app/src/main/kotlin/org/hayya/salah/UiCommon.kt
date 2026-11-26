@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
@@ -24,6 +26,10 @@ internal typealias PreferencesUpdate = ((AppPreferences) -> AppPreferences) -> U
     val locale = LocalConfiguration.current.locales[0]
     return date.format(DateTimeFormatter.ofLocalizedDate(style).withLocale(locale)
         .withDecimalStyle(decimalStyle(locale, LocalAppearance.current.numerals)))
+}
+@Composable internal fun hijriLabel(date: HijriDate): String {
+    val month = androidx.compose.ui.res.stringArrayResource(R.array.hijri_months)[date.month - 1]
+    return stringResource(R.string.hijri_date, numberLabel(date.day), month, numberLabel(date.year))
 }
 @Composable internal fun statusName(status: PrayerStatus?) = stringResource(when (status) {
     PrayerStatus.ON_TIME -> R.string.status_on_time; PrayerStatus.MADE_UP -> R.string.status_made_up
@@ -46,29 +52,57 @@ internal fun statusSymbol(status: PrayerStatus?) = when (status) {
         }
     }
 }
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable internal fun DateButton(label: String, date: LocalDate, modifier: Modifier = Modifier, max: LocalDate? = null, onDate: (LocalDate) -> Unit) {
     var show by remember { mutableStateOf(false) }
     OutlinedButton(onClick = { show = true }, modifier = modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("$label: ${dateLabel(date)}") }
-    if (show) {
-        val configuration = LocalConfiguration.current
-        val size = androidx.compose.ui.platform.LocalWindowInfo.current.containerSize
-        val width = with(androidx.compose.ui.platform.LocalDensity.current) { size.width.toDp() }
-        val state = rememberDatePickerState(initialSelectedDateMillis = date.toEpochDay() * 86_400_000L,
-            initialDisplayMode = if (width < 360.dp || configuration.fontScale > 1.3f) DisplayMode.Input else DisplayMode.Picker,
-            yearRange = 1900..2100, selectableDates = object : SelectableDates {
-                override fun isSelectableDate(utcTimeMillis: Long) = max == null || LocalDate.ofEpochDay(Math.floorDiv(utcTimeMillis, 86_400_000L)) <= max
-            })
-        DatePickerDialog(onDismissRequest = { show = false }, confirmButton = {
-            TextButton(onClick = { state.selectedDateMillis?.let { onDate(LocalDate.ofEpochDay(Math.floorDiv(it, 86_400_000L))) }; show = false },
-                enabled = state.selectedDateMillis != null) { Text(stringResource(R.string.apply)) }
-        }, dismissButton = { TextButton(onClick = { show = false }) { Text(stringResource(R.string.cancel)) } }) { DatePicker(state) }
+    if (show) PrayerDatePicker(date, max, onDismiss = { show = false }) {
+        onDate(it)
+        show = false
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable internal fun PrayerDatePicker(date: LocalDate, max: LocalDate? = null, onDismiss: () -> Unit,
+    onDate: (LocalDate) -> Unit) {
+    val configuration = LocalConfiguration.current
+    val size = androidx.compose.ui.platform.LocalWindowInfo.current.containerSize
+    val width = with(androidx.compose.ui.platform.LocalDensity.current) { size.width.toDp() }
+    val compact = width < 360.dp
+    val sideMargin = if (compact) 16.dp else ((width - 360.dp) / 2).coerceAtMost(16.dp)
+    val state = rememberDatePickerState(initialSelectedDateMillis = date.toEpochDay() * 86_400_000L,
+        initialDisplayMode = if (compact || configuration.fontScale > 1.3f) DisplayMode.Input else DisplayMode.Picker,
+        yearRange = 1900..2100, selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long) = max == null || LocalDate.ofEpochDay(Math.floorDiv(utcTimeMillis, 86_400_000L)) <= max
+        })
+    Dialog(onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
+        Surface(
+            modifier = Modifier.windowInsetsPadding(WindowInsets.safeDrawing).padding(horizontal = sideMargin, vertical = 8.dp)
+                .widthIn(max = 392.dp).fillMaxWidth()
+                .testTag("prayer-date-picker").semantics { testTagsAsResourceId = true },
+            shape = MaterialTheme.shapes.extraLarge,
+            color = DatePickerDefaults.colors().containerColor,
+        ) {
+            Column {
+                DatePicker(state, modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
+                    showModeToggle = !compact)
+                FlowRow(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+                    TextButton(onClick = {
+                        state.selectedDateMillis?.let { onDate(LocalDate.ofEpochDay(Math.floorDiv(it, 86_400_000L))) }
+                    }, enabled = state.selectedDateMillis != null, modifier = Modifier.testTag("apply-prayer-date")) {
+                        Text(stringResource(R.string.apply))
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Composable internal fun RecordDialog(key: PrayerKey, busy: Boolean, onSave: (PrayerStatus?) -> Unit, onDismiss: () -> Unit) {
     AlertDialog(modifier = Modifier.testTag("record-dialog").semantics { testTagsAsResourceId = true }, onDismissRequest = { if (!busy) onDismiss() }, title = { Column { Text(stringResource(R.string.record_prayer)); Text("${prayerName(key.prayer)} · ${dateLabel(key.date)}", style = MaterialTheme.typography.titleMedium) } },
         text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(stringResource(R.string.record_explanation))
             PrayerStatus.entries.forEach { status -> TextButton(enabled = !busy, onClick = { onSave(status) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("record-${status.name.lowercase()}")) {
                 Text("${statusSymbol(status)}  ${statusName(status)}")
             } }
@@ -98,6 +132,5 @@ internal fun statusSymbol(status: PrayerStatus?) = when (status) {
 }
 
 @Composable internal fun LoadingIndicator() {
-    if (LocalAppearance.current.reducedMotion) Text(stringResource(R.string.loading), modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
-    else CircularProgressIndicator()
+    Text(stringResource(R.string.loading), modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
 }

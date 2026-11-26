@@ -1,22 +1,25 @@
 # Contributing
 
-Read AGENTS.md, HANDOFF.md and docs/IMPLEMENTATION_PLAN.md. The approved scope is
-native Kotlin/Compose, an Android-free JVM core, offline calculations, explicit prayer
-records and four-language accessibility. Avoid new frameworks without demonstrated need.
+Read AGENTS.md, HANDOFF.md and the approved implementation plan before changing scope.
+Use small reviewable commits. Never equate a draft milestone with a completed v1.
 
-Start a small branch and PR with the concrete behavior, validation and limitations.
-Run the checks in README.md. Test astronomical edge cases and record semantics when
-changing core rules; never replace unknown records with assumed misses. Keep displayed
-and scheduled instants identical. Include provenance and license notices for assets.
-Review dependency lock/checksum changes; do not regenerate trust metadata merely to
-silence a checksum mismatch. First-resolution checksum metadata is not an independent
-security audit of upstream artifacts.
+Use the pinned JDK/Gradle/SDK and wrapper checksums in docs/TOOLCHAIN.md. Run core and
+vendored upstream tests, relevant lint/build tasks and scripts/check_manifest.py.
+Use meaningful domain tests for dates, unknown records, pause precedence, concurrency
+and Android lifecycle behavior. Do not infer physical reliability from compilation.
 
-UI changes need actual normal/large-text screenshots in both directions, light/dark,
-and human review. Synthetic CI captures may be shared; private user data may not.
-Device reports must identify commit, device and exact OS build. Compilation/emulators
-do not establish Doze, OEM reliability, overnight alarms or battery performance.
+Keep Android code outside core, reuse the pinned engines rather than writing astronomy,
+and preserve the documented license/provenance for copied code, audio, fonts and data.
+Review dependency locks and verification changes; never accept a checksum mismatch by
+replacing a trusted value. No runtime network, backend, telemetry or new framework
+without an explicit scope decision.
 
-Never commit keys, local.properties, private location/history, imported audio or
-production signing credentials. QA signing is separate from production and fork PRs.
-Original contributions are GPL-3.0-or-later. Third-party licenses remain applicable.
+Production signing is outside ordinary development. Synthetic fixtures exist only in
+debug or isolated benchmark variants. Do not run destructive emulator fixture scripts
+on a real phone, commit credentials, or upload private user data.
+
+UI changes need actual normal/200% screenshots in both directions, all four languages,
+contrast/touch-target/semantics checks and deliberate typography. Arabic shaping and
+TalkBack review require human/device evidence. Record test evidence and limitations
+in docs/PROGRESS.md. Include the problem, resulting behavior and relevant validation
+in PR descriptions. Do not merge/publish without the agreed review.

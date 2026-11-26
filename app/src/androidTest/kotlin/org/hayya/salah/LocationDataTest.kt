@@ -21,6 +21,10 @@ class LocationDataTest {
         }
         assertEquals("Asia/Baku", ZoneSuggestion.at(GeoPoint(40.4093,49.8671)))
         assertTrue(cities.search("Gəncə").isNotEmpty())
+        assertEquals("Baku", cities.search("Baku").first().name)
+        val springfield = cities.search("Springfield, IL, US").first()
+        assertEquals("Illinois", springfield.region)
+        assertEquals("America/Chicago", springfield.zone)
         assertTrue(cities.search("x").isEmpty())
         val permissions = context.packageManager.getPackageInfo(context.packageName, android.content.pm.PackageManager.GET_PERMISSIONS).requestedPermissions.orEmpty()
         assertFalse("android.permission.INTERNET" in permissions)
