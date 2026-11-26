@@ -31,7 +31,9 @@ class PrayTimesCalculator : PrayerCalculator {
             HighLatitude.TWILIGHT_ANGLE -> HighLatitudesMethod.AngleBased
         }
         fun compute(d: LocalDate) = PrayTimes(method, d.year, d.monthValue, d.dayOfMonth, 0.0,
-            Coordinates(point.latitude, point.longitude, 0.0), asr, high).unwrappedHours
+            Coordinates(point.latitude, point.longitude, 0.0), asr, high,
+            fajrAngle = settings.overrides.fajrAngle, ishaAngle = settings.overrides.ishaAngle,
+            ishaInterval = settings.overrides.ishaInterval, maghribAngle = settings.overrides.maghribAngle).unwrappedHours
         fun toInstant(d: LocalDate, hour: Double): Instant =
             d.atStartOfDay(ZoneOffset.UTC).toInstant().plusSeconds(floor(hour * 60 + 0.5).toLong() * 60)
         var anchor = date
@@ -52,14 +54,4 @@ class PrayTimesCalculator : PrayerCalculator {
             CalculationResult.Unavailable(CalculationResult.Reason.INVALID_ORDER_OR_DATE)
         }
     }
-}
-
-class LocalPrayerCalculator : PrayerCalculator {
-    private val adhan = AdhanCalculator()
-    private val prayTimes = PrayTimesCalculator()
-    override fun calculate(date: LocalDate, point: GeoPoint, zone: ZoneId, settings: CalculationSettings) =
-        when (settings.profile.engine) {
-            "adhan" -> adhan.calculate(date, point, zone, settings)
-            else -> prayTimes.calculate(date, point, zone, settings)
-        }
 }

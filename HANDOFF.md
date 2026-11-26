@@ -10,10 +10,12 @@ Salman approved implementation on 2026-11-12. Do not restart the product intervi
 
 ## Actual implementation state
 
-Implementation has started on branch `implement/native-foundation`. See
-`docs/PROGRESS.md` for code and actual automated/physical validation, and
-`docs/QA.md` for CI artifacts and stable internal signing. The full-v1 specification
-remains `docs/IMPLEMENTATION_PLAN.md`; the initial runnable slice is times-only.
+Active branch: `implement/calculation-tracking`, stacked on draft foundation PR #1.
+The draft is an internal checkpoint. Salman explicitly requires autonomous continuation
+through **all** server-implementable milestones; do not stop at a runnable slice,
+wait for a merge/device test, or ask for another go-ahead. Physical QA remains an
+external release gate, not a reason to leave independent implementation unfinished.
+See `docs/PROGRESS.md` for the distinction between code, automated and physical tests.
 
 Temporary JDK 21, Gradle 9.6.0, SDK platform 37.0 and build tools 36.0.0 are under
 `/tmp/hayya-toolchain` on this server. Set JAVA_HOME, ANDROID_HOME and GRADLE_USER_HOME
@@ -21,11 +23,10 @@ accordingly, or install the documented pinned toolchain independently. No KVM he
 Do not rely on /tmp surviving a reboot. `.local-qa/` holds an ignored private QA key;
 never commit it. Dedicated QA secrets are configured in repository Actions settings.
 
-Foundation clean CI, QA signing and representative Today screenshot review passed;
-code commit `7d1a109` has downloadable verified artifacts linked in docs/QA.md. Next:
-complete calculation controls and confirmed polar policy, extend setup/full-shell visual
-QA, then implement persistent tracking and Android alarm delivery. Read the remaining
-validation limits in docs/PROGRESS.md; no physical-device test has run.
+Foundation clean CI, signed QA delivery and representative Today screenshots passed
+at `7d1a109`. Calculation controls, confirmed polar policy and persistent tracking are
+now implemented; validation and Android integrations are actively continuing. Never
+interpret a milestone or foundation PR as completion of the approved full plan.
 
 ## Non-negotiable decisions
 

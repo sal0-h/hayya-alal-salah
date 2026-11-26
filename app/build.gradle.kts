@@ -9,6 +9,7 @@ android {
     defaultConfig {
         applicationId = "org.hayya.salah"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        javaCompileOptions.annotationProcessorOptions.arguments["room.schemaLocation"] = "$projectDir/schemas"
         minSdk = 26
         targetSdk = 37
         versionCode = providers.environmentVariable("QA_VERSION_CODE").orElse("1").get().toInt()
@@ -45,6 +46,9 @@ dependencies {
     implementation(libs.compose.tooling)
     implementation(libs.activity.compose)
     implementation(libs.datastore)
+    implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
+    androidTestImplementation(libs.room.testing)
     implementation(libs.lifecycle.runtime.compose)
     androidTestImplementation(libs.android.test.runner)
     androidTestImplementation(libs.android.test.junit)

@@ -3,6 +3,25 @@
 Updated 2026-11-13. This ledger distinguishes code, automated checks and physical
 validation. A planned acceptance criterion is not a passed test.
 
+## Active continuation
+
+The full approved plan remains active. `implement/calculation-tracking` is stacked
+on draft foundation PR #1; neither merge nor physical testing blocks independent
+server work. New implementation includes confirmed polar estimation and advanced
+parameters, Room records/pauses/import metadata, atomic versioned preferences,
+Today/History/Settings navigation, explicit correction/backfill, dated pauses,
+daily/per-prayer verified streaks, recording coverage and explainable statistics,
+language/appearance/time/numeral settings, and local deletion/reset.
+
+17 core tests plus the preserved upstream fixture passed locally. Android persistence
+instrumentation was added and compiled, but has not yet run on an emulator. Full
+Android lint/APK validation is in progress; do not treat compilation as device QA.
+The city dataset and freely licensed developer recordings are staged for Android
+integrations; staging assets is not a working alert or location feature.
+
+The older foundation ledger below records validation at its cited commit. Its
+remaining-work list is historical; new work must be checked against the full plan.
+
 ## Implemented
 
 - Native Android/Compose app (API 26 minimum), isolated JVM core, separate vendored

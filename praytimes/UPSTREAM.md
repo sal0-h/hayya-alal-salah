@@ -14,3 +14,7 @@ fields and all astronomical calculations remain unchanged. The app requests offs
 anchors the unwrapped hours to a UTC date and converts each event to the IANA zone.
 This avoids applying a single noon UTC offset across DST transitions and preserves
 Isha/midnight on the next date. Civil/solar date alignment is checked using Dhuhr.
+
+Added optional validated fajr/isha/maghrib angle and fixed-Isha-interval constructor
+parameters. They substitute upstream `MinuteOrAngleDouble` inputs; all existing formulas,
+profile defaults, and no-override wrapped output remain unchanged.
