@@ -298,14 +298,34 @@ the date picker stays available, and each pager page scrolls vertically in its o
 bounded viewport. Destination state preserves the browsed date across tab changes.
 No record, alarm or persisted calculation semantics change.
 
-Source compilation and the existing core/upstream tests passed in Dukhan's
-RAM-backed build. Lint and the final regression/capture matrix are pending. Added
-regressions cover cache reuse/concurrency/eviction/configuration isolation and date
-navigation across tabs. The native phone baseline is QA 141 on Salman's SM-S918B,
-Android 17/API 37, build `CP2A.260605.016.S918BXXUAGZIF`. A navigation-only baseline
-clip and frame diagnostics were captured locally; the fix is not installed or
-physically accepted yet. Device captures and private records are not uploaded.
-The existing alarm, sensor, Arabic and mid-range release gates remain open.
+Slow swipes now use a quarter-page threshold with native pager settling; small
+nudges stay on the same date. Reduced motion still snaps. Only the three main
+destinations retain state, and full reset clears that state. The next-prayer
+service-date window is published atomically, including the previous date's Isha.
+
+**Automated:** source `1d6978c` passed [Android checks](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45881252759),
+including lint/build, 24 ordinary integration tests on each of API 26/31/33/37,
+separate audio and permission/locked-reboot checks, and 816 full-shell/widget
+captures plus the launcher sheet. Downloaded XML confirms all six new cache,
+short-swipe, date-retention and reset regressions passed on all four APIs.
+English/Arabic Today and future-day screenshots were visually inspected at
+100%/200% system text size in light/dark themes. Existing
+[performance](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45881252852)
+and [independent rebuild](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45881252794)
+checks passed; these are emulator results, not a physical performance claim.
+
+**Physical:** signed [QA 150](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45881252759/artifacts/15146924960)
+was installed over QA 141 on Salman's SM-S918B, Android 17/API 37, build
+`CP2A.260605.016.S918BXXUAGZIF`. Its signing certificate matches the preceding QA
+build and its SHA-256 is
+`51ce539ff0b5fdbb29183a2f22ec18f66e9ad974322ddd9cd63204b4faeb2384`.
+The running screen shows the new date controls and the previously visible city,
+theme, night row and prayer marks. No prayer records were edited during QA.
+A slow one-third-width swipe returning to the same day was reproduced on QA 141;
+post-update gesture and tab-retention checks are pending because USB disconnected.
+The baseline recording did not establish a quantified panel-flash duration or
+speedup. Private device captures and records remain local and are not uploaded.
+The existing alarm, sensor, Arabic-review and mid-range release gates remain open.
 
 ## Source consolidation
 
