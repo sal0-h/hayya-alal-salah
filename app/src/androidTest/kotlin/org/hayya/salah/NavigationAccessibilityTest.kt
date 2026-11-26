@@ -33,4 +33,23 @@ class NavigationAccessibilityTest {
         compose.onNodeWithText("Reduce motion").performScrollTo().performClick()
         compose.onNodeWithText("Reduce motion").assertIsOn()
     }
+
+    @Test fun todayCalendarShowsFutureScheduleWithNoRecordingAndReturnsToLiveDay() {
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("prayer-data-ready").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("today-date").performClick()
+        val inCalendar = hasAnyAncestor(hasTestTag("prayer-date-picker"))
+        val day = compose.onAllNodes(inCalendar and hasClickAction() and hasText("November 14, 2026", substring = true))
+        if (day.fetchSemanticsNodes().isNotEmpty()) {
+            day[0].performClick()
+        } else {
+            compose.onNode(inCalendar and hasSetTextAction()).performTextReplacement("11142026")
+        }
+        compose.onNodeWithTag("apply-prayer-date").performClick()
+        compose.onNodeWithTag("today-return").assertIsDisplayed()
+        compose.onNodeWithText("Saturday, November 14, 2026").assertExists()
+        compose.onNodeWithTag("prayer-data-ready").assertDoesNotExist()
+        compose.onNodeWithTag("record-status-fajr").assertDoesNotExist()
+        compose.onNodeWithTag("today-return").performClick()
+        compose.onNodeWithTag("record-status-fajr").assertExists()
+    }
 }

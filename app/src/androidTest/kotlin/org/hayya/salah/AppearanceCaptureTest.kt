@@ -30,14 +30,15 @@ class AppearanceCaptureTest {
         try {
             for (width in listOf("phone","tablet")) {
                 shell(if (width == "phone") "wm size 840x1960" else "wm size 1800x2400")
-                val routes = if (width == "phone") listOf("today","history","settings","onboarding","location","calculation","alerts","fajr","focus","qibla","pause","appearance","appearance-ink","status-legend","privacy","credits","record","date","focus-consent","privacy-confirm","polar","focus-overlay","ringing","ringing-keyboard")
+                val routes = if (width == "phone") listOf("today","history","settings","onboarding","location","calculation","alerts","fajr","focus","qibla","pause","appearance","appearance-ink","status-legend","today-date","today-night","alerts-reminders","fajr-picker","privacy","credits","record","date","focus-consent","privacy-confirm","polar","focus-overlay","ringing","ringing-keyboard")
                     else listOf("today","history","settings")
                 for (scale in listOf(1,2)) {
                     shell("settings put system font_scale $scale"); Thread.sleep(600)
                     for (language in listOf("en","ru","az","ar")) for (dark in listOf(false,true)) for (route in routes) {
                         ScreenshotActivity.language = language; ScreenshotActivity.dark = dark
-                        ScreenshotActivity.route = when (route) { "record", "status-legend" -> "today"; "appearance-ink" -> "appearance"; "date" -> "history"; "focus-consent" -> "focus"; "privacy-confirm" -> "privacy"; else -> route }
+                        ScreenshotActivity.route = when (route) { "record", "status-legend", "today-date", "today-night" -> "today"; "alerts-reminders" -> "alerts"; "fajr-picker" -> "fajr"; "appearance-ink" -> "appearance"; "date" -> "history"; "focus-consent" -> "focus"; "privacy-confirm" -> "privacy"; else -> route }
                         ScreenshotActivity.recordDialog = route == "record"
+                        ScreenshotActivity.showNight = route == "today-night"
                         Locale.setDefault(Locale.forLanguageTag(language))
                         val activity = instrumentation.startActivitySync(Intent(context,ScreenshotActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as ScreenshotActivity
                         try {
@@ -46,7 +47,7 @@ class AppearanceCaptureTest {
                             check(activity.fullyDrawnReporter.isFullyDrawnReported) { "Fixture did not finish drawing: $route" }
                             instrumentation.waitForIdleSync(); Thread.sleep(200)
                             check(kotlin.math.abs(activity.resources.configuration.fontScale - scale) < 0.05) { "Actual system font scale did not update" }
-                            val trigger = when (route) { "date" -> "history-date"; "focus-consent" -> "focus-permission"; "privacy-confirm" -> "privacy-delete"; "ringing-keyboard" -> "alarm-answer"; "appearance-ink" -> "palette-ink"; "status-legend" -> "status-legend"; else -> null }
+                            val trigger = when (route) { "date" -> "history-date"; "focus-consent" -> "focus-permission"; "privacy-confirm" -> "privacy-delete"; "ringing-keyboard" -> "alarm-answer"; "appearance-ink" -> "palette-ink"; "status-legend" -> "status-legend"; "today-date" -> "today-date"; "alerts-reminders" -> "edit-reminders-fajr"; "fajr-picker" -> "fajr-fixed-clock"; else -> null }
                             if (trigger != null) {
                                 fun find(node: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
                                     if (node == null || node.viewIdResourceName == trigger) return node
@@ -103,7 +104,7 @@ class AppearanceCaptureTest {
                                     check(answerVisible()) { "Fajr answer field disappeared behind keyboard at ${scale}x/$language" }
                                 }
                             }
-                            for (position in if (width == "phone" && route !in listOf("record","date","status-legend","focus-consent","privacy-confirm","focus-overlay","ringing","ringing-keyboard")) listOf("top","bottom") else listOf("top")) {
+                            for (position in if (width == "phone" && route !in listOf("record","date","status-legend","today-date","alerts-reminders","fajr-picker","focus-consent","privacy-confirm","focus-overlay","ringing","ringing-keyboard")) listOf("top","bottom") else listOf("top")) {
                                 if (position == "bottom") { instrumentation.runOnMainSync { activity.bottom() }; instrumentation.waitForIdleSync(); Thread.sleep(100) }
                                 var active = instrumentation.uiAutomation.windows.firstOrNull { it.isActive }
                                 val windowDeadline = android.os.SystemClock.uptimeMillis() + 5000
@@ -125,7 +126,7 @@ class AppearanceCaptureTest {
             Locale.setDefault(oldLocale)
             shell(if (oldScale == "null") "settings delete system font_scale" else "settings put system font_scale $oldScale")
             shell(if (oldSize == null) "wm size reset" else "wm size $oldSize")
-            ScreenshotActivity.route = "today"; ScreenshotActivity.recordDialog = false; ScreenshotActivity.language = "en"; ScreenshotActivity.dark = false
+            ScreenshotActivity.route = "today"; ScreenshotActivity.recordDialog = false; ScreenshotActivity.showNight = false; ScreenshotActivity.language = "en"; ScreenshotActivity.dark = false
         }
     }
 }

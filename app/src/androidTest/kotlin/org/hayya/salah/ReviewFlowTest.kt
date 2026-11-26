@@ -10,7 +10,6 @@ import android.os.SystemClock
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.accessibility.AccessibilityNodeInfo
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import android.view.Surface
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -32,7 +31,7 @@ class ReviewFlowTest {
         val app = context.appContainer
         val original = runBlocking { app.settings.preferences.first() }
         assertTrue("Fixture requires emulator QA", Build.HARDWARE in listOf("ranchu", "goldfish"))
-        var tracked: PrayerKey? = null
+        val tracked = mutableSetOf<PrayerKey>()
         try {
             runBlocking { app.settings.update { AppPreferences() } }
             ActivityScenario.launch(MainActivity::class.java).use {
@@ -82,42 +81,48 @@ class ReviewFlowTest {
                 awaitValue("first-run times") { byTag("prayer-data-ready") }
                 assertEquals("Asia/Baku", runBlocking { app.settings.preferences.first().place?.zone?.id })
 
+                clickTag("today-location")
+                awaitValue("Location from Today") { byTag("screen-location") }
+                clickTag("screen-back")
+                awaitValue("back to Today") { byTag("today-date") }
+                clickTag("today-date")
+                awaitValue("Today date picker") { byTag("prayer-date-picker") }
+                clickTag("apply-prayer-date")
+                awaitValue("Today after date picker") { byTag("today-location")?.takeIf { byTag("apply-prayer-date") == null } }
+
                 val now = Instant.now()
                 val currentPlace = requireNotNull(runBlocking { app.settings.preferences.first().place })
                 val fixtures = listOf(currentPlace,
                     ManualSetup("Tokyo", GeoPoint(35.68, 139.69), ZoneId.of("Asia/Tokyo"), Profile.MWL),
+                    ManualSetup("Honolulu", GeoPoint(21.30, -157.86), ZoneId.of("Pacific/Honolulu"), Profile.MWL),
                     ManualSetup("New York", GeoPoint(40.71, -74.0), ZoneId.of("America/New_York"), Profile.MWL))
-                val (place, key) = fixtures.firstNotNullOf { place ->
+                val (place, elapsed, upcoming) = fixtures.firstNotNullOf { place ->
                     val date = now.atZone(place.zone).toLocalDate()
-                    val schedule = LocalPrayerCalculator().calculate(date, place.point, place.zone, place.calculation)
-                        as? CalculationResult.Available
-                    schedule?.schedule?.prayers?.entries?.firstOrNull { it.value <= now }?.let { place to PrayerKey(date, it.key) }
+                    val result = LocalPrayerCalculator().calculate(date, place.point, place.zone, place.calculation)
+                        as? CalculationResult.Available ?: return@firstNotNullOf null
+                    val past = result.schedule.prayers.entries.firstOrNull { it.value < now } ?: return@firstNotNullOf null
+                    val future = result.schedule.prayers.entries.lastOrNull { it.value > now.plusSeconds(120) } ?: return@firstNotNullOf null
+                    Triple(place, PrayerKey(date, past.key), PrayerKey(date, future.key))
                 }
                 if (place != currentPlace) {
                     runBlocking { app.settings.save(place) }
                     awaitValue("fixture location") { byText(place.name) }
                 }
-                tracked = key
-                val tag = "record-status-${key.prayer.name.lowercase(Locale.ROOT)}"
-                val statuses = listOf(PrayerStatus.ON_TIME, PrayerStatus.MADE_UP, PrayerStatus.MISSED, PrayerStatus.EXCUSED, null)
-                for (status in statuses) {
-                    val label = context.getString(when (status) {
-                        PrayerStatus.ON_TIME -> R.string.status_on_time
-                        PrayerStatus.MADE_UP -> R.string.status_made_up
-                        PrayerStatus.MISSED -> R.string.status_missed
-                        PrayerStatus.EXCUSED -> R.string.status_excused
-                        null -> R.string.status_unrecorded
-                    })
-                    val action = context.getString(R.string.set_prayer_status, label)
-                    click(tag) {
-                        byTag(tag)?.takeIf { node ->
-                            node.actionList.any { it.id == AccessibilityNodeInfo.ACTION_CLICK && it.label?.toString() == action }
-                        }
-                    }
-                    awaitValue("saved $label") {
+                for (key in listOf(elapsed, upcoming)) {
+                    tracked += key
+                    val tag = "record-status-${key.prayer.name.lowercase(Locale.ROOT)}"
+                    clickTag(tag)
+                    awaitValue("record editor") { byTag("record-on_time") }
+                    assertNull(runBlocking { app.repository.snapshot().records[key] })
+                    clickTag("record-on_time")
+                    awaitValue("explicit on-time record") {
                         val stored = runBlocking { app.repository.snapshot().records[key]?.status }
-                        val announced = byTag(tag)?.let { AccessibilityNodeInfoCompat.wrap(it).stateDescription?.toString() }
-                        Unit.takeIf { stored == status && announced == label }
+                        Unit.takeIf { stored == PrayerStatus.ON_TIME && byTag("record-dialog") == null }
+                    }
+                    clickTag(tag)
+                    clickTag("record-clear")
+                    awaitValue("cleared record") {
+                        Unit.takeIf { runBlocking { app.repository.snapshot().records[key] } == null && byTag("record-dialog") == null }
                     }
                 }
                 clickTag("status-legend")
@@ -177,7 +182,7 @@ class ReviewFlowTest {
             }
         } finally {
             runBlocking {
-                tracked?.let { app.repository.record(it, null, ZoneId.of("UTC")) }
+                tracked.forEach { app.repository.record(it, null, ZoneId.of("UTC")) }
                 app.settings.update { original }
             }
         }

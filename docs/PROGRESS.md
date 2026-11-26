@@ -171,3 +171,20 @@ SHA-256 is `727adcc063f67cd546a97f19d0706588ded015313198134397315345acc13ae1`.
 [Signed APK and checksum](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45205128442/artifacts/14833472002)
 
 Physical evidence for the follow-up build is pending. Build 74's observed Qibla symptom still needs a description and reproduction on the S23 Ultra. Sensor behavior and overnight delivery remain open.
+
+
+## QA 94 review implementation
+
+Salman reviewed build 94 and requested changes to tracking, browsing, alarms and
+Pause. Current source changes use the same explicit editor for all prayers within
+the current city date. Today opens Location from the city label and an on-demand
+calendar from the date. Past dates remain editable and future dates show schedules
+without a live countdown or recording actions. History shows three dated shortcuts.
+The optional night row uses the conventions documented in RESEARCH.md.
+
+Enabled alerts show current optional reminders and open a focused editor. The Fajr
+screen offers relative and fixed timing and shows the next eligible date and time.
+Pause explains the effects and can end an active interval while preserving previous
+dates. Alarm and Focus suppression cover the prayer’s service date and the applicable
+local date. The QA 94 feedback is device observation of the previous build. The
+follow-up requires its own Android, visual and physical evidence.
