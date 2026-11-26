@@ -1,124 +1,52 @@
 # Implementation and validation ledger
 
-Updated 2026-11-13. This ledger distinguishes code, automated checks and physical
-validation. A planned acceptance criterion is not a passed test.
+Updated 2026-11-13. Code, automated execution and physical verification are separate.
+The entire approved v1 plan remains active. Draft PRs are internal review checkpoints;
+no merge, physical test or additional go-ahead is needed for independent server work.
 
-## Active continuation
+## Code and evidence
 
-The full approved plan remains active. `implement/calculation-tracking` is stacked
-on draft foundation PR #1; neither merge nor physical testing blocks independent
-server work. New implementation includes confirmed polar estimation and advanced
-parameters, Room records/pauses/import metadata, atomic versioned preferences,
-Today/History/Settings navigation, explicit correction/backfill, dated pauses,
-daily/per-prayer verified streaks, recording coverage and explainable statistics,
-language/appearance/time/numeral settings, and local deletion/reset.
+| Area | Implemented | Automated execution | Physical testing |
+| --- | --- | --- | --- |
+| Foundation | Native Compose/API26–37, four modules, pinned engines/tools/dependencies, dedicated QA signing/ID, privacy CI | Clean CI, signed QA artifacts and 16 Today captures at `7d1a109` | None |
+| Calculation | 15 profiles/two engines, Asr/high latitude/corrections, advanced parameters, explicit polar proposal/confirmation/manual reference, provenance, rollover/Ramadan | 17 core tests + preserved upstream fixture; clean tracking CI at `a8d2981` | No local authority/device comparison |
+| Tracking | Room records/pauses/audio metadata, original date/zone, explicit correction/backfill/deletion, calendar, verified daily/per-prayer streaks, coverage/insights | Three API35 persistence/concurrency/preference tests passed at `a8d2981`; lint/debug/optimized QA/test builds passed | No install/update/process-kill/device QA |
+| UI/settings | Today/History/Settings, calculation/location/pause/appearance/language/privacy/credits, four translations, fonts, RTL, time/numeral/theme controls | Today capture matrix passed; representative EN/AR normal/200% plus RU/AZ200 reviewed | No TalkBack/Arabic reviewer/full design approval |
+| Alerts/Fajr | AlarmManager rolling window, exact primary/inexact fallback/extras, stale/duplicate/token checks, lifecycle reconciliation, original-target actions, minimal Direct Boot snapshot, contextual readiness | Local lint/debug/test APK and optimized QA assembly passed; snapshot/media instrumentation added, CI in progress for PR #3 | No timing/Doze/reboot-before-unlock/OEM/overnight tests |
+| Audio | Three specifically licensed Ahmed Khalaf CC BY recordings, private bounded import with actual decoder validation, audio focus/foreground playback, silent/DND handling, Fajr priority/challenge/emergency stop | Compilation/lint; media instrumentation added, CI pending | No audible/call/headphone/DND verification |
+| Focus | Explicit disclosure/consent, selected apps/prayers, narrow accessibility overlay, essential exclusions, completion/pause/bypass/expiry, pinned emergency bypass | Core expiry/bypass rules passed; installed service capability test added, CI pending | No OEM/overlay/TalkBack tests; Play review pending |
+| Location | Bundled GeoNames cities/all native aliases, manual coordinates/IANA zone, bounded foreground-only platform requests, cached fallback, confirmed zone changes, explicit approximate offline zone suggestion | Core lookup fixtures/world edges passed locally; Android alias/resource/privacy test added, CI pending | No GPS/travel/border/device verification |
+| Qibla/Hijri | Actual-coordinate Adhan bearing, visible-only magnetic/rotation sensors and true-north correction, quality/numeric fallback, named Umm al-Qura display and independent day correction | Core Qibla/Hijri tests passed; Android compile/lint validation in progress | No sensor/calibration/Arabic review |
+| Widgets | Next/countdown and resizable daily RemoteViews; host countdown and boundary updates; no polling/bitmap payloads/check-off; pre-unlock placeholder | Android compile/lint validation in progress; host/resize/reboot tests pending | None |
 
-17 core tests plus the preserved upstream fixture, lint, debug/optimized QA and test
-APK assembly passed locally. Clean CI at `a8d2981` passed in run 43389685112:
-https://github.com/sal0-h/hayya-alal-salah/actions/runs/43389685112
-Downloaded JUnit XML confirms all three Android persistence tests and the screenshot
-capture test passed on API 35 (zero failures/skips). This covers database reopen,
-original-zone correction, concurrent updates and preference round-trip; it is not
-physical process-death/upgrade/device QA.
-`implement/android-alerts` adds AlarmManager rolling reconciliation, minimal Direct
-Boot snapshots, durable duplicate claims, delivery-time settings/history checks,
-original-target notification actions, foreground media playback, normal silent/DND
-handling, Fajr arithmetic/emergency stop, private bounded/decoded audio import,
-restricted opt-in Focus overlay and essential-app exclusions. Local debug/test APK
-assembly and lint passed during integration; the optimized QA build also passed locally.
-New alarm/audio/Focus instrumentation is added but not yet run. No alert, Direct Boot
-or blocking behavior has been physically tested. Location/Qibla work is being kept
-in a following review branch; staged assets alone do not establish those features.
+Tracking CI evidence: [run 43389685112](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43389685112).
+Downloaded JUnit XML confirms four API35 tests: the screenshot capture plus all three
+persistence tests, zero failures/skips. Actual Today EN dark and AR200 light screenshots
+were inspected again after tracking integration. These captures do not exercise the
+full shell, dialogs, permissions, widgets or real system font-scale/inset behavior.
 
-The older foundation ledger below records validation at its cited commit. Its
-remaining-work list is historical; new work must be checked against the full plan.
+Foundation QA signing/checksum evidence remains in [QA.md](QA.md). QA keys are private,
+ignored and separate from production. Dependency checksums are first-resolution trust,
+not an independent supply-chain audit. Audio/geographic provenance and reproducible
+asset extraction are documented separately in AUDIO.md and GEOGRAPHY.md.
 
-## Implemented
+## Server work still in progress
 
-- Native Android/Compose app (API 26 minimum), isolated JVM core, separate vendored
-  PrayTimes module, reserved benchmark module, pinned toolchain and Gradle wrapper.
-- Adhan 0.0.7 and pinned Kotlin PrayTimes adapters with explicit profile routing,
-  all 15 initial profiles, IANA zone conversion, solar/civil date alignment,
-  minute corrections, two Asr conventions and high-latitude rules in core.
-- Explicit Umm al-Qura Ramadan interval (120 minutes, determined with the unadjusted
-  platform Umm al-Qura chronology); normal interval 90. Display Hijri corrections
-  are not involved. Dates outside 1900–2100 return structured unsupported results.
-- Unwrapped PrayTimes output retains date rollover; engine astronomy unchanged.
-  Non-finite/unordered results are unavailable, including unsupported polar schedules.
-- Pure explicit record/status, day classification and verified daily-streak rules;
-  pure desired-alert compiler with original service-date targets, stable IDs,
-  generations, stale-event filtering and completed/excused/paused suppression.
-- Saved manual coordinate/IANA-zone/profile setup in DataStore; local Today schedule,
-  next prayer including tomorrow, foreground-only countdown, geometric time marker,
-  system theme and 24-hour preference, bundled IBM Plex fonts.
-- Complete shell resources for EN/RU/AZ/AR, RTL declaration and system per-app locale
-  configuration. Translation quality is not yet reviewed.
-- No Internet or location permissions; backup/cloud-transfer exclusions.
-- CI builds/tests/privacy checks, dedicated QA ID and isolated signing job, debug-only
-  synthetic screenshot activity and a 16-configuration capture matrix.
+- Complete clean CI and meaningful Android delivery/Focus/widget/API-boundary checks;
+  investigate failures and preserve actual reports. No compilation-as-delivery claims.
+- Full-route/navigation/onboarding/recording/permission screenshots across four languages,
+  normal/200% system text, themes, narrow/tablet widths; inspect actual artifacts and fix
+  clipping, insets, RTL, labels and accessibility semantics.
+- Additional seasonal/calculation/timetable fixtures with documented method differences.
+- Macrobenchmark journeys, generated Baseline Profiles, three-year seeded history,
+  release-like profiling and reproducible release checks. No performance figures yet.
+- Final deletion/lifecycle/privacy/license/reproducibility checks, architecture/contributor
+  docs, and concrete GitHub/F-Droid/Play release preparation. No merge/store publication.
 
-## Automated validation
+## External release gates
 
-Local command passed on 2026-11-13 using the pinned toolchain:
-
-```
-gradle :core:test :praytimes:test :app:lintDebug :app:assembleDebug :app:assembleQa :app:assembleDebugAndroidTest --continue --write-locks --write-verification-metadata sha256
-python3 scripts/check_manifest.py
-```
-
-- 12 core tests passed: pinned upstream Adhan Raleigh expected-time fixture; all 15
-  profiles; both engines across fractional zones, DST, leap date and date line;
-  Asr conventions; Ja‘fari Maghrib/midnight; explicit Ramadan interval; polar failure;
-  invalid inputs/order; explicit unknown/excused/made-up streak behavior; suppression,
-  stable event IDs/generations, original after-midnight service-date targeting, and
-  next-prayer selection of previous-service-date Isha after civil midnight.
-- Preserved upstream PrayTimes correctness fixture passed (one test, multiple cases).
-- Android lint passed with warnings treated as errors. Only new-version advisories
-  are excluded because versions are deliberately pinned; compatibility checks stay on.
-- Debug, optimized/shrunk unsigned QA and screenshot-test APK assembly passed.
-- Merged debug/QA manifests passed no-Internet/no-location and backup-control checks.
-- All resource XML parsed and four language key sets match. `fc-query` confirmed
-  sampled Azerbaijani/Russian/Arabic glyph coverage in all four bundled font files.
-- Strict offline build passed without regenerating locks or verification metadata.
-- Clean-checkout CI build/lint/privacy, optimized QA assembly/signing and emulator
-  capture passed at `7d1a109` in [run 43345790379](https://github.com/sal0-h/hayya-alal-salah/actions/runs/43345790379).
-  CI ran 12 core tests, the upstream fixture and Android screenshot instrumentation.
-- All 16 actual PNG files were retained and validated (four languages × two text scales
-  × two themes), on an Android 15/API 35 x86_64 emulator. Downloaded final images were
-  inspected: EN and AR at 100%/200% in both themes, plus RU/AZ at 200%. The review caught
-  global-locale date formatting and wrapped Russian-label alignment; both were corrected
-  and the final captures confirmed localized dates/times and centered wrapping.
-- This is a representative Today-component review, not full UI/accessibility approval.
-  Full MainActivity/onboarding/navigation, narrow screens, system font-scale/inset behavior
-  and TalkBack still need review. The context-overridden fixture has imperfect system-bar
-  rendering; its snapshots do not establish production system-bar behavior.
-- Final downloaded QA checksum and v2/v3 signature verified. Actual APK: separate QA ID,
-  min API 26/target 37, version code 9, 1,856,869 bytes. Its certificate matches the earlier
-  CI APK (version code 5); actual installation/update preservation remains untested.
-- Dependency locks/checksum metadata generated. Checksum metadata is first-resolution
-  trust, not an independent audit of upstream supply chains.
-
-## Physical validation
-
-None. No APK has been installed on Salman's S23 Ultra. No alarm, Doze, reboot, OEM,
-TalkBack, sensor, overnight or performance claim has passed physical testing.
-No KVM device is available on this server. Emulator capture/review is delegated to CI.
-Arabic reviewer and physical mid-range device remain public release gates.
-
-## Remaining milestone work
-
-- Milestone 1: clean CI and signed QA artifacts are verified. Physical installation and
-  two successive QA updates preserving records remain pending; record persistence is
-  not implemented.
-- Milestone 2: confirmed nearest-valid-latitude/manual polar policy, supported advanced
-  overrides, larger upstream/published timetable comparison and seasonal boundary suites.
-- Milestone 3: offline city search, automatic foreground location, in-app language
-  selection on all supported Android versions, Asr/high-latitude/offset settings UI,
-  full-route/narrow-screen/system-inset captures, TalkBack and product design review.
-- Milestone 4: Room record repository, explicit prayer actions, correction/history,
-  pause persistence, per-prayer streaks, coverage/statistics/insights.
-- Milestones 5–10: Android alarm delivery, audio/import, Fajr/Direct Boot, Focus, Qibla,
-  Hijri display, widgets, performance/physical/accessibility/release hardening.
-
-The benchmark module reserves a boundary; no benchmark harness or measurements yet.
-No store release is approved or published. Full public-v1 scope is unchanged.
+No physical-device testing has run. Salman owns S23 Ultra QA; exact OS/One UI build is
+still to be recorded. Arabic reviewer and physical mid-range testing remain required.
+Alarm/Doze/OEM/Direct Boot/calls/sensors/TalkBack/overnight reliability and physical
+performance budgets are unverified. No KVM exists on this server; CI runs emulators.
+These gates do not block remaining independent implementation or server checks.

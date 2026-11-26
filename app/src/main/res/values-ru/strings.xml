@@ -177,4 +177,24 @@
     <string name="focus_select_prayers">Намазы</string>
     <string name="focus_select_apps">Блокируемые приложения</string>
     <string name="emergency_bypass">Экстренный обход для этого намаза</string>
+    <string name="current_coordinates">Текущие координаты</string>
+    <string name="search_city">Поиск городов без сети</string>
+    <string name="use_device_location">Определить местоположение</string>
+    <string name="location_unavailable">Местоположение недоступно. Выберите город или введите координаты.</string>
+    <string name="zone_suggestion_note">Автономная подсказка часового пояса приблизительна. Проверьте пояс IANA, особенно у границ. Его можно изменить.</string>
+    <string name="confirm_location_zone">Подтвердите место и часовой пояс</string>
+    <string name="automatic_location">Обновлять место при использовании приложения</string>
+    <string name="foreground_location_note">Автообновление работает только при открытом приложении. В ручном режиме запросов местоположения нет. Изменение пояса требует подтверждения.</string>
+    <string name="location_observed_at">Место определено: %1$s</string>
+    <string name="qibla_true_bearing">Кибла: %1$s от истинного севера</string>
+    <string name="qibla_actual_location">Направление использует ваши реальные координаты, даже если времена намаза рассчитаны по полярной опорной широте.</string>
+    <string name="qibla_numeric_fallback">Показания компаса недоступны. Используйте числовой азимут от истинного севера с надёжной картой или компасом.</string>
+    <string name="qibla_calibrate">Низкая точность датчика. Отойдите от металла и магнитов, плавно опишите телефоном восьмёрку и держите его горизонтально.</string>
+    <string name="qibla_hold_flat">Держите телефон горизонтально, вдали от металла и магнитов. Показания компаса могут меняться.</string>
+    <string name="widget_setup">Откройте приложение и выберите место</string>
+    <string name="widget_unlock">Разблокируйте для показа времени намаза</string>
+    <string name="widget_next_description">Следующий намаз</string>
+    <string name="widget_daily_description">Расписание намазов</string>
+    <string name="zone_not_supported">Эта версия Android не распознаёт предложенный пояс. Обновите системные данные часовых поясов или выберите подходящий пояс IANA вручную.</string>
+    <string name="location_permission_needed">Автообновлению нужно разрешение местоположения. Предоставьте его кнопкой определения места или оставьте ручной режим.</string>
 </resources>

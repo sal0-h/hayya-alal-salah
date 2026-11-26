@@ -21,7 +21,18 @@ import java.time.ZoneId
     var zone by rememberSaveable(initial) { mutableStateOf(initial?.zone?.id ?: ZoneId.systemDefault().id) }
     var profile by rememberSaveable(initial) { mutableStateOf(initial?.profile ?: Profile.MWL) }
     var invalid by remember { mutableStateOf(false) }
+    var automatic by rememberSaveable(initial) { mutableStateOf(initial?.automatic ?: false) }
+    var refreshedAt by remember(initial) { mutableStateOf(initial?.refreshedAt) }
     Text(stringResource(R.string.setup_intro))
+    LocationControls { selectedName, point, selectedZone, refreshed ->
+        name = selectedName; latitude = point.latitude.toString(); longitude = point.longitude.toString(); zone = selectedZone
+        refreshedAt = refreshed; automatic = refreshed != null
+    }
+    ToggleRow(stringResource(R.string.automatic_location), automatic) { automatic = it }
+    Text(stringResource(R.string.foreground_location_note))
+    if (automatic && !org.hayya.salah.location.ForegroundLocation.allowed(LocalContext.current)) Text(stringResource(R.string.location_permission_needed), color = MaterialTheme.colorScheme.error)
+    if (zone !in ZoneId.getAvailableZoneIds()) Text(stringResource(R.string.zone_not_supported), color = MaterialTheme.colorScheme.error)
+    refreshedAt?.let { Text(stringResource(R.string.location_observed_at, it.toString())) }
     listOf(Triple(R.string.place_name, name, { value: String -> name = value }),
         Triple(R.string.latitude, latitude, { value: String -> latitude = value }),
         Triple(R.string.longitude, longitude, { value: String -> longitude = value }),
@@ -33,7 +44,7 @@ import java.time.ZoneId
     if (invalid) Text(stringResource(R.string.invalid_setup), color = MaterialTheme.colorScheme.error)
     Button(onClick = {
         val place = runCatching { ManualSetup(name.trim(), GeoPoint(normalizeNumber(latitude).toDouble(), normalizeNumber(longitude).toDouble()),
-            ZoneId.of(zone.trim()), if (profile == initial?.profile) initial.calculation else CalculationSettings(profile)) }.getOrNull()
+            ZoneId.of(zone.trim()), if (profile == initial?.profile) initial.calculation else CalculationSettings(profile), automatic, refreshedAt) }.getOrNull()
         invalid = place == null
         place?.let(save)
     }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(stringResource(R.string.confirm_setup)) }

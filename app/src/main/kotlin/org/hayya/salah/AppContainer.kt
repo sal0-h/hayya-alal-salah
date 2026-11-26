@@ -26,7 +26,7 @@ class AppContainer(val context: Context) {
         if (integrationJob?.isActive == true) return
         integrationJob = scope.launch {
             combine(settings.preferences, repository.changes) { _, _ -> Unit }.collect {
-                try { AlarmCoordinator.reconcile(context) }
+                try { AlarmCoordinator.reconcile(context); org.hayya.salah.widgets.WidgetUpdater.update(context) }
                 catch (cancelled: CancellationException) { throw cancelled }
                 catch (_: Exception) { /* Keep persisted events if private storage is unavailable. */ }
             }
@@ -34,7 +34,7 @@ class AppContainer(val context: Context) {
     }
     fun refreshIntegrations() {
         startIntegrations()
-        scope.launch { runCatching { AlarmCoordinator.reconcile(context) } }
+        scope.launch { runCatching { AlarmCoordinator.reconcile(context); org.hayya.salah.widgets.WidgetUpdater.update(context) } }
     }
 }
 val Context.appContainer get() = (applicationContext as SalahApplication).container

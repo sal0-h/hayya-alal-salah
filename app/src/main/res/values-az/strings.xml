@@ -177,4 +177,24 @@
     <string name="focus_select_prayers">Namazlar</string>
     <string name="focus_select_apps">Bloklanacaq tətbiqlər</string>
     <string name="emergency_bypass">Bu namaz üçün təcili keçid</string>
+    <string name="current_coordinates">Cari koordinatlar</string>
+    <string name="search_city">Oflayn şəhər axtarışı</string>
+    <string name="use_device_location">Cihazın mövqeyindən istifadə et</string>
+    <string name="location_unavailable">Mövqe əlçatan deyil. Şəhər seçin və ya koordinatları daxil edin.</string>
+    <string name="zone_suggestion_note">Oflayn saat qurşağı təklifi təxminidir. Xüsusən sərhədlərə yaxın IANA qurşağını yoxlayın. Onu dəyişə bilərsiniz.</string>
+    <string name="confirm_location_zone">Mövqe və saat qurşağını təsdiqlə</string>
+    <string name="automatic_location">Tətbiqdən istifadə zamanı mövqeni yenilə</string>
+    <string name="foreground_location_note">Avtomatik yeniləmə yalnız tətbiq görünəndə işləyir. Əl rejimində mövqe sorğusu edilmir. Qurşaq dəyişikliyi təsdiq tələb edir.</string>
+    <string name="location_observed_at">Mövqe müəyyən edilib: %1$s</string>
+    <string name="qibla_true_bearing">Qiblə: həqiqi şimaldan %1$s</string>
+    <string name="qibla_actual_location">Namaz vaxtları qütb istinad enliyindən hesablansa da istiqamət həqiqi koordinatlarınızdan istifadə edir.</string>
+    <string name="qibla_numeric_fallback">Kompas göstəricisi yoxdur. Etibarlı xəritə və ya kompasla həqiqi şimaldan rəqəmsal istiqaməti istifadə edin.</string>
+    <string name="qibla_calibrate">Sensor dəqiqliyi aşağıdır. Metal və maqnitlərdən uzaqlaşın, telefonu yavaşca səkkiz şəklində hərəkət etdirin, sonra üfüqi saxlayın.</string>
+    <string name="qibla_hold_flat">Telefonu metal və maqnitlərdən uzaqda üfüqi saxlayın. Kompas göstəriciləri dəyişə bilər.</string>
+    <string name="widget_setup">Mövqe seçmək üçün tətbiqi açın</string>
+    <string name="widget_unlock">Namaz vaxtları üçün kilidi açın</string>
+    <string name="widget_next_description">Növbəti namaz</string>
+    <string name="widget_daily_description">Gündəlik namaz vaxtları</string>
+    <string name="zone_not_supported">Bu Android versiyası təklif edilən qurşağı tanımır. Sistem saat qurşağı məlumatlarını yeniləyin və ya uyğun IANA qurşağını əl ilə seçin.</string>
+    <string name="location_permission_needed">Avtomatik yeniləmə mövqe icazəsi tələb edir. Mövqe düyməsi ilə icazə verin və ya əl rejimində qalın.</string>
 </resources>

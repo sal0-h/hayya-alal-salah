@@ -63,6 +63,7 @@ import java.time.ZoneId
                     DeliveryLocale.save(context, "system")
                     org.hayya.salah.focus.PrayerFocusService.releaseOverlay()
                     org.hayya.salah.alerts.AlarmCoordinator.cancelAll(context)
+                    org.hayya.salah.widgets.WidgetUpdater.update(context)
                     app.repository.reset()
                     context.filesDir.resolve("audio").deleteRecursively()
                     context.getSharedPreferences("locale-bootstrap", 0).edit { clear() }
@@ -78,6 +79,7 @@ import java.time.ZoneId
                     else (context as? Activity)?.recreate()
                 } })
         }
+        if (config != null) AutomaticLocationRefresh(config) { place -> perform { app.settings.save(place) } }
         recordTarget?.let { (key, zone) -> RecordDialog(key, recordBusy, onSave = { status ->
             recordBusy = true
             perform { try { app.repository.record(key, status, zone); recordTarget = null } finally { recordBusy = false } }
@@ -134,7 +136,7 @@ import java.time.ZoneId
                 "appearance" -> AppearanceScreen(config, update, onLanguage)
                 "privacy" -> PrivacyScreen(deleteRecords, reset)
                 "credits" -> CreditsScreen()
-                "qibla" -> { SectionTitle(stringResource(R.string.qibla)); Text("%.1f°".format(qiblaBearing(place.point)), style = MaterialTheme.typography.displayMedium) }
+                "qibla" -> QiblaScreen(place)
             }
         }
     }

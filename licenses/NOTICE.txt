@@ -21,4 +21,9 @@ Original application code: GPL-3.0-or-later (see LICENSE).
   hashes and attribution in docs/AUDIO.md and licenses/Adhan-recordings-NOTICE.txt.
   No noncommercial IslamWeb recordings or upstream artwork are included.
 
+- GeoNames populated places and alternate names, CC BY 4.0; GeoNames-NOTICE.txt.
+- tz-lookup traversal, CC0; extracted timezone-boundary-builder/OpenStreetMap derived
+  database, ODbL-1.0. Exact revisions, hashes and limitations in docs/GEOGRAPHY.md.
+  Database attribution and both license texts are bundled; data remains available.
+
 Required license texts are bundled in APK assets.
