@@ -289,6 +289,24 @@ Samsung Home, its themed appearance, the system splash, and the physical
 in-place update from build 108 still need S23 Ultra review.
 
 
+## Navigation flash and date gestures
+
+The Today and History calculation state now share a bounded in-memory cache scoped
+to coordinates, time zone and calculation settings. Reopening a destination can
+render its cached timetable immediately. Date arrows expose previous/next actions,
+the date picker stays available, and each pager page scrolls vertically in its own
+bounded viewport. Destination state preserves the browsed date across tab changes.
+No record, alarm or persisted calculation semantics change.
+
+Source compilation and the existing core/upstream tests passed in Dukhan's
+RAM-backed build. Lint and the final regression/capture matrix are pending. Added
+regressions cover cache reuse/concurrency/eviction/configuration isolation and date
+navigation across tabs. The native phone baseline is QA 141 on Salman's SM-S918B,
+Android 17/API 37, build `CP2A.260605.016.S918BXXUAGZIF`. A navigation-only baseline
+clip and frame diagnostics were captured locally; the fix is not installed or
+physically accepted yet. Device captures and private records are not uploaded.
+The existing alarm, sensor, Arabic and mid-range release gates remain open.
+
 ## Source consolidation
 
 Salman approved merging PRs #1–#8 in dependency order on 2026-11-26. The

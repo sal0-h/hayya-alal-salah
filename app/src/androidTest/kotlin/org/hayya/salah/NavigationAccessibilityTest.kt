@@ -79,4 +79,24 @@ class NavigationAccessibilityTest {
         compose.onNodeWithTag("today-night-last-third").assertExists()
         compose.onNodeWithTag("record-status-sunrise").assertDoesNotExist()
     }
+
+    @Test fun dateArrowsAndSelectedDaySurviveTabNavigation() {
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("prayer-data-ready").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("today-previous").assertHasClickAction().assertContentDescriptionEquals("Previous day")
+        compose.onNodeWithTag("today-next").assertHasClickAction().assertContentDescriptionEquals("Next day").performClick()
+        compose.onNodeWithText("Saturday, November 14, 2026").assertExists()
+        compose.onNodeWithTag("record-status-fajr").assertDoesNotExist()
+        compose.onNodeWithTag("nav-history").performClick()
+        compose.onNodeWithTag("nav-today").performClick()
+        compose.onNodeWithTag("today-return").assertIsDisplayed()
+        compose.onNodeWithText("Saturday, November 14, 2026").assertExists()
+        compose.onNodeWithTag("record-status-fajr").assertDoesNotExist()
+        compose.onNodeWithTag("today-previous").performClick()
+        compose.onNodeWithTag("today-return").assertDoesNotExist()
+        compose.onNodeWithTag("record-status-fajr").assertExists()
+        compose.onNodeWithTag("nav-history").performClick()
+        compose.onNodeWithTag("nav-today").performClick()
+        compose.onNodeWithTag("prayer-data-ready").assertExists()
+    }
+
 }

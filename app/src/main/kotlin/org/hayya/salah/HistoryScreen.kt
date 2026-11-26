@@ -21,13 +21,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.hayya.core.*
 import java.time.*
 
 @Composable internal fun HistoryScreen(config: AppPreferences, history: HistorySnapshot?, selectedDate: LocalDate,
-    onDate: (LocalDate) -> Unit, onRecord: (PrayerKey) -> Unit, clock: Clock = Clock.systemUTC()) {
+    onDate: (LocalDate) -> Unit, onRecord: (PrayerKey) -> Unit, clock: Clock = Clock.systemUTC(), timetable: TimetableCache) {
     val place = config.place ?: return
     val today = foregroundInstant(clock).atZone(place.zone).toLocalDate()
     SectionTitle(stringResource(R.string.history))
@@ -52,8 +50,8 @@ import java.time.*
         }
     }
     DateButton(stringResource(R.string.choose_date), selectedDate, modifier = Modifier.testTag("history-date"), max = today, onDate = onDate)
-    val calculated by produceState<CalculationResult?>(null, place, selectedDate) {
-        value = withContext(Dispatchers.Default) { LocalPrayerCalculator().calculate(selectedDate, place.point, place.zone, place.calculation) }
+    val calculated by key(timetable, selectedDate) {
+        produceState(timetable.peek(selectedDate)) { value = timetable.load(selectedDate) }
     }
     ReportDrawnWhen { calculated != null }
     val calculation = (calculated as? CalculationResult.Available)?.schedule
