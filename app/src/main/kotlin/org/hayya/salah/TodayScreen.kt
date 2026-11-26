@@ -4,6 +4,7 @@ package org.hayya.salah
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
@@ -18,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.customActions
@@ -30,10 +32,7 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
-import android.util.LruCache
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.hayya.core.*
 import java.time.*
 import java.time.format.FormatStyle
@@ -44,7 +43,8 @@ private fun timetablePage(day: Long) = (day - firstTimetableDay).coerceIn(0L, la
 private fun timetableDay(page: Int) = LocalDate.ofEpochDay(firstTimetableDay + page)
 
 @Composable internal fun TodayScreen(config: AppPreferences, history: HistorySnapshot?, onRecord: (PrayerKey) -> Unit,
-    update: PreferencesUpdate, onQibla: () -> Unit, onLocation: () -> Unit, onPause: () -> Unit, clock: Clock = Clock.systemUTC()) {
+    update: PreferencesUpdate, onQibla: () -> Unit, onLocation: () -> Unit, onPause: () -> Unit, clock: Clock = Clock.systemUTC(),
+    timetable: TimetableCache, scrollState: ScrollState? = null) {
     val place = config.place ?: return
     val now = foregroundInstant(clock)
     val today = now.atZone(place.zone).toLocalDate()
@@ -68,8 +68,12 @@ private fun timetableDay(page: Int) = LocalDate.ofEpochDay(firstTimetableDay + p
     }
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
     var showLegend by rememberSaveable { mutableStateOf(false) }
-    val calculator = remember { LocalPrayerCalculator() }
-    val cache = remember(place) { LruCache<LocalDate, CalculationResult>(9) }
+    // Prefetch calculations without composing an entire offscreen timetable.
+    LaunchedEffect(timetable, pager.settledPage) {
+        val date = timetableDay(pager.settledPage)
+        for (offset in listOf(0L, -1L, 1L, 2L)) timetable.load(date.plusDays(offset))
+    }
+    Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         TextButton(onClick = onLocation, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("today-location"),
             shape = MaterialTheme.shapes.small, contentPadding = PaddingValues(horizontal = 4.dp)) {
@@ -77,21 +81,53 @@ private fun timetableDay(page: Int) = LocalDate.ofEpochDay(firstTimetableDay + p
         }
         TextButton(onClick = onQibla, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.qibla)) }
     }
-    HorizontalPager(state = pager, modifier = Modifier.fillMaxWidth().testTag("today-pager"),
+    val selectedDate = if (pager.settledPage == todayPage && today.year !in 1900..2100) today else timetableDay(pager.settledPage)
+    val previousLabel = stringResource(R.string.previous_day)
+    val nextLabel = stringResource(R.string.next_day)
+    val hijri = remember(selectedDate, config.hijriAdjustment) {
+        runCatching { ummAlQuraDisplay(selectedDate, config.hijriAdjustment) }.getOrNull()
+    }
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        IconButton(onClick = { selectPage(pager.settledPage - 1) }, enabled = pager.settledPage > 0,
+            modifier = Modifier.size(48.dp).testTag("today-previous")) {
+            Icon(painterResource(R.drawable.ic_chevron_previous), previousLabel)
+        }
+        TextButton(onClick = { showDatePicker = true }, modifier = Modifier.weight(1f).heightIn(min = 48.dp)
+            .testTag("today-date").semantics {
+                customActions = buildList {
+                    if (pager.settledPage > 0) add(CustomAccessibilityAction(previousLabel) { selectPage(pager.settledPage - 1); true })
+                    if (pager.settledPage < lastTimetablePage) add(CustomAccessibilityAction(nextLabel) { selectPage(pager.settledPage + 1); true })
+                }
+            }, shape = MaterialTheme.shapes.small, contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(dateLabel(selectedDate, FormatStyle.LONG), style = MaterialTheme.typography.bodyMedium,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                if (hijri != null) Text(hijriLabel(hijri), style = MaterialTheme.typography.bodySmall,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        IconButton(onClick = { selectPage(pager.settledPage + 1) }, enabled = pager.settledPage < lastTimetablePage,
+            modifier = Modifier.size(48.dp).testTag("today-next")) {
+            Icon(painterResource(R.drawable.ic_chevron_next), nextLabel)
+        }
+    }
+    HorizontalPager(state = pager, modifier = Modifier.fillMaxWidth().weight(1f).testTag("today-pager"),
+        pageSpacing = 12.dp,
         verticalAlignment = Alignment.Top,
-        flingBehavior = PagerDefaults.flingBehavior(pager, snapAnimationSpec = if (reducedMotion) snap() else tween(240))) { page ->
+        flingBehavior = if (reducedMotion) PagerDefaults.flingBehavior(pager,
+            snapAnimationSpec = snap(), snapPositionalThreshold = .25f)
+        else PagerDefaults.flingBehavior(pager, snapPositionalThreshold = .25f)) { page ->
         // Keep the actual date visible even if the user's device date is outside the calculation range.
         val date = if (page == todayPage && (today.year !in 1900..2100)) today else timetableDay(page)
         val active = page == pager.currentPage
         val accessibility = if (active) Modifier else Modifier.clearAndSetSemantics { hideFromAccessibility() }
-        Column(Modifier.fillMaxWidth().then(accessibility),
+        val dayScroll = if (active && scrollState != null) scrollState else rememberScrollState()
+        Column(Modifier.fillMaxSize().then(accessibility).verticalScroll(dayScroll).testTag("today-page-scroll"),
             verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            TodayPage(config, place, date, today, now, history, onRecord, update, onPause, calculator, cache,
-                reportDrawn = active, onDatePicker = { showDatePicker = true }, onLegend = { showLegend = true },
-                onToday = { selectPage(todayPage) },
-                onPrevious = if (page > 0) ({ selectPage(page - 1) }) else null,
-                onNext = if (page < lastTimetablePage) ({ selectPage(page + 1) }) else null)
+            TodayPage(config, place, date, today, now, history, onRecord, update, onPause, timetable,
+                reportDrawn = active, onLegend = { showLegend = true }, onToday = { selectPage(todayPage) })
         }
+    }
     }
     if (showDatePicker) PrayerDatePicker(timetableDay(pager.settledPage), onDismiss = { showDatePicker = false }) { picked ->
         selectPage(timetablePage(picked.toEpochDay()))
@@ -102,22 +138,18 @@ private fun timetableDay(page: Int) = LocalDate.ofEpochDay(firstTimetableDay + p
 
 @Composable private fun TodayPage(config: AppPreferences, place: ManualSetup, date: LocalDate, today: LocalDate, now: Instant,
     history: HistorySnapshot?, onRecord: (PrayerKey) -> Unit, update: PreferencesUpdate, onPause: () -> Unit,
-    calculator: LocalPrayerCalculator, cache: LruCache<LocalDate, CalculationResult>, reportDrawn: Boolean,
-    onDatePicker: () -> Unit, onLegend: () -> Unit, onToday: () -> Unit,
-    onPrevious: (() -> Unit)?, onNext: (() -> Unit)?) {
+    cache: TimetableCache, reportDrawn: Boolean, onLegend: () -> Unit, onToday: () -> Unit) {
     val live = date == today
     val showNight = config.appearance.showMidnight || config.appearance.showLastThird
-    val results by key(place, date, live, showNight) {
+    val results by key(cache, date, live, showNight) {
         val offsets = if (live) -1L..1L else if (showNight) 0L..1L else 0L..0L
         val days = offsets.map(date::plusDays)
-        val cached = days.mapNotNull { day -> cache.get(day)?.let { day to it } }.toMap()
+        val cached = days.mapNotNull { day -> cache.peek(day)?.let { day to it } }.toMap()
+            .takeIf { it.size == days.size }.orEmpty()
         produceState(cached) {
             if (cached.size == days.size) return@produceState
-            value = withContext(Dispatchers.Default) {
-                days.associateWith { day ->
-                    cache.get(day) ?: calculator.calculate(day, place.point, place.zone, place.calculation).also { cache.put(day, it) }
-                }
-            }
+            // Publish a complete service-date window: yesterday's Isha can follow midnight.
+            value = days.associateWith { day -> cache.load(day) }
         }
     }
     val result = results[date]
@@ -125,24 +157,6 @@ private fun timetableDay(page: Int) = LocalDate.ofEpochDay(firstTimetableDay + p
     val schedule = (result as? CalculationResult.Available)?.schedule
     val next = if (live) nextPrayer(
         results.values.mapNotNull { (it as? CalculationResult.Available)?.schedule }, now) else null
-    val hijri = remember(date, config.hijriAdjustment) {
-        runCatching { ummAlQuraDisplay(date, config.hijriAdjustment) }.getOrNull()
-    }
-    val previousLabel = stringResource(R.string.previous_day)
-    val nextLabel = stringResource(R.string.next_day)
-    TextButton(onClick = onDatePicker, modifier = Modifier.heightIn(min = 48.dp).testTag("today-date").semantics {
-        customActions = buildList {
-            onPrevious?.let { add(CustomAccessibilityAction(previousLabel) { it(); true }) }
-            onNext?.let { add(CustomAccessibilityAction(nextLabel) { it(); true }) }
-        }
-    },
-        shape = MaterialTheme.shapes.small, contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)) {
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(dateLabel(date, FormatStyle.LONG), style = MaterialTheme.typography.bodyMedium)
-            if (hijri != null) Text(hijriLabel(hijri), style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-    }
     if (!live) TextButton(onClick = onToday, modifier = Modifier.testTag("today-return")) {
         Text(stringResource(R.string.return_today))
     }
@@ -298,4 +312,4 @@ private val prayerRows = listOf(Prayer.FAJR, null, Prayer.DHUHR, Prayer.ASR, Pra
 
 /** Same content for public synthetic screenshots, without reading private storage. */
 @Composable internal fun Today(setup: ManualSetup, clock: Clock = Clock.systemUTC()) = TodayScreen(
-    AppPreferences(place = setup), HistorySnapshot(emptyMap(), emptyList(), emptyList()), {}, {}, {}, {}, {}, clock)
+    AppPreferences(place = setup), HistorySnapshot(emptyMap(), emptyList(), emptyList()), {}, {}, {}, {}, {}, clock, rememberTimetableCache(setup))

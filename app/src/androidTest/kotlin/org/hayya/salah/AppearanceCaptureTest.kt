@@ -48,7 +48,19 @@ class AppearanceCaptureTest {
                             instrumentation.waitForIdleSync(); Thread.sleep(200)
                             check(kotlin.math.abs(activity.resources.configuration.fontScale - scale) < 0.05) { "Actual system font scale did not update" }
                             if (route == "today-next") {
-                                val swipe = if (language == "ar") "150 640 690 640" else "690 640 150 640"
+                                fun pagerNode(node: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
+                                    if (node == null || node.viewIdResourceName == "today-pager") return node
+                                    for (i in 0 until node.childCount) pagerNode(node.getChild(i))?.let { return it }
+                                    return null
+                                }
+                                val bounds = android.graphics.Rect().also {
+                                    checkNotNull(pagerNode(instrumentation.uiAutomation.rootInActiveWindow)).getBoundsInScreen(it)
+                                }
+                                check(bounds.width() > 0 && bounds.height() > 0)
+                                val left = bounds.left + bounds.width() / 6
+                                val right = bounds.right - bounds.width() / 6
+                                val swipe = if (language == "ar") "$left ${bounds.centerY()} $right ${bounds.centerY()}"
+                                    else "$right ${bounds.centerY()} $left ${bounds.centerY()}"
                                 shell("input swipe $swipe 300")
                                 instrumentation.waitForIdleSync()
                                 val locale = Locale.forLanguageTag(language)

@@ -93,3 +93,22 @@ timetable scrolling. Date-picker jumps remain available and the date button
 offers previous and next actions for accessibility. Reduced motion uses an
 immediate snap after the gesture. Midnight and the last third share the Sunrise
 row layout while using the same dated calculation endpoints. [Compose pager](https://developer.android.com/develop/ui/compose/layouts/pager)
+
+
+## Navigation retention and pager layout
+
+A timetable used by Today and History has a shared composition owner above the
+route switch. Its bounded cache is invalidated by coordinates, IANA zone or
+calculation settings, while the route's saveable state retains the selected date
+and scroll position. Calculations remain off the UI thread. The horizontal pager
+has a bounded height and each page owns vertical scrolling, so a shorter future
+date does not resize an outer scroll container. Visible mirrored arrows accompany
+the existing gestures and date picker. [State hoisting](https://developer.android.com/develop/ui/compose/state-hoisting) ·
+[Saving UI state](https://developer.android.com/develop/ui/compose/state-saving) ·
+[Compose pager](https://developer.android.com/develop/ui/compose/layouts/pager)
+
+A slow one-third-width swipe on QA 141 returned to the same day on the S23.
+PagerDefaults documents a default 0.5 slow-drag threshold. Use 0.25 for deliberate
+shorter day changes, retain the one-page fling limit and native spring settling,
+and keep reduced motion snapping immediate. Regression coverage distinguishes a
+one-third-width slow swipe from a one-tenth-width nudge. [Pager fling behavior](https://developer.android.com/reference/kotlin/androidx/compose/foundation/pager/PagerDefaults)

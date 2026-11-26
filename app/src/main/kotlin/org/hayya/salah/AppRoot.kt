@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -93,21 +94,21 @@ import java.time.ZoneId
     reset: () -> Unit, onLanguage: (String) -> Unit, retryHistory: () -> Unit = {},
     endPause: (PauseInterval, LocalDate) -> Unit = { _, _ -> },
     initialRoute: String = "today", clock: java.time.Clock = java.time.Clock.systemUTC(),
-    scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()) {
+    scrollState: androidx.compose.foundation.ScrollState? = null) {
+    // Reset must forget retained tab state as well as persisted data.
+    val screens = key(config.place != null) { rememberSaveableStateHolder() }
+    val timetable = config.place?.let { rememberTimetableCache(it) }
     var route by rememberSaveable { mutableStateOf(initialRoute) }
     var locationParent by rememberSaveable { mutableStateOf("settings") }
     var pauseParent by rememberSaveable { mutableStateOf("settings") }
     var historyDay by rememberSaveable { mutableLongStateOf(clock.instant().atZone(config.place?.zone ?: ZoneId.systemDefault()).toLocalDate().toEpochDay()) }
-    LaunchedEffect(route) { scrollState.scrollTo(0) }
     var setupDraft by rememberSaveable(stateSaver = androidx.compose.runtime.saveable.Saver(
         save = { PreferencesCodec.encode(AppPreferences(place = it)) },
         restore = { PreferencesCodec.decode(it).place }
     )) { mutableStateOf<ManualSetup?>(null) }
     var choosingMethod by rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(choosingMethod) { if (choosingMethod) scrollState.scrollTo(0) }
     LaunchedEffect(config.place) {
         if (config.place != null) {
-            if (choosingMethod) scrollState.scrollTo(0)
             setupDraft = null
             choosingMethod = false
         }
@@ -149,60 +150,68 @@ import java.time.ZoneId
             }
         }
     }) { padding ->
-        Column(Modifier.padding(padding).fillMaxSize().testTag("screen-$route").semantics { testTagsAsResourceId = true }.verticalScroll(scrollState).padding(horizontal = 20.dp, vertical = if (route == "today") 4.dp else 12.dp),
-            verticalArrangement = Arrangement.spacedBy(if (route == "today") 6.dp else 12.dp)) {
-            if (route !in roots && config.place != null) TextButton(onClick = ::goBack, modifier = Modifier.heightIn(min = 48.dp).testTag("screen-back")) { Text(stringResource(R.string.back)) }
-            if (config.place != null && history == null) OutlinedButton(onClick = retryHistory) { Text(stringResource(R.string.retry)) }
-            val place = config.place
-            if (place == null) {
-                SectionTitle(stringResource(R.string.app_name))
-                val draft = setupDraft
-                if (!choosingMethod || draft == null) {
-                    SelectionField(stringResource(R.string.language), config.language, listOf("system", "en", "ru", "az", "ar"), { languageName(it) }, onLanguage)
-                    SectionTitle(stringResource(R.string.choose_location))
-                    ManualLocationScreen(draft, firstRun = true) {
-                        setupDraft = it
-                        choosingMethod = true
-                        route = "today"
+        val destination: @Composable () -> Unit = {
+            val destinationScroll = scrollState ?: rememberScrollState()
+            LaunchedEffect(choosingMethod) { if (choosingMethod) destinationScroll.scrollTo(0) }
+            val scrolling = if (route == "today" && config.place != null) Modifier else Modifier.verticalScroll(destinationScroll)
+            Column(Modifier.padding(padding).fillMaxSize().testTag("screen-$route").semantics { testTagsAsResourceId = true }.then(scrolling).padding(horizontal = 20.dp, vertical = if (route == "today") 4.dp else 12.dp),
+                verticalArrangement = Arrangement.spacedBy(if (route == "today") 6.dp else 12.dp)) {
+                if (route !in roots && config.place != null) TextButton(onClick = ::goBack, modifier = Modifier.heightIn(min = 48.dp).testTag("screen-back")) { Text(stringResource(R.string.back)) }
+                if (config.place != null && history == null) OutlinedButton(onClick = retryHistory) { Text(stringResource(R.string.retry)) }
+                val place = config.place
+                if (place == null) {
+                    SectionTitle(stringResource(R.string.app_name))
+                    val draft = setupDraft
+                    if (!choosingMethod || draft == null) {
+                        SelectionField(stringResource(R.string.language), config.language, listOf("system", "en", "ru", "az", "ar"), { languageName(it) }, onLanguage)
+                        SectionTitle(stringResource(R.string.choose_location))
+                        ManualLocationScreen(draft, firstRun = true) {
+                            setupDraft = it
+                            choosingMethod = true
+                            route = "today"
+                        }
+                    } else {
+                        TextButton(onClick = { choosingMethod = false }, modifier = Modifier.testTag("setup-back")) { Text(stringResource(R.string.back)) }
+                        MethodPicker(draft.zone, draft.profile) { setupDraft = draft.copy(calculation = CalculationSettings(it)) }
+                        Button(onClick = { savePlace(draft) }, Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("finish-setup")) {
+                            Text(stringResource(R.string.confirm_setup))
+                        }
                     }
-                } else {
-                    TextButton(onClick = { choosingMethod = false }, modifier = Modifier.testTag("setup-back")) { Text(stringResource(R.string.back)) }
-                    MethodPicker(draft.zone, draft.profile) { setupDraft = draft.copy(calculation = CalculationSettings(it)) }
-                    Button(onClick = { savePlace(draft) }, Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("finish-setup")) {
-                        Text(stringResource(R.string.confirm_setup))
+                } else when (route) {
+                    "today" -> TodayScreen(config, history, onRecord, update, { route = "qibla" },
+                        { locationParent = "today"; route = "location" }, { pauseParent = "today"; route = "pause" }, clock, checkNotNull(timetable), scrollState)
+                    "history" -> HistoryScreen(config, history, LocalDate.ofEpochDay(historyDay), { historyDay = it.toEpochDay() }, onRecord, clock, checkNotNull(timetable))
+                    "settings" -> {
+                        SectionTitle(stringResource(R.string.settings))
+                        listOf("location" to R.string.location, "calculation" to R.string.calculation,
+                            "alerts" to R.string.prayer_alerts, "fajr" to R.string.fajr_alarm, "focus" to R.string.prayer_focus,
+                            "pause" to R.string.pause, "appearance" to R.string.appearance,
+                            "privacy" to R.string.privacy_data, "credits" to R.string.credits).forEach { (target, label) ->
+                            OutlinedButton(onClick = {
+                                if (target == "location") locationParent = "settings"
+                                if (target == "pause") pauseParent = "settings"
+                                route = target
+                            }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("settings-$target")) { Text(stringResource(label)) }
+                        }
                     }
-                }
-            } else when (route) {
-                "today" -> TodayScreen(config, history, onRecord, update, { route = "qibla" },
-                    { locationParent = "today"; route = "location" }, { pauseParent = "today"; route = "pause" }, clock)
-                "history" -> HistoryScreen(config, history, LocalDate.ofEpochDay(historyDay), { historyDay = it.toEpochDay() }, onRecord, clock)
-                "settings" -> {
-                    SectionTitle(stringResource(R.string.settings))
-                    listOf("location" to R.string.location, "calculation" to R.string.calculation,
-                        "alerts" to R.string.prayer_alerts, "fajr" to R.string.fajr_alarm, "focus" to R.string.prayer_focus,
-                        "pause" to R.string.pause, "appearance" to R.string.appearance,
-                        "privacy" to R.string.privacy_data, "credits" to R.string.credits).forEach { (target, label) ->
-                        OutlinedButton(onClick = {
-                            if (target == "location") locationParent = "settings"
-                            if (target == "pause") pauseParent = "settings"
-                            route = target
-                        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("settings-$target")) { Text(stringResource(label)) }
+                    "location" -> {
+                        SectionTitle(stringResource(R.string.location))
+                        ManualLocationScreen(place, save = savePlace)
                     }
+                    "calculation" -> CalculationScreen(place, update)
+                    "alerts" -> AlertsScreen(config, history, update)
+                    "fajr" -> FajrScreen(config, history, update, clock)
+                    "focus" -> FocusScreen(config, update)
+                    "pause" -> PauseScreen(history, place.zone, addPause, removePause, endPause, clock)
+                    "appearance" -> AppearanceScreen(config, update, onLanguage)
+                    "privacy" -> PrivacyScreen(deleteRecords, reset)
+                    "credits" -> CreditsScreen()
+                    "qibla" -> QiblaScreen(place)
                 }
-                "location" -> {
-                    SectionTitle(stringResource(R.string.location))
-                    ManualLocationScreen(place, save = savePlace)
-                }
-                "calculation" -> CalculationScreen(place, update)
-                "alerts" -> AlertsScreen(config, history, update)
-                "fajr" -> FajrScreen(config, history, update, clock)
-                "focus" -> FocusScreen(config, update)
-                "pause" -> PauseScreen(history, place.zone, addPause, removePause, endPause, clock)
-                "appearance" -> AppearanceScreen(config, update, onLanguage)
-                "privacy" -> PrivacyScreen(deleteRecords, reset)
-                "credits" -> CreditsScreen()
-                "qibla" -> QiblaScreen(place)
             }
         }
+        // Forms read current preferences on entry; only the three tabs retain UI state.
+        if (config.place != null && route in roots) screens.SaveableStateProvider(route, destination)
+        else key(route) { destination() }
     }
 }

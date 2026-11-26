@@ -2,6 +2,7 @@
 package org.hayya.salah
 
 import androidx.compose.ui.test.*
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.junit4.accessibility.enableAccessibilityChecks
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -79,4 +80,60 @@ class NavigationAccessibilityTest {
         compose.onNodeWithTag("today-night-last-third").assertExists()
         compose.onNodeWithTag("record-status-sunrise").assertDoesNotExist()
     }
+
+    @Test fun dateArrowsAndSelectedDaySurviveTabNavigation() {
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("prayer-data-ready").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("today-previous").assertHasClickAction().assertContentDescriptionEquals("Previous day")
+        compose.onNodeWithTag("today-next").assertHasClickAction().assertContentDescriptionEquals("Next day").performClick()
+        compose.onNodeWithText("Saturday, November 14, 2026").assertExists()
+        compose.onNodeWithTag("record-status-fajr").assertDoesNotExist()
+        compose.onNodeWithTag("nav-history").performClick()
+        compose.onNodeWithTag("nav-today").performClick()
+        compose.onNodeWithTag("today-return").assertIsDisplayed()
+        compose.onNodeWithText("Saturday, November 14, 2026").assertExists()
+        compose.onNodeWithTag("record-status-fajr").assertDoesNotExist()
+        compose.onNodeWithTag("today-previous").performClick()
+        compose.onNodeWithTag("today-return").assertDoesNotExist()
+        compose.onNodeWithTag("record-status-fajr").assertExists()
+        compose.onNodeWithTag("nav-history").performClick()
+        compose.onNodeWithTag("nav-today").performClick()
+        compose.onNodeWithTag("prayer-data-ready").assertExists()
+    }
+
+
+    @Test fun gentleDaySwipeAdvancesButASmallNudgeDoesNot() {
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("prayer-data-ready").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("today-pager").performTouchInput {
+            swipe(start = Offset(width * .85f, height * .5f), end = Offset(width * .52f, height * .5f), durationMillis = 1200)
+        }
+        compose.onNodeWithTag("today-return").assertIsDisplayed()
+        compose.onNodeWithText("Saturday, November 14, 2026").assertExists()
+        compose.onNodeWithTag("today-pager").performTouchInput {
+            swipe(start = Offset(width * .8f, height * .5f), end = Offset(width * .7f, height * .5f), durationMillis = 1000)
+        }
+        compose.onNodeWithText("Saturday, November 14, 2026").assertExists()
+        compose.onNodeWithTag("today-return").performClick()
+        compose.onNodeWithTag("today-return").assertDoesNotExist()
+        compose.onNodeWithTag("record-status-fajr").assertExists()
+    }
+
+
+    @Test fun resettingTheSyntheticAppForgetsTheRetainedFutureDate() {
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("prayer-data-ready").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("today-next").performClick()
+        compose.onNodeWithTag("today-return").assertIsDisplayed()
+        compose.onNodeWithTag("nav-settings").performClick()
+        compose.onNodeWithTag("settings-privacy").performScrollTo().performClick()
+        compose.onNodeWithText(compose.activity.getString(R.string.full_reset)).performScrollTo().performClick()
+        compose.onNodeWithText(compose.activity.getString(R.string.remove)).performClick()
+        compose.onNodeWithTag("search-city").performScrollTo().performTextInput("Baku")
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("city-baku-az").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("city-baku-az").performScrollTo().performClick()
+        compose.onNodeWithTag("save-location").performScrollTo().performClick()
+        compose.onNodeWithTag("finish-setup").performScrollTo().performClick()
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("prayer-data-ready").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("today-return").assertDoesNotExist()
+        compose.onNodeWithTag("record-status-fajr").assertExists()
+    }
+
 }
