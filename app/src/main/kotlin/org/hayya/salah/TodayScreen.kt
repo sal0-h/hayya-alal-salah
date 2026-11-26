@@ -10,6 +10,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.activity.compose.ReportDrawnWhen
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -238,7 +239,7 @@ private val prayerRows = listOf(Prayer.FAJR, null, Prayer.DHUHR, Prayer.ASR, Pra
                         style = MaterialTheme.typography.titleMedium,
                         color = if (explicit != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-            } else Spacer(Modifier.width(48.dp))
+            } else EmptyTimetableStatus()
         }) { textModifier ->
             if (key == null || !editable) {
                 Text(label, textModifier, style = MaterialTheme.typography.titleMedium)
@@ -257,7 +258,7 @@ private val prayerRows = listOf(Prayer.FAJR, null, Prayer.DHUHR, Prayer.ASR, Pra
 }
 
 @Composable private fun TimetableRow(time: String, next: Boolean, modifier: Modifier = Modifier, timeDate: LocalDate? = null,
-    timeDescription: String? = null, status: @Composable () -> Unit = { Spacer(Modifier.width(48.dp)) },
+    timeDescription: String? = null, status: @Composable () -> Unit = { EmptyTimetableStatus() },
     label: @Composable (Modifier) -> Unit) {
     Row(modifier.fillMaxWidth().heightIn(min = 48.dp), horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically) {
@@ -274,6 +275,11 @@ private val prayerRows = listOf(Prayer.FAJR, null, Prayer.DHUHR, Prayer.ASR, Pra
         status()
     }
     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+}
+
+@Composable private fun EmptyTimetableStatus() {
+    // The optional rows and Sunrise can use the record-control space at large text sizes.
+    if (LocalConfiguration.current.fontScale < 1.5f) Spacer(Modifier.width(48.dp))
 }
 
 @Composable private fun StatusLegend(close: () -> Unit) {

@@ -58,7 +58,10 @@ class ReviewFlowTest {
                         if (button != null) {
                             Unit.takeIf { button.performAction(AccessibilityNodeInfo.ACTION_CLICK) }
                         } else {
-                            find { it.isScrollable }
+                            val down = AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_DOWN.id
+                            val scroll = find { node -> node.actionList.any { it.id == down } }
+                            if (scroll != null) scroll.performAction(down)
+                            else find { it.isScrollable && it.viewIdResourceName != "today-pager" }
                                 ?.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
                             null
                         }
@@ -112,7 +115,18 @@ class ReviewFlowTest {
                 for (key in listOf(elapsed, upcoming)) {
                     tracked += key
                     val tag = "record-status-${key.prayer.name.lowercase(Locale.ROOT)}"
-                    clickTag(tag)
+                    try {
+                        clickTag(tag)
+                    } catch (failure: AssertionError) {
+                        val output = InstrumentationRegistry.getArguments().getString("additionalTestOutputDir")
+                        if (output != null) runCatching {
+                            val screenshot = automation.takeScreenshot() ?: return@runCatching
+                            java.io.File(output, "today-prayer-row-failure.png").outputStream().use {
+                                screenshot.compress(Bitmap.CompressFormat.PNG, 100, it)
+                            }
+                        }
+                        throw failure
+                    }
                     awaitValue("record editor") { byTag("record-on_time") }
                     assertNull(runBlocking { app.repository.snapshot().records[key] })
                     clickTag("record-on_time")

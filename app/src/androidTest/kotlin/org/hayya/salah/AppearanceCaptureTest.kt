@@ -73,12 +73,19 @@ class AppearanceCaptureTest {
                                 var node = find(instrumentation.uiAutomation.rootInActiveWindow)
                                 var attempts = 0
                                 while (node?.isVisibleToUser != true && attempts++ < 12) {
-                                    fun scrollable(n: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
-                                        if (n == null || n.isScrollable) return n
-                                        for (i in 0 until n.childCount) scrollable(n.getChild(i))?.let { return it }
+                                    val down = android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_DOWN.id
+                                    fun findScroll(n: android.view.accessibility.AccessibilityNodeInfo?,
+                                        matches: (android.view.accessibility.AccessibilityNodeInfo) -> Boolean
+                                    ): android.view.accessibility.AccessibilityNodeInfo? {
+                                        if (n == null || matches(n)) return n
+                                        for (i in 0 until n.childCount) findScroll(n.getChild(i), matches)?.let { return it }
                                         return null
                                     }
-                                    checkNotNull(scrollable(instrumentation.uiAutomation.rootInActiveWindow)).performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
+                                    val root = instrumentation.uiAutomation.rootInActiveWindow
+                                    val vertical = findScroll(root) { n -> n.actionList.any { it.id == down } }
+                                    if (vertical != null) vertical.performAction(down)
+                                    else checkNotNull(findScroll(root) { it.isScrollable && it.viewIdResourceName != "today-pager" })
+                                        .performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
                                     instrumentation.waitForIdleSync(); Thread.sleep(150)
                                     node = find(instrumentation.uiAutomation.rootInActiveWindow)
                                 }

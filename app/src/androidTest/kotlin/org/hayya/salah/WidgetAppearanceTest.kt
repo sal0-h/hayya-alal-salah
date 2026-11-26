@@ -51,10 +51,12 @@ class WidgetAppearanceTest {
                     context.appContainer.settings.update { prefs }; DeliveryLocale.save(context,prefs)
                     if (Build.VERSION.SDK_INT >= 33) {
                         instrumentation.runOnMainSync { context.getSystemService(LocaleManager::class.java).applicationLocales = LocaleList.forLanguageTags(language) }
-                        withTimeout(5000) { while (context.resources.configuration.locales[0].language != language) delay(50) }
                     }
                     val currentActivity = instrumentation.startActivitySync(Intent(context,CaptureHostActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as CaptureHostActivity
                     activity = currentActivity
+                    withTimeout(12000) {
+                        while (currentActivity.resources.configuration.locales[0].language != language) delay(50)
+                    }
                     val density = currentActivity.resources.displayMetrics.density
                     fun dp(value: Int) = (value*density).toInt()
                     val views = mutableListOf<AppWidgetHostView>()
