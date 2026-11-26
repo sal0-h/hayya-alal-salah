@@ -114,7 +114,9 @@ private fun timetableDay(page: Int) = LocalDate.ofEpochDay(firstTimetableDay + p
     HorizontalPager(state = pager, modifier = Modifier.fillMaxWidth().weight(1f).testTag("today-pager"),
         pageSpacing = 12.dp,
         verticalAlignment = Alignment.Top,
-        flingBehavior = PagerDefaults.flingBehavior(pager, snapAnimationSpec = if (reducedMotion) snap() else tween(240))) { page ->
+        flingBehavior = if (reducedMotion) PagerDefaults.flingBehavior(pager,
+            snapAnimationSpec = snap(), snapPositionalThreshold = .25f)
+        else PagerDefaults.flingBehavior(pager, snapPositionalThreshold = .25f)) { page ->
         // Keep the actual date visible even if the user's device date is outside the calculation range.
         val date = if (page == todayPage && (today.year !in 1900..2100)) today else timetableDay(page)
         val active = page == pager.currentPage

@@ -2,6 +2,7 @@
 package org.hayya.salah
 
 import androidx.compose.ui.test.*
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.junit4.accessibility.enableAccessibilityChecks
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -97,6 +98,23 @@ class NavigationAccessibilityTest {
         compose.onNodeWithTag("nav-history").performClick()
         compose.onNodeWithTag("nav-today").performClick()
         compose.onNodeWithTag("prayer-data-ready").assertExists()
+    }
+
+
+    @Test fun gentleDaySwipeAdvancesButASmallNudgeDoesNot() {
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("prayer-data-ready").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("today-pager").performTouchInput {
+            swipe(start = Offset(width * .85f, height * .5f), end = Offset(width * .52f, height * .5f), durationMillis = 1200)
+        }
+        compose.onNodeWithTag("today-return").assertIsDisplayed()
+        compose.onNodeWithText("Saturday, November 14, 2026").assertExists()
+        compose.onNodeWithTag("today-pager").performTouchInput {
+            swipe(start = Offset(width * .8f, height * .5f), end = Offset(width * .7f, height * .5f), durationMillis = 1000)
+        }
+        compose.onNodeWithText("Saturday, November 14, 2026").assertExists()
+        compose.onNodeWithTag("today-return").performClick()
+        compose.onNodeWithTag("today-return").assertDoesNotExist()
+        compose.onNodeWithTag("record-status-fajr").assertExists()
     }
 
 }

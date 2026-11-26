@@ -106,3 +106,9 @@ date does not resize an outer scroll container. Visible mirrored arrows accompan
 the existing gestures and date picker. [State hoisting](https://developer.android.com/develop/ui/compose/state-hoisting) ·
 [Saving UI state](https://developer.android.com/develop/ui/compose/state-saving) ·
 [Compose pager](https://developer.android.com/develop/ui/compose/layouts/pager)
+
+A slow one-third-width swipe on QA 141 returned to the same day on the S23.
+PagerDefaults documents a default 0.5 slow-drag threshold. Use 0.25 for deliberate
+shorter day changes, retain the one-page fling limit and native spring settling,
+and keep reduced motion snapping immediate. Regression coverage distinguishes a
+one-third-width slow swipe from a one-tenth-width nudge. [Pager fling behavior](https://developer.android.com/reference/kotlin/androidx/compose/foundation/pager/PagerDefaults)
