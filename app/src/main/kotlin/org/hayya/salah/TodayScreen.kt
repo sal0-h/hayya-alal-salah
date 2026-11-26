@@ -51,7 +51,7 @@ import java.time.format.FormatStyle
     val next = if (live) nextPrayer(schedules, now) else null
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         TextButton(onClick = onLocation, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("today-location"),
-            contentPadding = PaddingValues(end = 4.dp)) {
+            shape = MaterialTheme.shapes.small, contentPadding = PaddingValues(horizontal = 4.dp)) {
             Text(place.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.fillMaxWidth())
         }
         TextButton(onClick = onQibla, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.qibla)) }
@@ -60,7 +60,7 @@ import java.time.format.FormatStyle
         runCatching { ummAlQuraDisplay(date, config.hijriAdjustment) }.getOrNull()
     }
     TextButton(onClick = { showDatePicker = true }, modifier = Modifier.heightIn(min = 48.dp).testTag("today-date"),
-        contentPadding = PaddingValues(end = 8.dp)) {
+        shape = MaterialTheme.shapes.small, contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(dateLabel(date, FormatStyle.LONG), style = MaterialTheme.typography.bodyMedium)
             if (hijri != null) Text(hijriLabel(hijri), style = MaterialTheme.typography.bodySmall,

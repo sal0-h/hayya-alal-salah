@@ -4,6 +4,7 @@ package org.hayya.salah
 import android.Manifest
 import android.app.NotificationManager
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.core.net.toUri
 import android.os.Build
 import android.provider.Settings
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -41,15 +43,25 @@ import org.hayya.salah.alerts.*
         val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_RESUME) revision++ }
         owner.lifecycle.addObserver(observer); onDispose { owner.lifecycle.removeObserver(observer) }
     }
-    val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { revision++; context.appContainer.refreshIntegrations() }
+    var requestedNotification by rememberSaveable { mutableStateOf(false) }
+    val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+        revision++
+        context.appContainer.refreshIntegrations()
+    }
     val ready = remember(revision, fajr) { AlertNotifications.ready(context, fajr) }
     val exact = remember(revision) { AlarmCoordinator.exactAccess(context) }
     fun open(intent: Intent) { runCatching { context.startActivity(intent) } }
     content(ready && (!fajr || exact))
     if (!ready) {
         Text(stringResource(R.string.alert_not_ready), color = MaterialTheme.colorScheme.error)
-        if (Build.VERSION.SDK_INT >= 33) OutlinedButton(onClick = { notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS) }) { Text(stringResource(R.string.notification_access)) }
-        OutlinedButton(onClick = { open(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)) }) { Text(stringResource(R.string.channel_settings)) }
+        val canRequest = Build.VERSION.SDK_INT >= 33 && !requestedNotification &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        OutlinedButton(onClick = {
+            if (canRequest) {
+                requestedNotification = true
+                notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else open(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName))
+        }) { Text(stringResource(if (canRequest) R.string.notification_access else R.string.channel_settings)) }
     }
     if (!exact) {
         Text(stringResource(if (fajr) R.string.fajr_exact_required else R.string.exact_not_ready), color = MaterialTheme.colorScheme.error)
@@ -74,7 +86,7 @@ import org.hayya.salah.alerts.*
     Prayer.entries.forEach { prayer ->
         val alert = config.alerts.getValue(prayer)
         Text(prayerName(prayer), style = MaterialTheme.typography.titleLarge)
-        SelectionField(stringResource(R.string.prayer_alerts), alert.mode, AlertMode.entries, {
+        SelectionField(stringResource(R.string.prayer_reminder), alert.mode, AlertMode.entries, {
             stringResource(when (it) { AlertMode.OFF -> R.string.alert_off; AlertMode.NOTIFICATION -> R.string.alert_notification; AlertMode.ADHAN -> R.string.alert_adhan })
         }) { mode -> update { it.copy(alerts = it.alerts + (prayer to it.alerts.getValue(prayer).copy(mode = mode))) } }
         if (alert.mode != AlertMode.OFF) {

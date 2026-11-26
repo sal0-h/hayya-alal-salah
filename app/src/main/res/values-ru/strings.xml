@@ -55,7 +55,7 @@
     <string name="on_time_recorded">Вовремя среди отмеченных: %1$s / %2$s</string>
     <string name="period_last_30">Последние 30 завершённых дней</string>
     <string name="pause">Пауза</string>
-    <string name="pause_explanation">Выберите даты начала и окончания. В эти дни оповещения, будильник на фаджр и режим фокуса приостановлены. Отметки сохраняются, а намазы без отметок не входят в статистику.</string>
+    <string name="pause_explanation">Выберите даты паузы для оповещений, будильника на фаджр и режима фокуса. Отметки сохраняются. Намазы без отметок не входят в статистику.</string>
     <string name="start_date">Дата начала</string>
     <string name="end_date">Дата окончания</string>
     <string name="add_pause">Добавить паузу</string>
@@ -140,8 +140,8 @@
     <string name="exact_access">Разрешить точные будильники</string>
     <string name="channel_settings">Настройки уведомлений</string>
     <string name="fullscreen_access">Доступ к сигналу на экране блокировки</string>
-    <string name="alert_not_ready">Уведомления заблокированы. Проверьте разрешения и каналы.</string>
-    <string name="exact_not_ready">Точные будильники недоступны. Уведомления могут задержаться; будильник Фаджра неактивен.</string>
+    <string name="alert_not_ready">Уведомления отключены.</string>
+    <string name="exact_not_ready">Оповещения о намазе могут задерживаться.</string>
     <string name="sound">Звук</string>
     <string name="import_audio">Импортировать аудио</string>
     <string name="import_error">Не удалось импортировать аудио. Выберите воспроизводимый файл до 25 МБ и 10 минут.</string>
@@ -219,7 +219,7 @@
         <item>зуль-хиджи</item>
     </string-array>
     <string name="theme_mode">Тема</string>
-    <string name="return_today">Вернуться к сегодня</string>
+    <string name="return_today">К сегодняшнему дню</string>
     <string name="today_night_time">Ночное время на экране «Сегодня»</string>
     <string name="midpoint_sunrise">Полночь (от заката до восхода)</string>
     <string name="midpoint_fajr">Полночь (от заката до фаджра)</string>

@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.testTag
@@ -66,21 +67,37 @@ internal fun statusSymbol(status: PrayerStatus?) = when (status) {
     val configuration = LocalConfiguration.current
     val size = androidx.compose.ui.platform.LocalWindowInfo.current.containerSize
     val width = with(androidx.compose.ui.platform.LocalDensity.current) { size.width.toDp() }
+    val compact = width < 360.dp
+    val sideMargin = if (compact) 16.dp else ((width - 360.dp) / 2).coerceAtMost(16.dp)
     val state = rememberDatePickerState(initialSelectedDateMillis = date.toEpochDay() * 86_400_000L,
-        initialDisplayMode = if (width < 360.dp || configuration.fontScale > 1.3f) DisplayMode.Input else DisplayMode.Picker,
+        initialDisplayMode = if (compact || configuration.fontScale > 1.3f) DisplayMode.Input else DisplayMode.Picker,
         yearRange = 1900..2100, selectableDates = object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long) = max == null || LocalDate.ofEpochDay(Math.floorDiv(utcTimeMillis, 86_400_000L)) <= max
         })
-    DatePickerDialog(onDismissRequest = onDismiss,
-        properties = DialogProperties(decorFitsSystemWindows = false),
-        modifier = Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
-            .testTag("prayer-date-picker").semantics { testTagsAsResourceId = true },
-        confirmButton = {
-            TextButton(onClick = { state.selectedDateMillis?.let { onDate(LocalDate.ofEpochDay(Math.floorDiv(it, 86_400_000L))) } },
-                enabled = state.selectedDateMillis != null, modifier = Modifier.testTag("apply-prayer-date")) {
-                Text(stringResource(R.string.apply))
+    Dialog(onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
+        Surface(
+            modifier = Modifier.windowInsetsPadding(WindowInsets.safeDrawing).padding(horizontal = sideMargin, vertical = 8.dp)
+                .widthIn(max = 392.dp).fillMaxWidth()
+                .testTag("prayer-date-picker").semantics { testTagsAsResourceId = true },
+            shape = MaterialTheme.shapes.extraLarge,
+            color = DatePickerDefaults.colors().containerColor,
+        ) {
+            Column {
+                DatePicker(state, modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
+                    showModeToggle = !compact)
+                FlowRow(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+                    TextButton(onClick = {
+                        state.selectedDateMillis?.let { onDate(LocalDate.ofEpochDay(Math.floorDiv(it, 86_400_000L))) }
+                    }, enabled = state.selectedDateMillis != null, modifier = Modifier.testTag("apply-prayer-date")) {
+                        Text(stringResource(R.string.apply))
+                    }
+                }
             }
-        }, dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } }) { DatePicker(state) }
+        }
+    }
 }
 
 @Composable internal fun RecordDialog(key: PrayerKey, busy: Boolean, onSave: (PrayerStatus?) -> Unit, onDismiss: () -> Unit) {
