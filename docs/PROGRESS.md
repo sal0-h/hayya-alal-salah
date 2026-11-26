@@ -322,9 +322,15 @@ build and its SHA-256 is
 The running screen shows the new date controls and the previously visible city,
 theme, night row and prayer marks. No prayer records were edited during QA.
 A slow one-third-width swipe returning to the same day was reproduced on QA 141;
-post-update gesture and tab-retention checks are pending because USB disconnected.
-The baseline recording did not establish a quantified panel-flash duration or
-speedup. Private device captures and records remain local and are not uploaded.
+after reconnecting, QA 150 passed seven navigation-only checks: gentle forward
+and backward day swipes, a small nudge retaining the date, the previous-day arrow,
+return to today, selected-date retention across tabs and History scroll retention.
+A private ten-tab-switch recording showed the full next-prayer panel whenever
+Today reappeared; no collapse was observed in the captured frames. Screenrecord
+sampling cannot rule out every display-frame issue or establish a latency speedup.
+The phone's original USB stay-awake setting was restored and read back as `0`.
+No prayer records were edited. Private device captures and records remain local
+and are not uploaded.
 The existing alarm, sensor, Arabic-review and mid-range release gates remain open.
 
 ## Source consolidation
