@@ -17,6 +17,7 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.hayya.core.*
@@ -118,7 +119,10 @@ import kotlin.math.abs
     var minutes by rememberSaveable { mutableStateOf(initial) }
     val value = normalizeNumber(minutes).toIntOrNull()
     val invalid = direction != 0 && value !in 1..180
-    AlertDialog(onDismissRequest = close, title = { Text(stringResource(R.string.fajr_relative)) },
+    AlertDialog(onDismissRequest = close,
+        properties = DialogProperties(decorFitsSystemWindows = false),
+        modifier = Modifier.windowInsetsPadding(WindowInsets.safeDrawing),
+        title = { Text(stringResource(R.string.fajr_relative)) },
         text = { Column(Modifier.verticalScroll(rememberScrollState())) {
             SelectionField(stringResource(R.string.alarm_timing), direction, listOf(-1, 0, 1), {
                 stringResource(when (it) { -1 -> R.string.before_fajr; 1 -> R.string.after_fajr; else -> R.string.at_fajr })

@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -65,7 +66,7 @@ import org.hayya.salah.focus.EssentialApps
     val focus = LocalFocusManager.current
     val keyboard = LocalSoftwareKeyboardController.current
     fun finishSearching() {
-        focus.clearFocus()
+        focus.clearFocus(force = true)
         keyboard?.hide()
     }
     var selected by remember { mutableStateOf(initial) }
@@ -78,7 +79,8 @@ import org.hayya.salah.focus.EssentialApps
         if (query.isBlank()) matches.sortedByDescending { it.first in initial } else matches
     }
     AlertDialog(onDismissRequest = cancel,
-        modifier = Modifier.semantics { testTagsAsResourceId = true },
+        properties = DialogProperties(decorFitsSystemWindows = false),
+        modifier = Modifier.windowInsetsPadding(WindowInsets.safeDrawing).semantics { testTagsAsResourceId = true },
         title = { Text(stringResource(R.string.choose_focus_apps)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {

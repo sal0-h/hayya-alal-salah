@@ -24,6 +24,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -151,7 +152,9 @@ import org.hayya.salah.alerts.*
     val beforeInvalid = beforeOn && b !in 1..120
     val afterInvalid = afterOn && a !in 1..120
     val bounds = stringResource(R.string.minutes_range, numberLabel(1), numberLabel(120))
-    AlertDialog(onDismissRequest = close, modifier = Modifier.semantics { testTagsAsResourceId = true },
+    AlertDialog(onDismissRequest = close,
+        properties = DialogProperties(decorFitsSystemWindows = false),
+        modifier = Modifier.windowInsetsPadding(WindowInsets.safeDrawing).semantics { testTagsAsResourceId = true },
         title = { Text("${prayerName(prayer)} · ${stringResource(R.string.extra_reminders)}") },
         text = { Column(Modifier.verticalScroll(rememberScrollState())) {
             ToggleRow(stringResource(R.string.before_reminder), beforeOn) { beforeOn = it }

@@ -10,6 +10,7 @@ import android.os.SystemClock
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import android.view.accessibility.AccessibilityWindowInfo
 import android.view.Surface
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -146,11 +147,17 @@ class ReviewFlowTest {
                 clickTag("focus-choose-apps")
                 clickTag("focus-select-all")
                 try {
-                    val bounds = awaitValue("visible Apply button") {
+                    clickTag("focus-app-search")
+                    val keyboard = awaitValue("Focus search keyboard") {
+                        automation.windows.firstOrNull { it.type == AccessibilityWindowInfo.TYPE_INPUT_METHOD }
+                            ?.let { window -> Rect().also(window::getBoundsInScreen) }
+                            ?.takeUnless { it.isEmpty }
+                    }
+                    val bounds = awaitValue("Apply button above the keyboard") {
                         val button = byTag("focus-apply-apps") ?: byText(context.getString(R.string.apply))
                         val rect = Rect()
                         button?.getBoundsInScreen(rect)
-                        rect.takeUnless { it.isEmpty }
+                        rect.takeUnless { it.isEmpty || it.bottom > keyboard.top }
                     }
                     val downAt = SystemClock.uptimeMillis()
                     for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {

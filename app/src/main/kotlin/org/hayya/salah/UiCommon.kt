@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
@@ -70,7 +71,10 @@ internal fun statusSymbol(status: PrayerStatus?) = when (status) {
         yearRange = 1900..2100, selectableDates = object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long) = max == null || LocalDate.ofEpochDay(Math.floorDiv(utcTimeMillis, 86_400_000L)) <= max
         })
-    DatePickerDialog(onDismissRequest = onDismiss, modifier = Modifier.testTag("prayer-date-picker").semantics { testTagsAsResourceId = true },
+    DatePickerDialog(onDismissRequest = onDismiss,
+        properties = DialogProperties(decorFitsSystemWindows = false),
+        modifier = Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
+            .testTag("prayer-date-picker").semantics { testTagsAsResourceId = true },
         confirmButton = {
             TextButton(onClick = { state.selectedDateMillis?.let { onDate(LocalDate.ofEpochDay(Math.floorDiv(it, 86_400_000L))) } },
                 enabled = state.selectedDateMillis != null, modifier = Modifier.testTag("apply-prayer-date")) {
