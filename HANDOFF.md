@@ -10,9 +10,22 @@ Salman approved implementation on 2026-11-12. Do not restart the product intervi
 
 ## Actual implementation state
 
-Documentation-only repository. No Android app, Gradle project, calculation adapters, CI pipeline, signing keys or production code have been created. No builds/tests have run. Do not mistake the detailed plan for completed functionality.
+Implementation has started on branch `implement/native-foundation`. See
+`docs/PROGRESS.md` for code and actual automated/physical validation, and
+`docs/QA.md` for CI artifacts and stable internal signing. The full-v1 specification
+remains `docs/IMPLEMENTATION_PLAN.md`; the initial runnable slice is times-only.
 
-Start milestone 1: verify the Dukhan environment, scaffold the native Android/JVM modules, pin a compatible stable toolchain, add license/dependency notices, headless CI, and stable QA artifact delivery. Then proceed through the milestones with real validation. The full public v1 scope remains agreed; internal slices can be small.
+Temporary JDK 21, Gradle 9.6.0, SDK platform 37.0 and build tools 36.0.0 are under
+`/tmp/hayya-toolchain` on this server. Set JAVA_HOME, ANDROID_HOME and GRADLE_USER_HOME
+accordingly, or install the documented pinned toolchain independently. No KVM here.
+Do not rely on /tmp surviving a reboot. `.local-qa/` holds an ignored private QA key;
+never commit it. Dedicated QA secrets are configured in repository Actions settings.
+
+Foundation clean CI, QA signing and representative Today screenshot review passed;
+code commit `7d1a109` has downloadable verified artifacts linked in docs/QA.md. Next:
+complete calculation controls and confirmed polar policy, extend setup/full-shell visual
+QA, then implement persistent tracking and Android alarm delivery. Read the remaining
+validation limits in docs/PROGRESS.md; no physical-device test has run.
 
 ## Non-negotiable decisions
 

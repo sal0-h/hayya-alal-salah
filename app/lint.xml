@@ -1,0 +1,6 @@
+<lint>
+    <!-- Compatible dependency/tool versions are intentionally pinned and reviewed together.
+         CI must not fail when Maven advertises an unrelated new release. -->
+    <issue id="GradleDependency" severity="ignore" />
+    <issue id="AndroidGradlePluginVersion" severity="ignore" />
+</lint>
