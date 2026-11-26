@@ -117,4 +117,23 @@ class NavigationAccessibilityTest {
         compose.onNodeWithTag("record-status-fajr").assertExists()
     }
 
+
+    @Test fun resettingTheSyntheticAppForgetsTheRetainedFutureDate() {
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("prayer-data-ready").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("today-next").performClick()
+        compose.onNodeWithTag("today-return").assertIsDisplayed()
+        compose.onNodeWithTag("nav-settings").performClick()
+        compose.onNodeWithTag("settings-privacy").performScrollTo().performClick()
+        compose.onNodeWithText(compose.activity.getString(R.string.full_reset)).performScrollTo().performClick()
+        compose.onNodeWithText(compose.activity.getString(R.string.remove)).performClick()
+        compose.onNodeWithTag("search-city").performScrollTo().performTextInput("Baku")
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("city-baku-az").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("city-baku-az").performScrollTo().performClick()
+        compose.onNodeWithTag("save-location").performScrollTo().performClick()
+        compose.onNodeWithTag("finish-setup").performScrollTo().performClick()
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("prayer-data-ready").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("today-return").assertDoesNotExist()
+        compose.onNodeWithTag("record-status-fajr").assertExists()
+    }
+
 }

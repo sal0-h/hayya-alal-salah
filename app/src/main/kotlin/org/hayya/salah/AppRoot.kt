@@ -95,7 +95,8 @@ import java.time.ZoneId
     endPause: (PauseInterval, LocalDate) -> Unit = { _, _ -> },
     initialRoute: String = "today", clock: java.time.Clock = java.time.Clock.systemUTC(),
     scrollState: androidx.compose.foundation.ScrollState? = null) {
-    val screens = rememberSaveableStateHolder()
+    // Reset must forget retained tab state as well as persisted data.
+    val screens = key(config.place != null) { rememberSaveableStateHolder() }
     val timetable = config.place?.let { rememberTimetableCache(it) }
     var route by rememberSaveable { mutableStateOf(initialRoute) }
     var locationParent by rememberSaveable { mutableStateOf("settings") }
@@ -149,7 +150,7 @@ import java.time.ZoneId
             }
         }
     }) { padding ->
-        screens.SaveableStateProvider(route) {
+        val destination: @Composable () -> Unit = {
             val destinationScroll = scrollState ?: rememberScrollState()
             LaunchedEffect(choosingMethod) { if (choosingMethod) destinationScroll.scrollTo(0) }
             val scrolling = if (route == "today" && config.place != null) Modifier else Modifier.verticalScroll(destinationScroll)
@@ -209,5 +210,8 @@ import java.time.ZoneId
                 }
             }
         }
+        // Forms read current preferences on entry; only the three tabs retain UI state.
+        if (config.place != null && route in roots) screens.SaveableStateProvider(route, destination)
+        else key(route) { destination() }
     }
 }
