@@ -50,29 +50,38 @@ internal fun statusSymbol(status: PrayerStatus?) = when (status) {
         }
     }
 }
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable internal fun DateButton(label: String, date: LocalDate, modifier: Modifier = Modifier, max: LocalDate? = null, onDate: (LocalDate) -> Unit) {
     var show by remember { mutableStateOf(false) }
     OutlinedButton(onClick = { show = true }, modifier = modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("$label: ${dateLabel(date)}") }
-    if (show) {
-        val configuration = LocalConfiguration.current
-        val size = androidx.compose.ui.platform.LocalWindowInfo.current.containerSize
-        val width = with(androidx.compose.ui.platform.LocalDensity.current) { size.width.toDp() }
-        val state = rememberDatePickerState(initialSelectedDateMillis = date.toEpochDay() * 86_400_000L,
-            initialDisplayMode = if (width < 360.dp || configuration.fontScale > 1.3f) DisplayMode.Input else DisplayMode.Picker,
-            yearRange = 1900..2100, selectableDates = object : SelectableDates {
-                override fun isSelectableDate(utcTimeMillis: Long) = max == null || LocalDate.ofEpochDay(Math.floorDiv(utcTimeMillis, 86_400_000L)) <= max
-            })
-        DatePickerDialog(onDismissRequest = { show = false }, confirmButton = {
-            TextButton(onClick = { state.selectedDateMillis?.let { onDate(LocalDate.ofEpochDay(Math.floorDiv(it, 86_400_000L))) }; show = false },
-                enabled = state.selectedDateMillis != null) { Text(stringResource(R.string.apply)) }
-        }, dismissButton = { TextButton(onClick = { show = false }) { Text(stringResource(R.string.cancel)) } }) { DatePicker(state) }
+    if (show) PrayerDatePicker(date, max, onDismiss = { show = false }) {
+        onDate(it)
+        show = false
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable internal fun PrayerDatePicker(date: LocalDate, max: LocalDate? = null, onDismiss: () -> Unit,
+    onDate: (LocalDate) -> Unit) {
+    val configuration = LocalConfiguration.current
+    val size = androidx.compose.ui.platform.LocalWindowInfo.current.containerSize
+    val width = with(androidx.compose.ui.platform.LocalDensity.current) { size.width.toDp() }
+    val state = rememberDatePickerState(initialSelectedDateMillis = date.toEpochDay() * 86_400_000L,
+        initialDisplayMode = if (width < 360.dp || configuration.fontScale > 1.3f) DisplayMode.Input else DisplayMode.Picker,
+        yearRange = 1900..2100, selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long) = max == null || LocalDate.ofEpochDay(Math.floorDiv(utcTimeMillis, 86_400_000L)) <= max
+        })
+    DatePickerDialog(onDismissRequest = onDismiss, modifier = Modifier.testTag("prayer-date-picker").semantics { testTagsAsResourceId = true },
+        confirmButton = {
+            TextButton(onClick = { state.selectedDateMillis?.let { onDate(LocalDate.ofEpochDay(Math.floorDiv(it, 86_400_000L))) } },
+                enabled = state.selectedDateMillis != null, modifier = Modifier.testTag("apply-prayer-date")) {
+                Text(stringResource(R.string.apply))
+            }
+        }, dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } }) { DatePicker(state) }
+}
+
 @Composable internal fun RecordDialog(key: PrayerKey, busy: Boolean, onSave: (PrayerStatus?) -> Unit, onDismiss: () -> Unit) {
     AlertDialog(modifier = Modifier.testTag("record-dialog").semantics { testTagsAsResourceId = true }, onDismissRequest = { if (!busy) onDismiss() }, title = { Column { Text(stringResource(R.string.record_prayer)); Text("${prayerName(key.prayer)} · ${dateLabel(key.date)}", style = MaterialTheme.typography.titleMedium) } },
         text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(stringResource(R.string.record_explanation))
             PrayerStatus.entries.forEach { status -> TextButton(enabled = !busy, onClick = { onSave(status) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("record-${status.name.lowercase()}")) {
                 Text("${statusSymbol(status)}  ${statusName(status)}")
             } }

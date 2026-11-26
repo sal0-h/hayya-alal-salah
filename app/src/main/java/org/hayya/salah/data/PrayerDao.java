@@ -24,8 +24,12 @@ public abstract class PrayerDao {
     public abstract List<PauseEntity> pauses();
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     public abstract void addPause(PauseEntity interval);
+    @Transaction
+    public void endPause(long start, long end, long today) {
+        if (deletePause(start, end) > 0 && start < today) addPause(new PauseEntity(start, today - 1));
+    }
     @Query("DELETE FROM pause_intervals WHERE startDay=:start AND endDay=:end")
-    public abstract void deletePause(long start, long end);
+    public abstract int deletePause(long start, long end);
     @Query("SELECT * FROM audio_assets ORDER BY name")
     public abstract List<AudioEntity> audio();
     @Insert(onConflict = OnConflictStrategy.REPLACE)

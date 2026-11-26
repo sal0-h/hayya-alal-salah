@@ -71,7 +71,12 @@ class PrayerFocusService : AccessibilityService() {
             val bypass = sessionBypass?.takeIf { it.expiresAt > now }
                 ?: appContainer.settings.preferences.catch { emit(prefs) }.first().focus.bypass
             val window = focusWindow(schedules, prefs.focus.prayers, records.records, records.pauses, now, bypass)
-            val nextBoundary = (schedules.flatMap { it.prayers.values + it.sunrise } + listOfNotNull(window?.expiresAt)).filter { it > now }.minOrNull()
+            val localDate = now.atZone(place.zone).toLocalDate()
+            val followingDate = localDate.plusDays(1)
+            val pauseBoundary = if (records.pauses.any { (localDate in it) != (followingDate in it) })
+                followingDate.atStartOfDay(place.zone).toInstant() else null
+            val nextBoundary = (schedules.flatMap { it.prayers.values + it.sunrise } +
+                listOfNotNull(window?.expiresAt, pauseBoundary)).filter { it > now }.minOrNull()
             nextBoundary?.let { handler.postDelayed(boundary, Duration.between(now, it).toMillis().coerceAtLeast(1)) }
             if (ownWindowFocused || foreground !in prefs.focus.packages || foreground in EssentialApps.excluded(this@PrayerFocusService) || window == null) hide()
             else show(window)

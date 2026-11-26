@@ -58,14 +58,11 @@ import java.time.ZoneId
             } }
             else -> AppShell(config, historyResult?.getOrNull(), requested, consumeRequest, snackbar,
                 retryHistory = { retry++ }, onRecord = { key -> recordTarget = key to (config.place?.zone ?: ZoneId.systemDefault()) },
-                onStatus = { key, expected, status ->
-                    val zone = config.place?.zone ?: ZoneId.systemDefault()
-                    perform { app.repository.changeStatusIfCurrent(key, expected, status, zone) }
-                },
                 update = update,
                 savePlace = { place -> perform { app.settings.save(place) } },
                 addPause = { perform { app.repository.addPause(it) } },
                 removePause = { perform { app.repository.deletePause(it) } },
+                endPause = { pause, day -> perform { app.repository.endPause(pause, day) } },
                 deleteRecords = { perform { app.repository.deleteRecords() } },
                 reset = { perform(resetError) {
                     app.resetLocalData()
@@ -94,10 +91,12 @@ import java.time.ZoneId
     onRecord: (PrayerKey) -> Unit, update: PreferencesUpdate, savePlace: (ManualSetup) -> Unit,
     addPause: (PauseInterval) -> Unit, removePause: (PauseInterval) -> Unit, deleteRecords: () -> Unit,
     reset: () -> Unit, onLanguage: (String) -> Unit, retryHistory: () -> Unit = {},
-    onStatus: ((PrayerKey, PrayerStatus?, PrayerStatus?) -> Unit)? = null,
+    endPause: (PauseInterval, LocalDate) -> Unit = { _, _ -> },
     initialRoute: String = "today", clock: java.time.Clock = java.time.Clock.systemUTC(),
     scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()) {
     var route by rememberSaveable { mutableStateOf(initialRoute) }
+    var locationParent by rememberSaveable { mutableStateOf("settings") }
+    var pauseParent by rememberSaveable { mutableStateOf("settings") }
     var historyDay by rememberSaveable { mutableLongStateOf(clock.instant().atZone(config.place?.zone ?: ZoneId.systemDefault()).toLocalDate().toEpochDay()) }
     LaunchedEffect(route) { scrollState.scrollTo(0) }
     var setupDraft by rememberSaveable(stateSaver = androidx.compose.runtime.saveable.Saver(
@@ -118,23 +117,32 @@ import java.time.ZoneId
     LaunchedEffect(requested, config.place) {
         if (requested != null && config.place != null) { route = "history"; historyDay = requested.date.toEpochDay(); onRecord(requested); consumeRequest() }
     }
-    BackHandler(route != "today" || choosingMethod) {
+    fun goBack() {
         if (choosingMethod) choosingMethod = false
-        else route = if (route in roots || route == "qibla") "today" else "settings"
+        else route = when {
+            route == "location" -> locationParent
+            route == "pause" -> pauseParent
+            route in roots || route == "qibla" -> "today"
+            else -> "settings"
+        }
     }
+    BackHandler(route != "today" || choosingMethod, onBack = ::goBack)
     Scaffold(modifier = Modifier.semantics { testTagsAsResourceId = true }, snackbarHost = { SnackbarHost(snackbar) }, bottomBar = {
-        if (config.place != null && route in roots) Surface {
-            Row(Modifier.fillMaxWidth().navigationBarsPadding(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                roots.forEachIndexed { index, target ->
-                    val selected = route == target
-                    val accent = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                    Column(Modifier.weight(1f).testTag("nav-$target").selectable(selected,role = Role.Tab,onClick = { route = target })
-                        .heightIn(min = 48.dp).padding(horizontal = 2.dp,vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(stringResource(labels[index]), color = accent, style = MaterialTheme.typography.labelMedium, maxLines = 1,
-                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                        androidx.compose.foundation.Canvas(Modifier.size(24.dp,4.dp).clearAndSetSemantics { }) {
-                            if (selected) drawLine(accent, androidx.compose.ui.geometry.Offset.Zero, androidx.compose.ui.geometry.Offset(size.width,0f),strokeWidth = 2.dp.toPx())
+        if (config.place != null && route in roots) Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
+            Column {
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Row(Modifier.fillMaxWidth().navigationBarsPadding(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                    roots.forEachIndexed { index, target ->
+                        val selected = route == target
+                        val accent = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        Column(Modifier.weight(1f).testTag("nav-$target").selectable(selected,role = Role.Tab,onClick = { route = target })
+                            .heightIn(min = 48.dp).padding(horizontal = 2.dp,vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(stringResource(labels[index]), color = accent, style = MaterialTheme.typography.labelMedium, maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                            androidx.compose.foundation.Canvas(Modifier.size(24.dp,4.dp).clearAndSetSemantics { }) {
+                                if (selected) drawLine(accent, androidx.compose.ui.geometry.Offset.Zero, androidx.compose.ui.geometry.Offset(size.width,0f),strokeWidth = 2.dp.toPx())
+                            }
                         }
                     }
                 }
@@ -143,7 +151,7 @@ import java.time.ZoneId
     }) { padding ->
         Column(Modifier.padding(padding).fillMaxSize().testTag("screen-$route").semantics { testTagsAsResourceId = true }.verticalScroll(scrollState).padding(horizontal = 20.dp, vertical = if (route == "today") 4.dp else 12.dp),
             verticalArrangement = Arrangement.spacedBy(if (route == "today") 6.dp else 12.dp)) {
-            if (route !in roots && config.place != null) TextButton(onClick = { route = if (route == "qibla") "today" else "settings" }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.back)) }
+            if (route !in roots && config.place != null) TextButton(onClick = ::goBack, modifier = Modifier.heightIn(min = 48.dp).testTag("screen-back")) { Text(stringResource(R.string.back)) }
             if (config.place != null && history == null) OutlinedButton(onClick = retryHistory) { Text(stringResource(R.string.retry)) }
             val place = config.place
             if (place == null) {
@@ -165,7 +173,8 @@ import java.time.ZoneId
                     }
                 }
             } else when (route) {
-                "today" -> TodayScreen(config, history, onRecord, update, { route = "qibla" }, clock, onStatus)
+                "today" -> TodayScreen(config, history, onRecord, update, { route = "qibla" },
+                    { locationParent = "today"; route = "location" }, { pauseParent = "today"; route = "pause" }, clock)
                 "history" -> HistoryScreen(config, history, LocalDate.ofEpochDay(historyDay), { historyDay = it.toEpochDay() }, onRecord, clock)
                 "settings" -> {
                     SectionTitle(stringResource(R.string.settings))
@@ -173,7 +182,11 @@ import java.time.ZoneId
                         "alerts" to R.string.prayer_alerts, "fajr" to R.string.fajr_alarm, "focus" to R.string.prayer_focus,
                         "pause" to R.string.pause, "appearance" to R.string.appearance,
                         "privacy" to R.string.privacy_data, "credits" to R.string.credits).forEach { (target, label) ->
-                        OutlinedButton(onClick = { route = target }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("settings-$target")) { Text(stringResource(label)) }
+                        OutlinedButton(onClick = {
+                            if (target == "location") locationParent = "settings"
+                            if (target == "pause") pauseParent = "settings"
+                            route = target
+                        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("settings-$target")) { Text(stringResource(label)) }
                     }
                 }
                 "location" -> {
@@ -182,9 +195,9 @@ import java.time.ZoneId
                 }
                 "calculation" -> CalculationScreen(place, update)
                 "alerts" -> AlertsScreen(config, history, update)
-                "fajr" -> FajrScreen(config, history, update)
+                "fajr" -> FajrScreen(config, history, update, clock)
                 "focus" -> FocusScreen(config, update)
-                "pause" -> PauseScreen(history, place.zone, addPause, removePause)
+                "pause" -> PauseScreen(history, place.zone, addPause, removePause, endPause, clock)
                 "appearance" -> AppearanceScreen(config, update, onLanguage)
                 "privacy" -> PrivacyScreen(deleteRecords, reset)
                 "credits" -> CreditsScreen()

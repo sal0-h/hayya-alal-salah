@@ -11,10 +11,13 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -29,15 +32,21 @@ import java.time.*
     val today = foregroundInstant(clock).atZone(place.zone).toLocalDate()
     SectionTitle(stringResource(R.string.history))
     if (history == null) { Text(stringResource(R.string.storage_error)); return }
-    val yesterday = today.minusDays(1)
+    val locale = LocalConfiguration.current.locales[0]
+    val recentFormat = remember(locale) {
+        java.time.format.DateTimeFormatter.ofPattern(android.text.format.DateFormat.getBestDateTimePattern(locale, "MMMd"), locale)
+    }
     Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf(today to R.string.today, yesterday to R.string.recent_yesterday).forEach { (date, label) ->
+        (0L..2L).map(today::minusDays).forEach { date ->
             val selected = date == selectedDate
             Surface(color = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface,
                 shape = MaterialTheme.shapes.small, modifier = Modifier.weight(1f)) {
-                Box(Modifier.heightIn(min = 48.dp).selectable(selected, role = Role.Tab) { onDate(date) }.padding(horizontal = 6.dp, vertical = 4.dp),
+                val fullDate = dateLabel(date, java.time.format.FormatStyle.FULL)
+                Box(Modifier.heightIn(min = 48.dp).selectable(selected, role = Role.Tab) { onDate(date) }
+                    .semantics { contentDescription = fullDate }.padding(horizontal = 4.dp, vertical = 4.dp),
                     contentAlignment = Alignment.Center) {
-                    Text(stringResource(label), textAlign = TextAlign.Center, style = MaterialTheme.typography.labelLarge)
+                    Text(numeralLabel(recentFormat.format(date)), Modifier.clearAndSetSemantics { },
+                        textAlign = TextAlign.Center, style = MaterialTheme.typography.labelLarge)
                 }
             }
         }
@@ -49,7 +58,7 @@ import java.time.*
     ReportDrawnWhen { calculated != null }
     val calculation = (calculated as? CalculationResult.Available)?.schedule
     if (calculated != null && calculation == null) Text(stringResource(R.string.calculation_unavailable))
-    DailyPrayerRows(selectedDate, calculation, place.zone, history, onRecord)
+    DailyPrayerRows(selectedDate, calculation, place.zone, history, onRecord, editable = selectedDate <= today)
     val first = remember(config.trackingSince, today, history.records) {
         minOf(config.trackingSince ?: today, history.records.keys.minOfOrNull { it.date } ?: today)
     }
@@ -103,21 +112,36 @@ import java.time.*
     }
 }
 
-@Composable internal fun PauseScreen(history: HistorySnapshot?, zone: java.time.ZoneId, onAdd: (PauseInterval) -> Unit, onRemove: (PauseInterval) -> Unit) {
-    var startDay by rememberSaveable { mutableLongStateOf(LocalDate.now(zone).toEpochDay()) }
+@Composable internal fun PauseScreen(history: HistorySnapshot?, zone: ZoneId, onAdd: (PauseInterval) -> Unit,
+    onRemove: (PauseInterval) -> Unit, onEnd: (PauseInterval, LocalDate) -> Unit, clock: Clock) {
+    val today = foregroundInstant(clock).atZone(zone).toLocalDate()
+    var startDay by rememberSaveable { mutableLongStateOf(today.toEpochDay()) }
     var endDay by rememberSaveable { mutableLongStateOf(startDay) }
     var invalid by remember { mutableStateOf(false) }
     SectionTitle(stringResource(R.string.pause))
     Text(stringResource(R.string.pause_explanation))
-    DateButton(stringResource(R.string.start_date), LocalDate.ofEpochDay(startDay)) { startDay = it.toEpochDay(); if (endDay < startDay) endDay = startDay }
-    DateButton(stringResource(R.string.end_date), LocalDate.ofEpochDay(endDay)) { endDay = it.toEpochDay() }
-    if (invalid) Text(stringResource(R.string.invalid_setup), color = MaterialTheme.colorScheme.error)
+    DateButton(stringResource(R.string.start_date), LocalDate.ofEpochDay(startDay)) {
+        startDay = it.toEpochDay()
+        if (endDay < startDay) endDay = startDay
+        invalid = false
+    }
+    DateButton(stringResource(R.string.end_date), LocalDate.ofEpochDay(endDay)) {
+        endDay = it.toEpochDay()
+        invalid = false
+    }
+    if (invalid) Text(stringResource(R.string.pause_invalid_dates), color = MaterialTheme.colorScheme.error)
     Button(enabled = history != null, onClick = {
         invalid = endDay < startDay
         if (!invalid) onAdd(PauseInterval(LocalDate.ofEpochDay(startDay), LocalDate.ofEpochDay(endDay)))
     }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(stringResource(R.string.add_pause)) }
     history?.pauses?.forEach { pause ->
-        Text("${dateLabel(pause.start)} — ${dateLabel(pause.endInclusive)}")
-        TextButton(onClick = { onRemove(pause) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.remove)) }
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Text(stringResource(R.string.pause_date_range, dateLabel(pause.start), dateLabel(pause.endInclusive)),
+            style = MaterialTheme.typography.titleMedium)
+        if (today in pause) TextButton(onClick = { onEnd(pause, today) }, modifier = Modifier.heightIn(min = 48.dp)) {
+            Text(stringResource(R.string.end_pause))
+        } else TextButton(onClick = { onRemove(pause) }, modifier = Modifier.heightIn(min = 48.dp)) {
+            Text(stringResource(R.string.remove_pause))
+        }
     }
 }

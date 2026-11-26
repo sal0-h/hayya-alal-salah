@@ -41,7 +41,6 @@
     <string name="save">حفظ</string>
     <string name="apply">تطبيق</string>
     <string name="record_prayer">تسجيل الصلاة</string>
-    <string name="record_explanation">اختر كيف أديت الصلاة. التسجيل المتأخر لا يعني أن الصلاة كانت متأخرة.</string>
     <string name="status_on_time">في وقتها</string>
     <string name="status_made_up">قضاء</string>
     <string name="status_missed">فائتة</string>
@@ -56,12 +55,12 @@
     <string name="on_time_recorded">في وقتها بين المسجل: %1$s / %2$s</string>
     <string name="period_last_30">آخر 30 يومًا مكتملًا</string>
     <string name="pause">إيقاف مؤقت</string>
-    <string name="pause_explanation">حدد التواريخ يدويًا. تتوقف التنبيهات والتركيز خلالها، وتبقى التسجيلات المكتملة. لا يوجد تنبؤ بالدورة.</string>
+    <string name="pause_explanation">اختر تاريخَي البداية والنهاية. تتوقف التنبيهات ومنبّه الفجر ووضع التركيز في تلك الأيام. تبقى التسجيلات المحفوظة وتُستبعد الصلوات غير المسجلة من الإحصاءات.</string>
     <string name="start_date">تاريخ البداية</string>
     <string name="end_date">تاريخ النهاية</string>
     <string name="add_pause">إضافة إيقاف مؤقت</string>
     <string name="remove">حذف</string>
-    <string name="paused_today">موقوف مؤقتًا لهذا التاريخ</string>
+    <string name="paused_today">المتابعة متوقفة مؤقتًا</string>
     <string name="calculation">الحساب</string>
     <string name="location">الموقع</string>
     <string name="appearance">المظهر واللغة</string>
@@ -127,7 +126,6 @@
     <string name="open_alarm">فتح المنبّه</string>
     <string name="record_on_time">تسجيل: في الوقت</string>
     <string name="stop_audio">إيقاف الصوت</string>
-    <string name="dismiss_not_record">إيقاف المنبّه لا يسجّل أداء الصلاة.</string>
     <string name="alarm_finished">المنبّه لا يرنّ الآن.</string>
     <string name="close">إغلاق</string>
     <string name="question_progress">السؤال %1$s / %2$s</string>
@@ -138,20 +136,15 @@
     <string name="alert_off">إيقاف</string>
     <string name="alert_notification">إشعار</string>
     <string name="alert_adhan">صوت الأذان</string>
-    <string name="alert_delivery_note">تستخدم التنبيهات الأساسية منبّهات دقيقة عند السماح. التذكيرات الإضافية قد تتأخر، وتُهمل التذكيرات القديمة.</string>
     <string name="notification_access">السماح بالإشعارات</string>
     <string name="exact_access">السماح بالمنبّهات الدقيقة</string>
     <string name="channel_settings">إعدادات الإشعارات</string>
     <string name="fullscreen_access">إذن المنبّه على شاشة القفل</string>
     <string name="alert_not_ready">الإشعارات محظورة. راجع الأذونات وإعدادات القناة.</string>
     <string name="exact_not_ready">المنبّهات الدقيقة غير متاحة. قد تتأخر الإشعارات ويبقى منبّه الفجر غير نشط.</string>
-    <string name="before_minutes">قبل (دقائق؛ فارغ = إيقاف)</string>
-    <string name="after_minutes">بعد (دقائق؛ فارغ = إيقاف)</string>
     <string name="sound">الصوت</string>
     <string name="import_audio">استيراد صوت محلي</string>
-    <string name="import_note">اختر صوتًا يحق لك استخدامه. تبقى الملفات على الجهاز. يُستخدم الصوت المضمّن قبل أول فتح للقفل بعد إعادة التشغيل.</string>
     <string name="import_error">تعذّر استيراد الصوت. اختر ملفًا قابلًا للتشغيل لا يتجاوز 25 ميغابايت و١٠ دقائق.</string>
-    <string name="fajr_offset">الدقائق بالنسبة للفجر (−١٨٠…١٨٠)</string>
     <string name="enable_fajr">تفعيل منبّه الاستيقاظ</string>
     <string name="challenge">مسائل حسابية</string>
     <string name="challenge_easy">سهل · سؤال واحد</string>
@@ -159,7 +152,6 @@
     <string name="challenge_hard">صعب · ٥ أسئلة</string>
     <string name="alarm_test">اختبار المنبّه الآن</string>
     <string name="alert_test">اختبار الإشعار</string>
-    <string name="normal_sound_note">يراعي الأذان العادي الوضع الصامت وعدم الإزعاج. يستخدم الفجر صوت المنبّه وفق مستوى الصوت وإعدادات عدم الإزعاج في أندرويد. الإيقاف الطارئ متاح دائمًا.</string>
     <string name="builtin_adhan_1">أحمد خلف · أذان ١</string>
     <string name="builtin_adhan_2">أحمد خلف · أذان ٢</string>
     <string name="builtin_fajr">أحمد خلف · الفجر</string>
@@ -195,9 +187,8 @@
     <string name="audio_delete_error">تعذّر حذف الملف الصوتي. حاول مرة أخرى.</string>
     <string name="widget_estimated">تقديري %1$s°</string>
     <string name="status_legend">حالات الصلاة</string>
-    <string name="status_legend_instructions">اضغط على الرمز للتنقل بين الحالات. اضغط على اسم الصلاة لتعديل سجلها أو حذفه. الإيقاف المؤقت لا ينشئ سجلًا.</string>
+    <string name="status_legend_instructions">اضغط على الصلاة أو حالتها لاختيار تسجيل أو حذفه.</string>
     <string name="edit_prayer_status">تعديل سجل %1$s</string>
-    <string name="set_prayer_status">تغيير الحالة إلى %1$s</string>
     <string name="hijri_date">%1$s %2$s %3$s هـ</string>
     <string name="hijri_calendar">التقويم الهجري</string>
     <string name="hijri_umm_al_qura">تقويم أم القرى</string>
@@ -205,7 +196,6 @@
     <string name="save_location">حفظ الموقع</string>
     <string name="coordinates_and_zone">الإحداثيات والمنطقة الزمنية</string>
     <string name="choose_location">اختر الموقع</string>
-    <string name="recent_yesterday">أمس</string>
     <string name="on_time_streak">سلسلة أيام مؤكدة</string>
     <string name="choose_focus_apps">اختيار التطبيقات</string>
     <string name="focus_app_count">التطبيقات المحددة: %1$s</string>
@@ -229,4 +219,35 @@
         <item>ذو الحجة</item>
     </string-array>
     <string name="theme_mode">السمة</string>
+    <string name="return_today">العودة إلى اليوم</string>
+    <string name="today_night_time">وقت الليل في شاشة اليوم</string>
+    <string name="midpoint_sunrise">منتصف الليل (من الغروب إلى الشروق)</string>
+    <string name="midpoint_fajr">منتصف الليل (من الغروب إلى الفجر)</string>
+    <string name="last_third_fajr">الثلث الأخير (من الغروب إلى الفجر)</string>
+    <string name="night_midpoint">منتصف الليل</string>
+    <string name="last_third">بداية الثلث الأخير من الليل</string>
+    <string name="dated_clock_time">%1$s · %2$s</string>
+    <string name="estimated_clock_time">%1$s (تقديري)</string>
+    <string name="extra_reminders">تذكيرات إضافية</string>
+    <string name="minutes_before">قبل الموعد بـ %1$s د</string>
+    <string name="minutes_after">بعد الموعد بـ %1$s د</string>
+    <string name="minutes">الدقائق</string>
+    <string name="minutes_range">أدخل من %1$s إلى %2$s دقيقة.</string>
+    <string name="extras_may_delay">قد تتأخر التذكيرات الإضافية.</string>
+    <string name="fajr_exact_required">اسمح بالمنبّهات الدقيقة ليعمل منبّه الفجر.</string>
+    <string name="alarm_timing">موعد المنبّه</string>
+    <string name="fajr_relative">بالنسبة إلى وقت الفجر</string>
+    <string name="fajr_fixed">وقت ثابت</string>
+    <string name="fajr_location_zone">يُستخدم توقيت %1$s المحلي.</string>
+    <string name="before_fajr">قبل الفجر</string>
+    <string name="after_fajr">بعد الفجر</string>
+    <string name="at_fajr">عند الفجر</string>
+    <string name="next_alarm">المنبّه التالي</string>
+    <string name="configured_alarm_time">الوقت المحدد</string>
+    <string name="fajr_times_unavailable">مواقيت الفجر غير متاحة.</string>
+    <string name="no_upcoming_fajr_alarm">لا يوجد منبّه مجدول خلال الأسبوع القادم.</string>
+    <string name="end_pause">إنهاء التوقف الآن</string>
+    <string name="remove_pause">حذف التوقف المؤقت</string>
+    <string name="pause_invalid_dates">اختر تاريخ نهاية يوافق تاريخ البداية أو يليه.</string>
+    <string name="pause_date_range">%1$s – %2$s</string>
 </resources>

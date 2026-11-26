@@ -18,7 +18,7 @@ Android 8/API 26 minimum. Target the current stable SDK after checking its build
 - Individual excuses and manual dated period/pause mode. No cycle prediction. Suppress relevant prayer alerts, Fajr alarms and blocking while paused without overwriting completed records.
 - Per-prayer at-time alerts plus optional before/after reminders. Extra reminders are best-effort under battery restrictions. Suppress completed/excused targets and discard stale reminders rather than bursting them later.
 - Small legally redistributable Adhan collection, distinct Fajr option, per-prayer audio choices and local audio import. Normal Adhan respects silent mode. Dedicated Fajr wake-up alarm uses Android alarm behavior; DND remains user-controlled.
-- Fajr-relative wake-up alarm with configurable offset and optional adjustable arithmetic challenge. Emergency stop always available. Stopping the alarm or solving the task does not record prayer completion.
+- Fajr wake-up alarm with either a configurable offset from Fajr or a fixed local clock time and an optional adjustable arithmetic challenge. Emergency stop always available. Stopping the alarm or solving the task does not record prayer completion.
 - Opt-in Prayer Focus: selected apps/prayers, blocks until prayer logged; firm behavior with emergency bypass, no routine snooze/skip. Expires at next prayer, except Fajr expires at sunrise. Essential system/phone functions remain accessible. Bypass must not fabricate completion.
 - Qibla compass, numerical bearing fallback, calibration/sensor-quality feedback. Use actual coordinates even when prayer times use a polar reference.
 - Compact next-prayer widget and resizable daily timetable widget. No widget check-off in v1.
@@ -56,10 +56,10 @@ Short action-responsive motion only; no constant animated background. Status mea
 
 ### Screen responsibilities
 
-- Today: location/date, geometric next prayer, remaining time, daily times/sunrise and explicit status actions.
-- History: past dates, correction, calendar and statistical views.
+- Today: location shortcut and date picker, geometric next prayer with a live countdown on the current date, daily times and sunrise, optional night time, and explicit status actions on current and past dates.
+- History: compact recent dated shortcuts, on-demand date picker, correction and statistical views.
 - Qibla: bearing/live dial, sensor quality and fallback.
-- Fajr settings: enabled state, offset/sound/difficulty/test alarm.
+- Fajr settings: enabled state, fixed time or offset, next dated occurrence, sound, difficulty and test alarm.
 - Focus settings: selected packages/prayers, permission disclosure and emergency behavior.
 - Settings: location, calculation, alerts/audio, appearance, languages, pause, deletion, credits.
 - Alert readiness: contextual permission/channel problem explanations and test alert, not an always-visible technical dashboard.
@@ -114,13 +114,13 @@ Room: records and pause intervals; DataStore: preferences. Atomic record updates
 | Location | Coordinates, name, IANA zone, mode, last refresh |
 | Calculation settings | Profile/version, Asr/high-latitude/polar choices, supported parameters, individual offsets |
 | Alert preferences | Per-prayer mode, before/after offsets, audio asset |
-| Fajr settings | Enabled, offset, sound, arithmetic difficulty |
+| Fajr settings | Enabled, timing mode, offset, fixed local time, sound, arithmetic difficulty |
 | Focus settings | Packages/prayers, enabled, current emergency bypass |
 | Pause interval | Dates and suppression state |
 | Audio asset | ID, private file reference, duration, provenance/attribution |
 | Scheduled event | Stable ID, occurrence instant, prayer/service date, kind, generation |
 
-Deleting a record restores unrecorded. Made-up completion replaces missed for the original prayer date. Do not retarget actions to whichever date/prayer happens to be current when tapped.
+Today uses one explicit status editor for every prayer on the current local date, regardless of its scheduled time. Browsed past dates allow corrections. Later dates show the schedule only. Deleting a record restores unrecorded. Made-up completion replaces missed for the original prayer date. Do not retarget actions to whichever date/prayer happens to be current when tapped.
 
 Daily streak requires all non-excused prayers on time. Per-prayer streak uses that prayer's on-time records. Excused dates pause without advancing or breaking. Unknown dates interrupt verified continuity but are labeled unconfirmed, not missed. Make-ups do not restore on-time streaks. Corrections recompute history. Percentages display recording coverage, never silently count missing data as failures.
 

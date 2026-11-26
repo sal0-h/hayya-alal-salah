@@ -123,16 +123,21 @@ internal val LocalAppearance = staticCompositionLocalOf { AppearancePreferences(
     Profile.TURKEY -> R.string.profile_turkey; Profile.FRANCE -> R.string.profile_france; Profile.RUSSIA -> R.string.profile_russia
     Profile.TEHRAN -> R.string.profile_tehran; Profile.JAFARI -> R.string.profile_jafari
 })
-@Composable internal fun timeLabel(instant: Instant, zone: ZoneId): String {
-    val context = androidx.compose.ui.platform.LocalContext.current
+@Composable internal fun uses24HourClock(): Boolean = when (LocalAppearance.current.time) {
+    TimePreference.SYSTEM -> android.text.format.DateFormat.is24HourFormat(androidx.compose.ui.platform.LocalContext.current)
+    TimePreference.TWELVE -> false
+    TimePreference.TWENTY_FOUR -> true
+}
+
+@Composable internal fun timeLabel(instant: Instant, zone: ZoneId): String =
+    wallTimeLabel(instant.atZone(zone).toLocalTime())
+
+@Composable internal fun wallTimeLabel(time: java.time.LocalTime): String {
     val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
-    val preference = LocalAppearance.current
-    val use24 = when (preference.time) { TimePreference.SYSTEM -> android.text.format.DateFormat.is24HourFormat(context)
-        TimePreference.TWELVE -> false; TimePreference.TWENTY_FOUR -> true }
-    val skeleton = if (use24) "Hm" else "hm"
+    val skeleton = if (uses24HourClock()) "Hm" else "hm"
     val pattern = android.text.format.DateFormat.getBestDateTimePattern(locale, skeleton)
-    return instant.atZone(zone).format(DateTimeFormatter.ofPattern(pattern, locale)
-        .withDecimalStyle(decimalStyle(locale, preference.numerals)))
+    return time.format(DateTimeFormatter.ofPattern(pattern, locale)
+        .withDecimalStyle(decimalStyle(locale, LocalAppearance.current.numerals)))
 }
 
 internal fun decimalStyle(locale: java.util.Locale, numerals: NumeralPreference) = when (numerals) {
