@@ -257,3 +257,11 @@ The downloaded signature and checksum verified. APK SHA-256
 
 Build 108 swipe feel, in-place update, TalkBack, overnight alarms, live Qibla,
 Arabic language review and mid-range checks remain pending on physical devices.
+
+## Launcher Option 05
+
+The selected prayer-mat mark replaces the rosette on a separate stack over the
+build 108 release-preparation branch. The redraw uses editable vector paths, a
+sage adaptive background and the same silhouette for Android's themed layer.
+The selected reference, provenance, and mask fixture are documented in
+[Launcher icon](branding/LAUNCHER_ICON.md).

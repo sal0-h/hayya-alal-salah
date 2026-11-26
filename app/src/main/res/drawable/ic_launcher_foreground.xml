@@ -1,7 +1,13 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
-    <!-- Eight-point rosette with a negative-space doorway and a rising diamond. -->
-    <path android:fillColor="#E5EFD9" android:fillType="evenOdd"
-        android:pathData="M54,23 L63,39 L81,38 L72,54 L81,70 L63,69 L54,85 L45,69 L27,70 L36,54 L27,38 L45,39 Z M43,65 L43,55 Q43,47 54,40 Q65,47 65,55 L65,65 Z"/>
-    <path android:fillColor="#E5EFD9" android:pathData="M54,49 L59,55 L54,61 L49,55 Z"/>
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Pointed arch with a short left shoulder and a long right leg. -->
+    <path android:fillColor="#244A41"
+        android:pathData="M54,21.6 C48.5,27.2 46.4,27.5 40.5,31.9 V38.8 H46.4 V35.6 C48,33.9 51,32.3 54,29.9 C57,32.3 60.1,33.9 61.4,35.6 V49.7 H67.4 V31.9 C61.5,27.5 59.5,27.2 54,21.6 Z" />
+    <!-- Slanted left edge and the open horizontal band. -->
+    <path android:fillColor="#244A41"
+        android:pathData="M35.9,41 H59.1 V45.5 H41 L33.5,70.2 H25.8 Z" />
+    <!-- Base and the offset right edge. -->
+    <path android:fillColor="#244A41"
+        android:pathData="M69.6,45 H72.9 L82.2,70.2 H36.3 L38,63.6 H72.3 L69.6,53.4 Z" />
 </vector>
