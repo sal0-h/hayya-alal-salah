@@ -85,9 +85,9 @@ class FocusIntegrationTest {
             withTimeout(5000) { app.settings.preferences.first { it.focus.bypass?.target == window.target } }
             phase = "clear bypass"; app.settings.update { it.copy(focus = it.focus.copy(bypass = null)) }; overlay(true)
             phase = "own app exclusion"; shell("am start -W -n ${context.packageName}/org.hayya.salah.MainActivity"); overlay(false)
-            launchTarget(); overlay(true)
+            phase = "return from own app"; launchTarget(); overlay(true)
             phase = "settings exclusion"; shell("am start -W -a android.settings.SETTINGS"); overlay(false)
-            launchTarget(); overlay(true)
+            phase = "return from settings"; launchTarget(); overlay(true)
             phase = "permission removal"; shell("settings delete secure enabled_accessibility_services")
             shell("settings put secure accessibility_enabled 0"); overlay(false)
         } catch (error: Exception) {

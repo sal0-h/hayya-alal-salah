@@ -16,6 +16,14 @@ import java.time.LocalDate
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
+    override fun reportFullyDrawn() {
+        // A ready-data report can coincide with an otherwise clean Choreographer frame.
+        // Ensure it is followed by a dirty traversal that reaches RenderThread, so the
+        // useful-display signal and startup traces describe an actually rendered frame.
+        window.decorView.postInvalidateOnAnimation()
+        super.reportFullyDrawn()
+    }
+
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         org.hayya.salah.focus.PrayerFocusService.onOwnWindowFocus(hasFocus,window.decorView)

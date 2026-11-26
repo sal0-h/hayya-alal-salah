@@ -199,4 +199,6 @@
     <string name="location_permission_needed">يحتاج التحديث التلقائي إلى إذن الموقع. استخدم زر الموقع للسماح أو أبقِ الوضع اليدوي.</string>
     <string name="focus_service_inactive">التركيز غير نشط حتى تفعّل خدمته في تسهيل الاستخدام في أندرويد.</string>
     <string name="loading">جارٍ التحميل…</string>
+    <string name="regional_profiles">ملفات إقليمية للمقارنة: %1$s. اختر طريقة الحساب صراحةً؛ فالموقع لا يحدد ممارستك.</string>
+    <string name="calendar_scroll_hint">مرّر التقويم أفقيًا لرؤية جميع الأيام. يمكنك أيضًا اختيار تاريخ من الزر أعلاه.</string>
 </resources>

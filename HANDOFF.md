@@ -10,7 +10,7 @@ Salman approved implementation on 2026-11-12. Do not restart the product intervi
 
 ## Actual implementation state
 
-Active branch: `implement/validation-release-hardening`, stacked on draft location/
+Active branch: `implement/performance-release` (draft PR #6), stacked on draft location/
 Qibla/widget PR #4, then alerts PR #3, tracking PR #2 and foundation PR #1.
 The draft is an internal checkpoint. Salman explicitly requires autonomous continuation
 through **all** server-implementable milestones; do not stop at a runnable slice,
@@ -30,10 +30,14 @@ implemented and passed CI. Alerts/audio/Fajr/Direct Boot/Focus are in PR #3 with
 local compilation/lint/optimized assembly; the seven-test API35 emulator suite passed.
 Offline location, visible-only true-north Qibla and two RemoteViews widgets are now
 implemented in PR #4 and passed clean CI (18 core + upstream + eight API35 tests).
-The current branch adds full-route/dialog captures at real 100%/200% system fonts,
+The hardening branch passed 592 full-route/dialog captures and the ordinary
+11-test suites on APIs26/31/33/37. The Direct Boot probe parser failed afterward;
+`d90c684` fixes it and the delivery rerun is pending. The current branch adds performance
+fixtures, scrollable widget validation, native lock-screen/Focus captures, frozen
+seasonal/provider comparisons and concrete release preparation. It extends full-route/dialog captures at real 100%/200% system fonts,
 320dp/tablet widths, accessibility/navigation tests, actual alarm/idle/actions,
-actual Focus overlay checks and a reboot-before-unlock fixture. These new emulator
-checks are being prepared/run; do not claim them passed from compilation.
+actual Focus overlay checks and a reboot-before-unlock fixture. The additional performance/widget/native/release checks are being prepared/run;
+do not claim them passed from compilation.
 Continue through CI fixes/review, Macrobenchmark/generated Baseline Profiles,
 three-year records, reproducibility and concrete release preparation. Do not stop
 when a milestone PR turns green. Never

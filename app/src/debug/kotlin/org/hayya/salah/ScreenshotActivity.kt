@@ -40,8 +40,23 @@ class ScreenshotActivity : ComponentActivity() {
     fun bottom() { lifecycleScope.launch { scrolling?.let { it.scrollTo(it.maxValue) } } }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState); enableEdgeToEdge()
+        if (route == "focus-overlay") {
+            setContentView(org.hayya.salah.focus.focusOverlayContent(this,language,
+                AppearancePreferences(theme = if (dark) ThemePreference.DARK else ThemePreference.LIGHT),Prayer.FAJR,{},{}))
+            androidx.core.view.WindowCompat.getInsetsController(window,window.decorView).apply {
+                isAppearanceLightStatusBars = !dark; isAppearanceLightNavigationBars = !dark
+            }
+            window.decorView.post { reportFullyDrawn() }; return
+        }
         setContent {
             ReportDrawnWhen { true }
+            if (route in listOf("ringing","ringing-keyboard")) {
+                HayyaTheme(AppearancePreferences(theme = if (dark) ThemePreference.DARK else ThemePreference.LIGHT)) {
+                    org.hayya.salah.alerts.RingingContent(org.hayya.salah.alerts.AlarmEntry("visual",
+                        PrayerKey(LocalDate.of(2026,11,13),Prayer.FAJR),EventKind.FAJR_WAKE_UP,Instant.EPOCH,"UTC",null,ChallengeDifficulty.HARD,"visual-fixture"),{},{})
+                }
+                return@setContent
+            }
             val fixed = remember { Clock.fixed(Instant.parse("2026-11-13T08:00:00Z"), ZoneOffset.UTC) }
             val today = LocalDate.of(2026,11,13)
             val place = remember { ManualSetup("Baku · Bakı", GeoPoint(40.4093,49.8671), ZoneId.of("Asia/Baku"), Profile.MWL) }

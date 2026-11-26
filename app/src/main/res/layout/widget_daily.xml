@@ -2,10 +2,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="16dp">
     <TextView android:id="@+id/widget_place" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#A9B9C5" android:textSize="12sp" android:maxLines="2" />
     <TextView android:id="@+id/widget_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#E4EDF2" android:textSize="18sp" android:textStyle="bold" />
-    <TextView android:id="@+id/widget_row_0" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="6dp" android:paddingBottom="6dp" android:textColor="#E4EDF2" android:textSize="16sp" />
-    <TextView android:id="@+id/widget_row_1" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="6dp" android:paddingBottom="6dp" android:textColor="#E4EDF2" android:textSize="16sp" />
-    <TextView android:id="@+id/widget_row_2" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="6dp" android:paddingBottom="6dp" android:textColor="#E4EDF2" android:textSize="16sp" />
-    <TextView android:id="@+id/widget_row_3" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="6dp" android:paddingBottom="6dp" android:textColor="#E4EDF2" android:textSize="16sp" />
-    <TextView android:id="@+id/widget_row_4" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="6dp" android:paddingBottom="6dp" android:textColor="#E4EDF2" android:textSize="16sp" />
-    <TextView android:id="@+id/widget_row_5" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="6dp" android:paddingBottom="6dp" android:textColor="#E4EDF2" android:textSize="16sp" />
+    <ListView android:id="@+id/widget_rows" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:divider="@android:color/transparent" android:dividerHeight="0dp" android:clipToPadding="false" />
 </LinearLayout>

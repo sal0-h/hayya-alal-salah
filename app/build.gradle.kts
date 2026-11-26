@@ -22,6 +22,15 @@ android {
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
         }
+        create("performance") {
+            initWith(getByName("release")); applicationIdSuffix = ".benchmark"; versionNameSuffix = "-benchmark"
+            signingConfig = signingConfigs.getByName("debug"); isDebuggable = false
+        }
+        create("profilegen") {
+            initWith(getByName("release")); applicationIdSuffix = ".benchmark"; versionNameSuffix = "-profilegen"
+            signingConfig = signingConfigs.getByName("debug"); isDebuggable = false
+            isMinifyEnabled = false; isShrinkResources = false
+        }
         create("qa") {
             initWith(getByName("release"))
             applicationIdSuffix = ".qa"
@@ -29,6 +38,10 @@ android {
             isDebuggable = false
             signingConfig = null // Signed separately by the trusted QA delivery job.
         }
+    }
+    listOf("performance", "profilegen").forEach { variant ->
+        sourceSets.getByName(variant).kotlin.srcDir("src/performanceFixture/kotlin")
+        sourceSets.getByName(variant).manifest.srcFile("src/performanceFixture/AndroidManifest.xml")
     }
     bundle { language { enableSplit = false } } // All four languages stay available offline.
     buildFeatures { compose = true }
@@ -39,6 +52,7 @@ android {
 kotlin { compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) } }
 dependencies {
     implementation(project(":core"))
+    implementation(libs.profileinstaller)
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
     implementation(libs.compose.foundation)

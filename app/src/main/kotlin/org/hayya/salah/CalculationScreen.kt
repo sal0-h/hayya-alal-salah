@@ -23,6 +23,8 @@ import org.hayya.core.*
     val offsets = remember(place) { mutableStateMapOf<Prayer, String>().apply { Prayer.entries.forEach { put(it, (place.calculation.corrections[it] ?: 0).toString()) } } }
     var invalid by remember { mutableStateOf(false) }
     SectionTitle(stringResource(R.string.calculation))
+    val regional = remember(place.zone) { regionalProfiles(place.zone) }
+    if (regional.isNotEmpty()) Text(stringResource(R.string.regional_profiles,regional.map { profileName(it) }.joinToString(" · ")),style = MaterialTheme.typography.bodySmall)
     SelectionField(stringResource(R.string.calculation), profile, Profile.entries, { profileName(it) }) {
         profile = it; fajr = ""; isha = ""; interval = ""; maghrib = ""; polar = PolarMode.ASK; reference = ""
     }

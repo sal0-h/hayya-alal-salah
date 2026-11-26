@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -103,7 +104,7 @@ internal val LocalAppearance = staticCompositionLocalOf { AppearancePreferences(
 
 @Composable internal fun NextPrayerMarker(name: String, time: String) {
     val accent = MaterialTheme.colorScheme.primary
-    Box(Modifier.fillMaxWidth().heightIn(min = 216.dp), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxWidth().then(Modifier.testTag("prayer-data-ready")).heightIn(min = 216.dp), contentAlignment = Alignment.Center) {
         Canvas(Modifier.matchParentSize().clearAndSetSemantics { }) {
             // An open eight-sided time frame; the upper split gives the marker a clear direction.
             val inset = 8.dp.toPx(); val cut = 28.dp.toPx(); val w = size.width; val h = size.height

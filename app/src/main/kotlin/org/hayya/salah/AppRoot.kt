@@ -100,6 +100,7 @@ import java.time.ZoneId
     scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()) {
     var route by rememberSaveable { mutableStateOf(initialRoute) }
     var historyDay by rememberSaveable { mutableLongStateOf(clock.instant().atZone(config.place?.zone ?: ZoneId.systemDefault()).toLocalDate().toEpochDay()) }
+    LaunchedEffect(route) { scrollState.scrollTo(0) }
     val roots = listOf("today", "history", "settings")
     val labels = listOf(R.string.today, R.string.history, R.string.settings)
     LaunchedEffect(requested, config.place) {

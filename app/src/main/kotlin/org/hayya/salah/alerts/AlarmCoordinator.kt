@@ -57,9 +57,6 @@ object AlarmCoordinator {
         val history = app.repository.snapshot()
         val now = Instant.now()
         val place = prefs.place
-        val schedules = if (place == null) emptyList() else (-1L..7L).mapNotNull { offset ->
-            (LocalPrayerCalculator().calculate(now.atZone(place.zone).toLocalDate().plusDays(offset), place.point, place.zone, place.calculation) as? CalculationResult.Available)?.schedule
-        }
         val rules = buildSet {
             prefs.alerts.forEach { (prayer, alert) -> if (alert.mode != AlertMode.OFF) {
                 add(AlertRule(prayer, EventKind.AT_TIME))
@@ -68,6 +65,9 @@ object AlarmCoordinator {
             } }
             if (prefs.fajr.enabled && exactAccess(context) && AlertNotifications.ready(context, true))
                 add(AlertRule(Prayer.FAJR, EventKind.FAJR_WAKE_UP, Duration.ofMinutes(prefs.fajr.offsetMinutes.toLong())))
+        }
+        val schedules = if (place == null || rules.isEmpty()) emptyList() else (-1L..7L).mapNotNull { offset ->
+            (LocalPrayerCalculator().calculate(now.atZone(place.zone).toLocalDate().plusDays(offset), place.point, place.zone, place.calculation) as? CalculationResult.Available)?.schedule
         }
         val previous = store.read().associateBy { it.id }
         val desired = compileSchedule(schedules, rules, history.records, history.pauses, now, 0).map { event ->

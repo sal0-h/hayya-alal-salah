@@ -42,6 +42,10 @@ import java.time.ZoneId
         OutlinedTextField(value, change, label = { Text(stringResource(label)) }, modifier = Modifier.fillMaxWidth(), singleLine = true)
     }
     Text(stringResource(R.string.profile_explanation))
+    val regional = remember(zone) { runCatching { regionalProfiles(ZoneId.of(zone.trim())) }.getOrDefault(emptyList()) }
+    if (regional.isNotEmpty()) Text(stringResource(R.string.regional_profiles,
+        regional.map { profileName(it) }.joinToString(" · ")),style = MaterialTheme.typography.bodySmall)
+
     SelectionField(stringResource(R.string.calculation), profile, Profile.entries, { profileName(it) }) { profile = it }
     if (invalid) Text(stringResource(R.string.invalid_setup), color = MaterialTheme.colorScheme.error)
     Button(onClick = {
