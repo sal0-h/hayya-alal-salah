@@ -58,7 +58,8 @@ class LauncherIconTest {
                 Triple("Themed dark", 0xffb7d5bd.toInt(), 0xff293d30.toInt())
             )) {
                 icon.setBounds(0, 0, size, size)
-                val monochrome = checkNotNull(icon.monochrome).mutate()
+                val source = checkNotNull(icon.monochrome?.constantState)
+                val monochrome = source.newDrawable(context.resources).mutate()
                 monochrome.bounds = layerBounds
                 monochrome.setTint(tint)
                 assertArrayEquals("$label must use the same open mark", silhouette, render(size) { monochrome.draw(it) }.solidPixels())
