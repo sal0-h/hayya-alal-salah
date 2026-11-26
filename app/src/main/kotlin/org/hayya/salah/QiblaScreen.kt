@@ -77,7 +77,7 @@ import kotlin.math.abs
     }
     SectionTitle(stringResource(R.string.qibla))
     val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
-    val formatted = String.format(locale, "%.1f°", bearing)
+    val formatted = numeralLabel(String.format(locale, "%.1f°", bearing))
     Text(stringResource(R.string.qibla_true_bearing, formatted), style = MaterialTheme.typography.headlineMedium)
     Text(stringResource(R.string.qibla_actual_location))
     if (heading == null) Text(stringResource(R.string.qibla_numeric_fallback))

@@ -50,7 +50,7 @@ class AlarmSystemReceiver : BroadcastReceiver() {
 class RecordActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) = background(context) {
         val entry = runCatching { AlarmEntry.fromJson(JSONObject(intent.getStringExtra("event") ?: "")) }.getOrNull() ?: return@background
-        if (!AlarmCoordinator.unlocked(context)) return@background
+        if (!AlarmCoordinator.unlocked(context) || context.getSystemService(android.app.KeyguardManager::class.java).isDeviceLocked) return@background
         // The action label explicitly states ON_TIME. It retains its original date and zone.
         val repository = context.appContainer.repository
         repository.record(entry.target, PrayerStatus.ON_TIME, ZoneId.of(entry.zone))

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 package org.hayya.salah
 
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,6 +14,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -22,21 +29,22 @@ import java.time.format.TextStyle
 import java.time.temporal.WeekFields
 
 @Composable internal fun HistoryScreen(config: AppPreferences, history: HistorySnapshot?, selectedDate: LocalDate,
-    onDate: (LocalDate) -> Unit, onRecord: (PrayerKey) -> Unit) {
+    onDate: (LocalDate) -> Unit, onRecord: (PrayerKey) -> Unit, clock: Clock = Clock.systemUTC()) {
     val place = config.place ?: return
-    val today = LocalDate.now(place.zone)
+    val today = foregroundInstant(clock).atZone(place.zone).toLocalDate()
     var monthString by rememberSaveable { mutableStateOf(YearMonth.from(selectedDate).toString()) }
     val month = YearMonth.parse(monthString)
     val locale = LocalConfiguration.current.locales[0]
     SectionTitle(stringResource(R.string.history))
     if (history == null) { Text(stringResource(R.string.storage_error)); return }
-    DateButton(stringResource(R.string.choose_date), selectedDate, today) { onDate(it); monthString = YearMonth.from(it).toString() }
+    DateButton(stringResource(R.string.choose_date), selectedDate, modifier = Modifier.testTag("history-date"), max = today) { onDate(it); monthString = YearMonth.from(it).toString() }
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val previousLabel = stringResource(R.string.previous_month)
     val nextLabel = stringResource(R.string.next_month)
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        TextButton(onClick = { monthString = month.minusMonths(1).toString() }, modifier = Modifier.heightIn(min = 48.dp)) { Text("‹", Modifier.semantics { contentDescription = previousLabel }) }
+        TextButton(onClick = { monthString = month.minusMonths(1).toString() }, modifier = Modifier.heightIn(min = 48.dp)) { Text(if (rtl) "›" else "‹", Modifier.semantics { contentDescription = previousLabel }) }
         Text("${month.month.getDisplayName(TextStyle.FULL, locale)} ${month.year}", Modifier.weight(1f))
-        TextButton(enabled = month < YearMonth.from(today), onClick = { monthString = month.plusMonths(1).toString() }, modifier = Modifier.heightIn(min = 48.dp)) { Text("›", Modifier.semantics { contentDescription = nextLabel }) }
+        TextButton(enabled = month < YearMonth.from(today), onClick = { monthString = month.plusMonths(1).toString() }, modifier = Modifier.heightIn(min = 48.dp)) { Text(if (rtl) "‹" else "›", Modifier.semantics { contentDescription = nextLabel }) }
     }
     val weekStart = WeekFields.of(locale).firstDayOfWeek
     val offset = Math.floorMod(month.atDay(1).dayOfWeek.value - weekStart.value, 7)
@@ -52,11 +60,11 @@ import java.time.temporal.WeekFields
                         val d = month.atDay(number)
                         val count = Prayer.entries.count { effectiveStatus(PrayerKey(d, it), history.records, history.pauses) != null }
                         val spoken = "${dateLabel(d)}, $count / 5"
-                        TextButton(enabled = d <= today, onClick = { onDate(d) }, modifier = Modifier.weight(1f).heightIn(min = 64.dp).semantics { contentDescription = spoken },
+                        TextButton(enabled = d <= today, onClick = { onDate(d) }, modifier = Modifier.weight(1f).heightIn(min = 64.dp).then(if (d == selectedDate) Modifier.border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary), MaterialTheme.shapes.small) else Modifier).semantics { contentDescription = spoken; selected = d == selectedDate },
                             colors = ButtonDefaults.textButtonColors(contentColor = if (d == selectedDate) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(number.toString(), style = MaterialTheme.typography.titleSmall)
-                                Text("$count/5", style = MaterialTheme.typography.labelSmall)
+                                Text(numberLabel(number), style = MaterialTheme.typography.titleSmall)
+                                Text("${numberLabel(count)}/${numberLabel(5)}", style = MaterialTheme.typography.labelSmall)
                             }
                         }
                     }
@@ -65,16 +73,19 @@ import java.time.temporal.WeekFields
         }
     }
     Text(dateLabel(selectedDate), style = MaterialTheme.typography.titleMedium)
-    val calculation by produceState<DailySchedule?>(null, place, selectedDate) {
-        value = withContext(Dispatchers.Default) { (LocalPrayerCalculator().calculate(selectedDate, place.point, place.zone, place.calculation) as? CalculationResult.Available)?.schedule }
+    val calculated by produceState<CalculationResult?>(null, place, selectedDate) {
+        value = withContext(Dispatchers.Default) { LocalPrayerCalculator().calculate(selectedDate, place.point, place.zone, place.calculation) }
     }
+    ReportDrawnWhen { calculated != null }
+    val calculation = (calculated as? CalculationResult.Available)?.schedule
+    if (calculated != null && calculation == null) Text(stringResource(R.string.calculation_unavailable))
     DailyPrayerRows(selectedDate, calculation, place.zone, history, onRecord)
     val first = minOf(config.trackingSince ?: today, history.records.keys.minOfOrNull { it.date } ?: today)
     val currentStatuses = Prayer.entries.mapNotNull { p -> effectiveStatus(PrayerKey(today, p), history.records, history.pauses)?.let { p to it } }.toMap()
     val streakEnding = if (dayResult(currentStatuses) == DayResult.UNCONFIRMED) today.minusDays(1) else today
     val ending = today.minusDays(1)
     val daily = verifiedStreak(streakEnding, first, history.records, history.pauses)
-    Text(stringResource(R.string.streak_daily, daily.count), style = MaterialTheme.typography.titleMedium)
+    Text(stringResource(R.string.streak_daily, numberLabel(daily.count)), style = MaterialTheme.typography.titleMedium)
     if (daily.interruptedByUnknown) Text(stringResource(R.string.streak_unknown), color = MaterialTheme.colorScheme.onSurfaceVariant)
     SectionTitle(stringResource(R.string.statistics))
     Text(stringResource(R.string.coverage_explanation), style = MaterialTheme.typography.bodySmall)
@@ -82,17 +93,17 @@ import java.time.temporal.WeekFields
     val start = ending.minusDays(29)
     val insight = insights(start, ending, history.records, history.pauses)
     if (insight.recorded == 0) Text(stringResource(R.string.no_records))
-    Text(stringResource(R.string.recorded_coverage, insight.covered, insight.eligible))
-    Text(stringResource(R.string.on_time_recorded, insight.onTime, insight.recorded))
+    Text(stringResource(R.string.recorded_coverage, numberLabel(insight.covered), numberLabel(insight.eligible)))
+    Text(stringResource(R.string.on_time_recorded, numberLabel(insight.onTime), numberLabel(insight.recorded)))
     Prayer.entries.forEach { prayer ->
         val prayerEnding = if (currentStatuses[prayer] == null) ending else today
         val streak = verifiedStreak(prayerEnding, first, history.records, history.pauses, prayer)
         val stats = insight.perPrayer.getValue(prayer)
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(prayerName(prayer), style = MaterialTheme.typography.titleMedium)
-            Text(stringResource(R.string.streak_prayer, streak.count))
-            Text(stringResource(R.string.on_time_recorded, stats.onTime, stats.eligibleRecorded))
-            Text(stringResource(R.string.recorded_coverage, stats.eligibleRecorded, stats.eligibleTotal), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.streak_prayer, numberLabel(streak.count)))
+            Text(stringResource(R.string.on_time_recorded, numberLabel(stats.onTime), numberLabel(stats.eligibleRecorded)))
+            Text(stringResource(R.string.recorded_coverage, numberLabel(stats.eligibleRecorded), numberLabel(stats.eligibleTotal)), color = MaterialTheme.colorScheme.onSurfaceVariant)
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         }
     }

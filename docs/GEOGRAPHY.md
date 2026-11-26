@@ -5,6 +5,7 @@ https://download.geonames.org/export/dump/cities15000.zip
 Source archive SHA-256: `50ef2f0cf7a1dd6d67123aaa6cdd45a8cf48ff5d23b3677e896f009ccce768d7`.
 Bundled derived TSV: ID, name, ASCII name, latitude, longitude, country, IANA zone,
 and all published alternate names (needed for native Azerbaijani/Arabic/Cyrillic search).
+A ninth pre-normalized search column avoids per-city Unicode work while typing.
 No private locations.
 34215 populated-place records. GeoNames CC BY 4.0; attribution in
 licenses/GeoNames-NOTICE.txt, license text in licenses/CC-BY-4.0.txt.

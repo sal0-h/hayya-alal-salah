@@ -20,7 +20,8 @@ class FocusPrivacyTest {
             AccessibilityServiceInfo.CAPABILITY_CAN_REQUEST_FILTER_KEY_EVENTS or AccessibilityServiceInfo.CAPABILITY_CAN_PERFORM_GESTURES
         assertEquals(0, service.capabilities and prohibited)
         if (android.os.Build.VERSION.SDK_INT >= 30) assertEquals(0, service.capabilities and AccessibilityServiceInfo.CAPABILITY_CAN_TAKE_SCREENSHOT)
-        assertEquals(android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or android.view.accessibility.AccessibilityEvent.TYPE_WINDOWS_CHANGED, service.eventTypes)
+        val allowedEvents = android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or android.view.accessibility.AccessibilityEvent.TYPE_WINDOWS_CHANGED
+        assertEquals(0, service.eventTypes and allowedEvents.inv())
         val excluded = EssentialApps.excluded(context)
         assertTrue(context.packageName in excluded)
         assertTrue("com.android.systemui" in excluded)

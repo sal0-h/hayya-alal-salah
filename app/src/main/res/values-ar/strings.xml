@@ -16,7 +16,7 @@
     <string name="save_error">تعذر حفظ الإعدادات. حاول مرة أخرى.</string>
     <string name="privacy">تبقى إعداداتك على هذا الجهاز. لا توجد حسابات أو طلبات شبكة. يؤدي إلغاء التثبيت إلى حذف البيانات المحفوظة.</string>
     <string name="next_prayer">الصلاة القادمة</string>
-    <string name="remaining">بعد %1$d ساعة و%2$d دقيقة</string>
+    <string name="remaining">بعد %1$s ساعة و%2$s دقيقة</string>
     <string name="fajr">الفجر</string>
     <string name="sunrise">الشروق</string>
     <string name="dhuhr">الظهر</string>
@@ -53,12 +53,12 @@
     <string name="choose_date">اختر التاريخ</string>
     <string name="previous_month">الشهر السابق</string>
     <string name="next_month">الشهر التالي</string>
-    <string name="streak_daily">تتابع الأيام المؤكد: %1$d</string>
-    <string name="streak_prayer">تتابع الصلاة في وقتها: %1$d</string>
+    <string name="streak_daily">تتابع الأيام المؤكد: %1$s</string>
+    <string name="streak_prayer">تتابع الصلاة في وقتها: %1$s</string>
     <string name="streak_unknown">الاستمرارية قبل ذلك غير مؤكدة. الصلوات غير المسجلة لا تُحسب فائتة.</string>
     <string name="statistics">الإحصاءات والملخصات المحلية</string>
-    <string name="recorded_coverage">تغطية التسجيل: %1$d / %2$d</string>
-    <string name="on_time_recorded">في وقتها بين المسجل: %1$d / %2$d</string>
+    <string name="recorded_coverage">تغطية التسجيل: %1$s / %2$s</string>
+    <string name="on_time_recorded">في وقتها بين المسجل: %1$s / %2$s</string>
     <string name="period_last_30">آخر 30 يومًا مكتملًا</string>
     <string name="pause">إيقاف مؤقت</string>
     <string name="pause_explanation">حدد التواريخ يدويًا. تتوقف التنبيهات والتركيز خلالها، وتبقى التسجيلات المكتملة. لا يوجد تنبؤ بالدورة.</string>
@@ -136,7 +136,7 @@
     <string name="dismiss_not_record">إيقاف المنبّه لا يسجّل أداء الصلاة.</string>
     <string name="alarm_finished">المنبّه لا يرنّ الآن.</string>
     <string name="close">إغلاق</string>
-    <string name="question_progress">السؤال %1$d / %2$d</string>
+    <string name="question_progress">السؤال %1$s / %2$s</string>
     <string name="answer">الإجابة</string>
     <string name="check_answer">تحقّق من الإجابة</string>
     <string name="stop_alarm">إيقاف المنبّه</string>
@@ -197,4 +197,6 @@
     <string name="widget_daily_description">مواقيت الصلاة اليومية</string>
     <string name="zone_not_supported">لا يتعرّف إصدار أندرويد هذا على المنطقة المقترحة. حدّث بيانات المناطق الزمنية أو اختر منطقة IANA مناسبة يدويًا.</string>
     <string name="location_permission_needed">يحتاج التحديث التلقائي إلى إذن الموقع. استخدم زر الموقع للسماح أو أبقِ الوضع اليدوي.</string>
+    <string name="focus_service_inactive">التركيز غير نشط حتى تفعّل خدمته في تسهيل الاستخدام في أندرويد.</string>
+    <string name="loading">جارٍ التحميل…</string>
 </resources>

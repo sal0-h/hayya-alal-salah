@@ -46,7 +46,14 @@ object AudioImporter {
             requireNotNull(track)
             val format = extractor.getTrackFormat(track)
             extractor.selectTrack(track)
-            val decoder = MediaCodec.createDecoderByType(requireNotNull(format.getString(MediaFormat.KEY_MIME)))
+            val mime = requireNotNull(format.getString(MediaFormat.KEY_MIME))
+            if (mime == "audio/raw") {
+                require(format.getInteger(MediaFormat.KEY_SAMPLE_RATE) in 8000..384000)
+                require(format.getInteger(MediaFormat.KEY_CHANNEL_COUNT) in 1..8)
+                require(extractor.readSampleData(java.nio.ByteBuffer.allocate(2 * 1024 * 1024),0) > 0)
+                return // PCM is already decoded; no MediaCodec decoder exists for audio/raw.
+            }
+            val decoder = MediaCodec.createDecoderByType(mime)
             codec = decoder
             decoder.configure(format, null, null, 0); decoder.start()
             var decoded = false

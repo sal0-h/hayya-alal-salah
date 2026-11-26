@@ -58,7 +58,7 @@ import java.time.ZoneId
         if (ForegroundLocation.allowed(context)) request++
         else permission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
     }, enabled = !busy) { Text(stringResource(R.string.use_device_location)) }
-    if (busy) CircularProgressIndicator()
+    if (busy) LoadingIndicator()
     if (unavailable) Text(stringResource(R.string.location_unavailable), color = MaterialTheme.colorScheme.error)
     Text(stringResource(R.string.zone_suggestion_note))
 }
