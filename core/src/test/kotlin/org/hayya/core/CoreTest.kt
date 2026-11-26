@@ -4,6 +4,7 @@ package org.hayya.core
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 import kotlin.test.*
 
@@ -55,11 +56,35 @@ class CoreTest {
                 schedule(profile = profile).prayers.getValue(Prayer.ASR))
         }
     }
-    @Test fun `Jafari Maghrib follows sunset and midnight preserves next date`() {
-        val s = schedule(profile = Profile.JAFARI)
-        assertTrue(s.prayers.getValue(Prayer.MAGHRIB) > schedule(profile = Profile.MWL).prayers.getValue(Prayer.MAGHRIB))
-        assertNotNull(s.midnight)
-        assertTrue(s.midnight > s.prayers.getValue(Prayer.MAGHRIB))
+    @Test fun `night uses sunset and the correct next-day endpoint for each profile`() {
+        for (profile in listOf(Profile.MWL, Profile.JAFARI, Profile.TEHRAN, Profile.FRANCE, Profile.RUSSIA)) {
+            val evening = schedule(profile = profile)
+            val following = schedule(date.plusDays(1), profile = profile)
+            val sunset = assertNotNull(evening.nightBoundaries).sunset
+            val morning = assertNotNull(following.nightBoundaries)
+            val end = if (profile in setOf(Profile.FRANCE, Profile.RUSSIA)) morning.sunrise else morning.dawn
+            assertEquals(sunset.plus(Duration.between(sunset, end).dividedBy(2)),
+                nightTime(evening, following, NightTime.MIDPOINT))
+            assertEquals(morning.dawn.minus(Duration.between(sunset, morning.dawn).dividedBy(3)),
+                nightTime(evening, following, NightTime.LAST_THIRD))
+            assertNull(nightTime(evening, following, NightTime.OFF))
+            if (profile == Profile.JAFARI) assertTrue(evening.prayers.getValue(Prayer.MAGHRIB) > sunset)
+        }
+    }
+
+    @Test fun `night duration uses instants across DST and rejects incompatible endpoints`() {
+        val newYork = ZoneId.of("America/New_York")
+        val city = GeoPoint(40.7128, -74.006)
+        val evening = schedule(LocalDate.of(2026, 3, 7), city, newYork)
+        val morning = schedule(evening.date.plusDays(1), city, newYork)
+        val sunset = assertNotNull(evening.nightBoundaries).sunset
+        val dawn = assertNotNull(morning.nightBoundaries).dawn
+        assertNotEquals(sunset.atZone(newYork).offset, dawn.atZone(newYork).offset)
+        val lastThird = assertNotNull(nightTime(evening, morning, NightTime.LAST_THIRD))
+        assertEquals(morning.date, lastThird.atZone(newYork).toLocalDate())
+        assertEquals(Duration.between(sunset, dawn).dividedBy(3), Duration.between(lastThird, dawn))
+        assertNull(nightTime(evening, morning.copy(provenance = morning.provenance.copy(effective = point)), NightTime.LAST_THIRD))
+        assertNull(nightTime(evening, morning.copy(nightBoundaries = null), NightTime.LAST_THIRD))
     }
     @Test fun `Umm al Qura Ramadan interval is explicitly 120 minutes`() {
         val ramadan = schedule(LocalDate.of(2026, 3, 1), GeoPoint(21.4225, 39.8262), ZoneId.of("Asia/Riyadh"), Profile.UMM_AL_QURA)
@@ -102,6 +127,42 @@ class CoreTest {
         assertTrue(compileSchedule(listOf(s), rules, emptyMap(), listOf(PauseInterval(date, date)), now, 1).isEmpty())
         assertTrue(compileSchedule(listOf(s), rules, emptyMap(), emptyList(), now.plus(Duration.ofDays(2)), 1).isEmpty())
     }
+    @Test fun `fixed Fajr wakes once at the resolved local clock time through DST`() {
+        val zone = ZoneId.of("America/New_York")
+        val spring = LocalDate.of(2026, 3, 8)
+        val fall = LocalDate.of(2026, 11, 1)
+        assertEquals(Instant.parse("2026-03-08T07:30:00Z"),
+            fajrAlarmAt(spring, zone, FajrTiming.Fixed(LocalTime.of(2, 30)), null))
+        val timing = FajrTiming.Fixed(LocalTime.of(1, 30))
+        val early = Instant.parse("2026-11-01T05:30:00Z")
+        assertEquals(early, fajrAlarmAt(fall, zone, timing, null))
+        val next = compileFajrAlarms(listOf(fall, fall.plusDays(1)), zone, timing, emptyMap(),
+            emptyMap(), emptyList(), early.plusSeconds(60)).single()
+        assertEquals(Instant.parse("2026-11-02T06:30:00Z"), next.at)
+        assertEquals(fall.plusDays(1), next.target.date)
+        assertNull(fajrAlarmAt(LocalDate.of(2011, 12, 30), ZoneId.of("Pacific/Apia"), timing, null))
+        assertNull(fajrAlarmAt(fall, zone, FajrTiming.Relative(15), null))
+    }
+
+    @Test fun `Fajr preview preserves target and pauses on either local date`() {
+        val dawn = date.atTime(1, 30).atZone(zone).toInstant()
+        val dates = listOf(date, date.plusDays(1))
+        val target = PrayerKey(date, Prayer.FAJR)
+        val timings = mapOf(date to dawn)
+        val before = FajrTiming.Relative(-120)
+        val now = dawn.minusSeconds(10_000)
+        fun events(pauses: List<PauseInterval> = emptyList(), records: Map<PrayerKey, PrayerRecord> = emptyMap()) =
+            compileFajrAlarms(dates, zone, before, timings, records, pauses, now)
+        val event = events().single()
+        assertEquals(target, event.target)
+        assertEquals(date.minusDays(1), event.at.atZone(zone).toLocalDate())
+        assertEquals(dawn.plusSeconds(900), fajrAlarmAt(date, zone, FajrTiming.Relative(15), dawn))
+        assertTrue(events(listOf(PauseInterval(date.minusDays(1), date.minusDays(1)))).isEmpty())
+        assertTrue(events(listOf(PauseInterval(date, date))).isEmpty())
+        assertTrue(events(records = mapOf(target to record(date, Prayer.FAJR, PrayerStatus.ON_TIME))).isEmpty())
+        assertEquals(event, events(records = mapOf(target to record(date, Prayer.FAJR, PrayerStatus.MISSED))).single())
+    }
+
     @Test fun `notification target keeps original service date after midnight`() {
         val s = schedule()
         val rule = AlertRule(Prayer.ISHA, EventKind.AFTER, Duration.ofHours(6))
