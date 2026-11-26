@@ -27,3 +27,12 @@ and that circle, rounded-square and squircle masks leave the mark intact. The
 preview sheet pairs 144-pixel detail with 48-pixel samples, including Android's
 emulator mask and light and dark tint simulations using the API 33+ monochrome
 layer. Samsung launcher and themed-icon appearance require physical review.
+
+## Reviewer preview and phone QA
+
+Download the [Android 13 contact sheet](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45862654353/artifacts/15139765801)
+and open `launcher-icon/option-05-api-33.png`. On the S23 Ultra, install
+[signed QA build 117](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45862654353/artifacts/15138784269)
+over the existing QA app. Check the Home and app drawer icons with the system's
+icon theme on and off, cold-start the app to check the system splash, and verify
+the existing app settings and records after the update.

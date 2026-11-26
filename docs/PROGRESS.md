@@ -265,3 +265,25 @@ build 108 release-preparation branch. The redraw uses editable vector paths, a
 sage adaptive background and the same silhouette for Android's themed layer.
 The selected reference, provenance, and mask fixture are documented in
 [Launcher icon](branding/LAUNCHER_ICON.md).
+
+Signed QA build 117 at `b6ed91e` uses the build 108 package ID
+`org.hayya.salah.qa` and the same certificate. The downloaded signature,
+resource variants, version and checksum verified. APK SHA-256
+`3ca444c538e82af13d1d6c0aa7f0a3146d56cec0986fd4c6fa4fbd317db3d275`.
+[Signed APK and checksum](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45862654353/artifacts/15138784269)
+
+The source passed the Android build and lint checks and independent unsigned
+release builds matched byte for byte. On API 33 all 18 integration tests passed,
+plus the audio and denied-permission fixtures. The icon fixture verified three
+separate shapes at 48 pixels, intact across the tested masks, and checked
+that the themed layer has the same silhouette. [Android matrix and captures](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45862654353) ·
+[Performance](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45862654414) ·
+[Reproducibility](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45862654399)
+
+Visual review of the API 33 contact sheet covered circle, rounded square,
+squircle, the emulator's native mask, and sample light and dark launcher
+tints at 144 and 48 pixels. The Android 8 preview also kept the gaps intact at
+48 pixels. [Reviewer contact sheet](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45862654353/artifacts/15139765801)
+
+Samsung Home, its themed appearance, the system splash, and the physical
+in-place update from build 108 still need S23 Ultra review.
