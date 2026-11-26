@@ -145,12 +145,11 @@ private fun timetableDay(page: Int) = LocalDate.ofEpochDay(firstTimetableDay + p
         val offsets = if (live) -1L..1L else if (showNight) 0L..1L else 0L..0L
         val days = offsets.map(date::plusDays)
         val cached = days.mapNotNull { day -> cache.peek(day)?.let { day to it } }.toMap()
+            .takeIf { it.size == days.size }.orEmpty()
         produceState(cached) {
             if (cached.size == days.size) return@produceState
-            // Publish this day's schedule first; adjacent dates complete the live/night view.
-            for (day in days.sortedBy { kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(date, it)) }) {
-                value = value + (day to cache.load(day))
-            }
+            // Publish a complete service-date window: yesterday's Isha can follow midnight.
+            value = days.associateWith { day -> cache.load(day) }
         }
     }
     val result = results[date]
