@@ -1,8 +1,8 @@
 # Implementation and validation ledger
 
-Updated 2026-11-25. Source implementation, automated execution, visual inspection and
-physical acceptance are separate. The full approved v1 scope is implemented in the
-stacked draft PRs; these are review checkpoints, not merged or published releases.
+Updated 2026-11-26. Source implementation, automated execution, visual inspection and
+physical acceptance are separate. The full approved v1 scope is implemented in
+PRs #1–#8. See Source consolidation below for merge approval and verification.
 QA baseline `5bff9bb` passed the initial server checks. The S23 review follow-up and its verification are tracked below.
 
 ## Implemented scope and executed evidence
@@ -95,10 +95,10 @@ and imported-audio deletion exercise actual private-file removal and error repor
 Direct Boot keeps only upcoming event/sound/challenge/language/appearance data, never
 coordinates/history/pause dates. Synthetic probes are absent from QA/release.
 
-Dedicated QA credentials remain private and separate from production. No production
-signature, merged PR, public release or store submission exists. Source/unsigned APK/
-bundle/R8 mapping/hashes and four-language store drafts form a concrete review kit;
-the F-Droid recipe stays disabled until a reviewed release tag/certificate is supplied.
+Dedicated QA credentials remain private and separate from production. Production
+signing and public release or store submission require separate approval. Source,
+unsigned APK, bundle, R8 mapping, hashes and four-language store drafts form a review kit.
+The F-Droid recipe stays disabled until a reviewed release tag/certificate is supplied.
 Private vulnerability reporting was verified enabled on 2026-11-13; SECURITY.md links
 the private route. Public privacy hosting and store declarations await release review.
 Dependency checksums are first-resolution trust, not an independent supply-chain audit.
@@ -287,3 +287,19 @@ tints at 144 and 48 pixels. The Android 8 preview also kept the gaps intact at
 
 Samsung Home, its themed appearance, the system splash, and the physical
 in-place update from build 108 still need S23 Ultra review.
+
+
+## Source consolidation
+
+Salman approved merging PRs #1–#8 in dependency order on 2026-11-26. The
+approval covers source merge commits on `main`. GitHub records the merge
+commits and checks for the stack. Use `main` as the base for subsequent feature
+PRs once the stack lands. [Final stack PR](https://github.com/sal0-h/hayya-alal-salah/pull/8) ·
+[Main CI](https://github.com/sal0-h/hayya-alal-salah/actions?query=branch%3Amain)
+
+The Option 05 source behind signed QA build 117 passed all four Android
+emulator integrations, 816 full-shell captures plus the launcher sheet,
+performance and independent unsigned APK comparison. The S23 launcher and
+update checks, overnight alarms, Qibla, TalkBack, Arabic review, and mid-range
+device acceptance remain open. Public publication and production signing
+require the separate release review.
