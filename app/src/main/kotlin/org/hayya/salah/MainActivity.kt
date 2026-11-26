@@ -31,6 +31,7 @@ class MainActivity : ComponentActivity() {
         readRequest(intent)
         setContent { AppRoot(appContainer, requested) { requested = null } }
     }
+    override fun onStart() { super.onStart(); appContainer.refreshIntegrations() }
     override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); setIntent(intent); readRequest(intent) }
     private fun readRequest(intent: Intent?) {
         requested = runCatching { PrayerKey(LocalDate.parse(intent?.getStringExtra("serviceDate")),

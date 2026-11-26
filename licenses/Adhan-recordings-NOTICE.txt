@@ -1,0 +1,10 @@
+Bundled Adhan recordings: Ahmed Khalaf, copyright 2026.
+Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
+https://creativecommons.org/licenses/by/4.0/
+Source: https://github.com/nandxorandor/Athan/tree/ad2bf1799add51cca4aaf1f123b1c212378c7786
+
+Developer_Athan-1.mp3 -> audio/adhan_1.mp3
+Developer_Athan-2.mp3 -> audio/adhan_2.mp3
+Developer_Athan-3_Fajr.mp3 -> audio/fajr.mp3
+No changes to the recordings. No endorsement is implied.
+No other upstream audio or artwork is included.

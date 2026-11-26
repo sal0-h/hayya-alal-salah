@@ -17,5 +17,8 @@ Original application code: GPL-3.0-or-later (see LICENSE).
 - IBM Plex Sans and IBM Plex Sans Arabic, SIL OFL 1.1; pinned provenance in docs/FONTS.md,
   license texts in licenses/. Font files are unmodified.
 
-Audio and offline geographic datasets have not yet been bundled. No external artwork
-or audio has been included. Required license texts are bundled in APK assets.
+- Three original Ahmed Khalaf Adhan recordings, CC BY 4.0; exact source revision,
+  hashes and attribution in docs/AUDIO.md and licenses/Adhan-recordings-NOTICE.txt.
+  No noncommercial IslamWeb recordings or upstream artwork are included.
+
+Required license texts are bundled in APK assets.

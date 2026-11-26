@@ -59,12 +59,19 @@ import java.time.ZoneId
                 removePause = { perform { app.repository.deletePause(it) } },
                 deleteRecords = { perform { app.repository.deleteRecords() } },
                 reset = { perform {
-                    app.repository.reset(); app.settings.reset()
+                    app.settings.reset()
+                    DeliveryLocale.save(context, "system")
+                    org.hayya.salah.focus.PrayerFocusService.releaseOverlay()
+                    org.hayya.salah.alerts.AlarmCoordinator.cancelAll(context)
+                    app.repository.reset()
                     context.filesDir.resolve("audio").deleteRecursively()
                     context.getSharedPreferences("locale-bootstrap", 0).edit { clear() }
+                    if (Build.VERSION.SDK_INT >= 33) context.getSystemService(LocaleManager::class.java).applicationLocales = LocaleList.getEmptyLocaleList()
+                    else (context as? Activity)?.recreate()
                 } },
                 onLanguage = { language -> perform {
                     app.settings.update { it.copy(language = language) }
+                    DeliveryLocale.save(context, language)
                     context.getSharedPreferences("locale-bootstrap", 0).edit { putString("language", language) }
                     if (Build.VERSION.SDK_INT >= 33) context.getSystemService(LocaleManager::class.java).applicationLocales =
                         if (language == "system") LocaleList.getEmptyLocaleList() else LocaleList.forLanguageTags(language)
@@ -112,6 +119,7 @@ import java.time.ZoneId
                 "settings" -> {
                     SectionTitle(stringResource(R.string.settings))
                     listOf("location" to R.string.location, "calculation" to R.string.calculation,
+                        "alerts" to R.string.prayer_alerts, "fajr" to R.string.fajr_alarm, "focus" to R.string.prayer_focus,
                         "pause" to R.string.pause, "appearance" to R.string.appearance,
                         "privacy" to R.string.privacy_data, "credits" to R.string.credits).forEach { (target, label) ->
                         OutlinedButton(onClick = { route = target }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(stringResource(label)) }
@@ -119,6 +127,9 @@ import java.time.ZoneId
                 }
                 "location" -> ManualLocationScreen(place, savePlace)
                 "calculation" -> CalculationScreen(place, update)
+                "alerts" -> AlertsScreen(config, history, update)
+                "fajr" -> FajrScreen(config, history, update)
+                "focus" -> FocusScreen(config, update)
                 "pause" -> PauseScreen(history, place.zone, addPause, removePause)
                 "appearance" -> AppearanceScreen(config, update, onLanguage)
                 "privacy" -> PrivacyScreen(deleteRecords, reset)
