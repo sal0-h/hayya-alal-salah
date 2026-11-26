@@ -78,6 +78,32 @@ live arrow points the wrong way, jumps, or disappears, and note how the phone wa
 held when it happens. The numeric bearing should stay the same as the phone turns.
 Tilt the phone up and verify that the live arrow yields to the numeric fallback.
 
+## QA 94 follow-up spot checks
+
+Download [signed QA build 103](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45739619637/artifacts/15080697574) and install over build 94 with
+`adb install -r hayya-qa-8798816c20c131a9b1eb7d8529fd746eb2162f3b.apk`.
+The APK SHA-256 is `d8a122cf9be0be948d368ce2821a89ff8e2e361ec9e77256f94791dd72314a44`. Check record, theme, audio import and widget
+preservation after the update, then follow the spot checks below.
+
+- From Today, open Location by tapping the city and return to Today. Tap the date,
+  choose tomorrow, and check that tomorrow's times appear without a countdown or
+  record controls. View a past date, correct a record if desired, and return to today.
+  Confirm that an elapsed and an upcoming prayer both open the same record editor.
+- Check recent dates in History and the divider above the navigation bar. At 200%,
+  scroll through the schedule and try the calendar's text input.
+- In Appearance, try both night display choices. Check that only one row appears,
+  that a time after midnight shows its actual date, and that missing solar times
+  are reported as unavailable.
+- Under Prayer alerts, set a before and after reminder, verify the summary, then
+  turn one off. Test initial notification access and a disabled channel separately.
+- In Fajr settings, compare the next timestamp with an offset before and after
+  Fajr. Switch to a fixed time, confirm it in the native picker and compare the
+  next timestamp to the saved location's time zone. Try a pause that spans the
+  next occurrence. Test a real future alarm and a locked overnight alarm separately.
+- Set a dated pause and check that unrecorded rows show their paused state while
+  saved records stay intact. End an active pause and check that today resumes and
+  already paused dates stay paused.
+
 ## Human design/accessibility/language review
 
 Review all destinations and dialogs in EN/RU/AZ with Salman and AR with a fluent Arabic

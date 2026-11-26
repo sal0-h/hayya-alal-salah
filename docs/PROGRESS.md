@@ -1,6 +1,6 @@
 # Implementation and validation ledger
 
-Updated 2026-11-23. Source implementation, automated execution, visual inspection and
+Updated 2026-11-25. Source implementation, automated execution, visual inspection and
 physical acceptance are separate. The full approved v1 scope is implemented in the
 stacked draft PRs; these are review checkpoints, not merged or published releases.
 QA baseline `5bff9bb` passed the initial server checks. The S23 review follow-up and its verification are tracked below.
@@ -188,3 +188,39 @@ Pause explains the effects and can end an active interval while preserving previ
 dates. Alarm and Focus suppression cover the prayer’s service date and the applicable
 local date. The QA 94 feedback is device observation of the previous build. The
 follow-up requires its own Android, visual and physical evidence.
+
+Build 101 at `e4ccf49` passed 16 integration tests on each of APIs 26, 31, 33 and
+37, plus separate audio and permission-denial tests on each API. The API 37
+locked-reboot fixture verified the fixed-clock alarm with bundled Fajr audio
+before unlock and preservation of the saved record and imported audio afterward.
+The Android 8 fixture opened the search keyboard and verified that Focus Apply
+remained visible and tappable. [Android run](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45737860859)
+
+CI validated 800 captures. The English LTR and Arabic RTL visual review at actual
+100% and 200% covered Today, date input, History, the night time, prayer alerts,
+the optional reminder dialog, Fajr settings and the native time picker, and Pause.
+The follow-up captures confirmed that the first date characters and the narrow
+picker actions fit after the screenshot-driven fixes. [Reviewed captures](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45737860859/artifacts/15079833916)
+
+The build 101 APK checksum and QA signing certificate verified locally.
+The benchmark run and its retry were rate-limited on the Kotlin JVM plugin marker
+lookup. Commit `8798816` resolves the same pinned implementation module directly.
+Core tests, Android test compilation, and the formerly failing Compose mapping
+task passed offline in the RAM-backed checkout with dependency verification on.
+
+The build 103 source `8798816` passed 16 integration tests on each of APIs 26,
+31, 33 and 37, plus the audio and permission-denial fixtures on each API. The
+API 37 report confirmed fixed-time Fajr playback with bundled audio while
+credential storage was locked and preservation after unlocking. The benchmark
+and the byte-for-byte unsigned APK comparison passed. Local Android lint and the
+upstream PrayTimes fixture also passed. [Android](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45739619637) ·
+[Performance](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45739619636) ·
+[Reproducibility](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45739619689)
+
+Build 103 uses `org.hayya.salah.qa` and the established QA certificate. The
+downloaded APK checksum and signature verified locally. The APK SHA-256 is
+`d8a122cf9be0be948d368ce2821a89ff8e2e361ec9e77256f94791dd72314a44`.
+[Signed APK and checksum](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45739619637/artifacts/15080697574)
+
+The new build still needs S23 update and physical acceptance checks. Overnight
+delivery, live Qibla, Arabic review and the mid-range device checks remain open.

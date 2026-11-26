@@ -98,3 +98,8 @@ The S23 follow-up source `8b2eda74ec097220333a43d59c762bc804e7beb2` passed
 both clean builds and byte comparison. Both APKs have SHA-256
 `14930c63a619cfb059574abd27881f850c961e6482c34c05bd26c34888402b59`.
 The [follow-up review kit](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45205128323/artifacts/14834191412) contains the source, unsigned APK and bundle, and mapping. The [comparison report](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45205128323/artifacts/14832054882) records both checksums.
+
+The QA 94 feedback source `8798816c20c131a9b1eb7d8529fd746eb2162f3b`
+passed the two independent clean release builds. Their unsigned APKs match with
+SHA-256 `75d1b34aced8a9a72ee955b83704fcadb28169dbc0cf98118901590cbc97e8db`.
+[Reproducibility run](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45739619689)

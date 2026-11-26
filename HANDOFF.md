@@ -26,6 +26,11 @@ The S23 follow-up source is `8b2eda7` in draft PR #7. The
 is the in-place update from build 74. See PROGRESS.md for its verification and
 DEVICE_QA.md for the S23 spot checks. Salman confirmed record, theme and import
 preservation from 48 → 56 → 74. ADB confirmed both widget bindings from 56 → 74.
+Salman then reviewed build 94. The follow-up at `8798816` adds Today date
+browsing and a city shortcut, one explicit record editor, night-time options,
+simpler reminders, fixed or relative Fajr timing and a clearer Pause screen.
+[Signed QA build 103](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45739619637/artifacts/15080697574) is the next in-place update.
+See PROGRESS.md for CI evidence and DEVICE_QA.md for the spot checks.
 Physical Qibla and overnight alarms, Arabic review, production signing and store
 review remain open.
 
