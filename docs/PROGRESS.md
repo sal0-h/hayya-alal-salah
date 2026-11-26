@@ -347,3 +347,38 @@ performance and independent unsigned APK comparison. The S23 launcher and
 update checks, overnight alarms, Qibla, TalkBack, Arabic review, and mid-range
 device acceptance remain open. Public publication and production signing
 require the separate release review.
+
+## Post-merge verification, 26 November 2026
+
+PRs #1–#8 are merged in dependency order. `main` at `e4cb6ee` has the same
+Git tree as PR #8 head `729bcf7`; the merge preserved the reviewed app and icon.
+Both the Dukhan main checkout and the local checkout were clean and synchronized
+to this commit before this documentation follow-up.
+
+[Main Android run 45869770771](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45869770771)
+passed build/lint, screenshots and APIs 26, 31, 33 and 37. Downloaded JUnit reports
+confirm 18 ordinary integration tests per API, with zero failures, errors or skips;
+each separate audio and denied-permission report confirms one passing test. The
+API 37 locked-boot probe reports bundled Fajr audio active before unlock.
+The API 26 job failed resolving the pinned Kotlin plugin before app tests ran.
+The isolated retry passed on attempt 2 without code, dependency or permission
+changes. The overall Android run is successful. The build report also confirms
+24 core tests and one preserved upstream PrayTimes fixture, all passing.
+[Performance](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45869770650) and
+[independent reproducibility](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45869770631)
+passed on the same main source.
+
+[Signed QA build 141](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45869770771/artifacts/15142447273)
+is `org.hayya.salah.qa`, version code 141. The downloaded APK's signature verifies,
+its certificate matches the earlier QA builds, and its SHA-256 matches the artifact:
+`305639a8260f4738544ad94141bf9e98adcb1c3de6768351a3fca6664eb00c3c`.
+The actual main-source launcher sheet was inspected at 144 and 48 pixels across
+circle, rounded square, squircle and light/dark themed variants; its gaps remain
+visible. This verifies the update artifact; physical installation and data
+preservation for this update, Samsung launcher appearance, sensors and overnight
+alarms remain open.
+
+Dukhan had 45 MiB free at takeover. Removing only ignored, regenerable
+`benchmark/build` output recovered 347 MiB; source, signing keys, imported audio
+and test evidence were preserved. No app behavior or dependencies changed in this
+follow-up. Open Dependabot proposals remain separate from the merged app source.

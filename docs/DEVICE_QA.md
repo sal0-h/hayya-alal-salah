@@ -7,6 +7,16 @@ permission/channel/battery settings. Keep personal coordinates/history/audio out
 shared screenshots and logs. Record observed timing and failures; do not mark a row
 passed because the feature compiles or an emulator passed it.
 
+## Current QA build
+
+Use [signed QA build 141 from consolidated main](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45869770771/artifacts/15142447273)
+for the current device review. Its source is `e4cb6ee`, package ID
+`org.hayya.salah.qa`, with the established QA certificate. Install the APK as an
+update over an older QA version and check records, settings, imported audio and
+both widgets before testing the Option 05 icon and the existing spot checks.
+Do not uninstall or downgrade an installation with records to repeat the historic
+sequence below. Artifact verification does not establish physical preservation.
+
 ## Update preservation
 
 Use these three signed builds in order on a QA installation that starts at version

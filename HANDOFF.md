@@ -11,10 +11,16 @@ Salman approved implementation on 2026-11-12. Do not restart the product intervi
 ## Actual implementation state
 
 Salman approved source consolidation of PRs #1–#8 on 2026-11-26. The
-reviewed stack runs from the native foundation through release preparation
-and the Option 05 launcher icon. Use `main` as the base for new feature PRs once
-the stack lands. Retain the original feature branch refs. See [the verification
+reviewed stack is merged into `main` at `e4cb6ee`, including the Option 05
+launcher icon. Its file tree matches the final PR #8 source. Base new feature
+PRs on `main`; the original feature branch refs are retained. See [the verification
 ledger](docs/PROGRESS.md) for implemented, automated and physical results.
+
+[Signed QA build 141](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45869770771/artifacts/15142447273)
+comes from this consolidated commit. Its checksum, package, version and established
+QA signing certificate verified. The post-merge Android run passed all four APIs
+after an isolated Android 8 retry for a Kotlin plugin download failure. Screenshots,
+performance and reproducibility passed. See the ledger for the exact evidence.
 
 The original server implementation and verification baseline is source `5bff9bb`. Android
 run43553892997 passed all four APIs (13 ordinary + one separate audio test each),
