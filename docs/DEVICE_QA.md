@@ -7,6 +7,21 @@ permission/channel/battery settings. Keep personal coordinates/history/audio out
 shared screenshots and logs. Record observed timing and failures; do not mark a row
 passed because the feature compiles or an emulator passed it.
 
+## Current QA build
+
+[Signed QA build 150](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45881252759/artifacts/15146924960)
+(source `1d6978c`, package `org.hayya.salah.qa`) is installed on Salman's S23 Ultra.
+Seven navigation-only checks passed and Salman accepted the feel. See PROGRESS.md
+for the exact device/build and evidence. Alarm/audio/Focus physical acceptance is
+still open. Use higher-version signed QA updates as the maintenance work proceeds;
+check records, settings, imports and both widgets after each update. Do not uninstall
+or downgrade an installation with records to repeat a historical sequence below.
+
+The compatible maintenance update is [signed QA157](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46097403012/artifacts/15243952747)
+(source `d25bea9`). Its checksum and established QA certificate verified. It has
+not been installed or physically accepted in the maintenance pass. A later
+reliability build may supersede it; always preserve the QA installation and data.
+
 ## Update preservation
 
 Use these three signed builds in order on a QA installation that starts at version
@@ -65,9 +80,9 @@ state and are not the physical acceptance procedure.
 
 On Today, check that Fajr through Isha and sunrise fit at normal font size. At
 200%, scroll to the last row and check that the Settings tab stays on one line.
-Tap an elapsed prayer's status icon, tap its name to edit or clear it, and open the
-legend with the question-mark button. In Appearance, tap Ink Blue and check the
-swatch, selected marker, and immediate recoloring. Open History and try Yesterday
+Open the explicit status editor for an elapsed and an upcoming prayer on the
+current date, then open the legend with the question-mark button. In Appearance, tap Ink Blue and check the
+swatch, selected marker, and immediate recoloring. Open History and try the recent dated shortcuts
 and the date picker. Check that coverage distinguishes missing entries from explicit
 records and pause days.
 

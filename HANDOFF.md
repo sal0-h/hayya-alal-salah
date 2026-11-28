@@ -10,48 +10,36 @@ Salman approved implementation on 2026-11-12. Do not restart the product intervi
 
 ## Actual implementation state
 
-Salman approved source consolidation of PRs #1–#8 on 2026-11-26. The
-reviewed stack runs from the native foundation through release preparation
-and the Option 05 launcher icon. Use `main` as the base for new feature PRs once
-the stack lands. Retain the original feature branch refs. See [the verification
-ledger](docs/PROGRESS.md) for implemented, automated and physical results.
+PRs #1–#8 and #15 are merged. Start new work from `main`; the original milestone
+branch refs are retained. The approved v1 feature set is implemented, with physical
+release gates still open. [PROGRESS.md](docs/PROGRESS.md) separates implementation,
+automated checks and physical results; use it for historical source/build evidence.
 
-The original server implementation and verification baseline is source `5bff9bb`. Android
-run43553892997 passed all four APIs (13 ordinary + one separate audio test each),
-672 captures, denial/locked-reboot preservation, lint/privacy/build and QA signing.
-Performance43553892993 and reproducibility43553893029 passed. Downloaded reports and
-actual large-text keyboard images were reviewed. PROGRESS.md has exact evidence.
-The S23 follow-up source is `8b2eda7` from PR #7. The
-[signed QA build 94](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45205128442/artifacts/14833472002)
-is the in-place update from build 74. See PROGRESS.md for its verification and
-DEVICE_QA.md for the S23 spot checks. Salman confirmed record, theme and import
-preservation from 48 → 56 → 74. ADB confirmed both widget bindings from 56 → 74.
-Salman then reviewed build 94. The follow-up at `8798816` adds Today date
-browsing and a city shortcut, one explicit record editor, night-time options,
-simpler reminders, fixed or relative Fajr timing and a clearer Pause screen.
-The next follow-up at `f9540dc` adds horizontal Today date browsing and lets
-Appearance show either or both night times.
-[Signed QA build 108](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45856475811/artifacts/15136427874) validated the swipe and night-time changes. The Option 05 icon and those
-changes are in [signed QA build 117](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45862654353/artifacts/15138784269).
-See [the launcher icon notes](docs/branding/LAUNCHER_ICON.md) for previews and
-[device QA](docs/DEVICE_QA.md) for the earlier spot checks.
-Physical Qibla and overnight alarms, Arabic review, production signing and store
-review remain open.
+[Signed QA build 150](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45881252759/artifacts/15146924960)
+(source `1d6978c`, merged through PR #15) is installed on Salman's S23 Ultra,
+SM-S918B, Android 17/API 37, build `CP2A.260605.016.S918BXXUAGZIF`.
+It includes Option 05, the earlier review fixes and the navigation/cache improvements.
+All four API integrations, capture, performance and reproducibility jobs passed.
+Seven navigation checks passed physically, and Salman accepted the result. Private
+captures stay local; the original USB stay-awake setting was restored to `0`.
 
-Real generated profiles and raw emulator measurements are committed. Clean independent
-unsigned builds are byte-identical; exact source/hash evidence is in PROGRESS.md and
-RELEASE.md. Release review kits, four-language store drafts, private security reporting
-and a disabled F-Droid recipe are prepared. No production signing or submission.
+Maintenance PR #16 consolidates the compatible dependency proposals, closes the
+superseded queue and refreshes this handoff. Its strict preflight, full Android,
+performance and reproducibility checks passed at `d25bea9`. Signed QA157 is verified
+and available; the phone remains on accepted QA150. See PROGRESS.md for evidence.
+Next is alarm and Prayer Focus reliability. Do not claim new physical
+alarm/Doze/OEM acceptance from existing emulator evidence. Qibla, audible playback,
+TalkBack, Arabic review and physical mid-range/power acceptance remain open.
 
-Temporary JDK21, Gradle9.6.0 and AndroidSDK37 are in `/tmp/hayya-toolchain`; set
-JAVA_HOME, ANDROID_HOME and GRADLE_USER_HOME accordingly. Do not rely on /tmp surviving.
-No KVM exists here; use GitHub CI emulators. Avoid overlapping local Gradle builds.
-`.local-qa/` holds an ignored private QA key; never commit it. Disk space is limited;
-remove only task-owned reproducible caches/downloads when necessary.
+Production signing and store publication require their separate release review.
+The QA identity/key is stable and private; never uninstall/reset a personal QA
+installation or run synthetic CI seed scripts on it. Both update preservation and
+alarm behavior must be tested with ordinary app controls and non-destructive tools.
 
-Physical S23, mid-range, overnight, TalkBack, sensor and power checks and Arabic
-review are the remaining release gates. Production signing and public release
-publication require the agreed release review.
+JDK21 and Android SDK37 are under `/tmp/hayya-toolchain` on Dukhan. Task-owned
+RAM build copies/caches are under `/dev/shm/hayya-*`; do not assume temporary paths
+survive reboot. There is no KVM on Dukhan. Use GitHub Actions emulators and avoid
+overlapping Gradle builds. Keep source, keys and private device evidence intact.
 
 ## Non-negotiable decisions
 

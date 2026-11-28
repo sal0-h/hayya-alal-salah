@@ -32,8 +32,8 @@ reports=list(Path('app/build/outputs/androidTest-results/connected/debug').glob(
 assert reports
 for path in reports:
     report=ET.parse(path).getroot()
-    assert int(report.get('tests','0')) >= 15, (path,report.attrib)
-    assert int(report.get('failures','0')) == 0 and int(report.get('errors','0')) == 0, report.attrib
+    assert int(report.get('tests','0')) >= 24, (path,report.attrib)
+    assert int(report.get('failures','0')) == 0 and int(report.get('errors','0')) == 0 and int(report.get('skipped','0')) == 0, report.attrib
 VERIFY
 
 # AudioManager/MediaPlayer and its UiAutomation connection own a separate process/session.

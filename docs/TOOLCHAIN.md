@@ -1,10 +1,11 @@
 # Build toolchain
 
-Pinned: Temurin JDK 21.0.13+9 (Java/Kotlin output 17), AGP 9.5.1, Gradle 9.6.0,
+Pinned: Temurin JDK 21.0.13+9 (Java/Kotlin output 17), AGP 9.5.3, Gradle 9.9.2,
 Kotlin/Compose compiler 2.4.21, Compose BOM 2026.09.00,
 Android platform 37.0, build tools 36.0.0; min API 26, target API 37.
 
-Compatibility sources checked 2026-11-13:
+Compatibility sources rechecked 2026-11-27:
+- https://docs.gradle.org/9.9.2/release-notes.html
 - https://developer.android.com/build/releases/agp-9-5-0-release-notes
 - https://kotlinlang.org/docs/releases.html
 - https://developer.android.com/develop/ui/compose/bom

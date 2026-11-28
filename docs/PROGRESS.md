@@ -1,6 +1,6 @@
 # Implementation and validation ledger
 
-Updated 2026-11-26. Source implementation, automated execution, visual inspection and
+Updated 2026-11-27. Source implementation, automated execution, visual inspection and
 physical acceptance are separate. The full approved v1 scope is implemented in
 PRs #1–#8. See Source consolidation below for merge approval and verification.
 QA baseline `5bff9bb` passed the initial server checks. The S23 review follow-up and its verification are tracked below.
@@ -9,10 +9,10 @@ QA baseline `5bff9bb` passed the initial server checks. The S23 review follow-up
 
 | Area | Implemented | Automated evidence | Physical acceptance |
 | --- | --- | --- | --- |
-| Foundation | Native Compose/API26–37, four modules, pinned tools/engines/dependencies, separate stable QA signing/ID | Clean builds, lint, manifest/privacy checks and signed QA artifacts | Reported in-place S23 preservation for 48 → 56 → 74. Follow-up build pending physical QA. |
+| Foundation | Native Compose/API26–37, four modules, pinned tools/engines/dependencies, separate stable QA signing/ID | Clean builds, lint, manifest/privacy checks and signed QA artifacts | Reported S23 record/theme/import preservation for 48 → 56 → 74. QA 150 installed in place; visible settings/marks and navigation checked. |
 | Calculation | 15 profiles/two reused engines, both Asr rules, advanced controls/corrections, high latitude, confirmed nearest-valid polar policy/manual reference/disabled, provenance, rollover/Ramadan | 21 core tests plus preserved upstream fixture; six seasonal provider references/36 times differ by at most one minute | No local religious-authority signoff |
 | Tracking | Room records/pauses/audio metadata, explicit correction/backfill/deletion, original date/zone, calendar, daily/per-prayer streaks, coverage/insights | Persistence/reopen/concurrency/preferences, UI correction, actual original-target actions and full private-data deletion fixtures | Records reportedly survived the S23 updates to build 74. Process-kill QA pending. |
-| Navigation/design | Today/History/Settings, all setup/settings/dialog routes, original geometric marker, bundled fonts, four languages/RTL, time/numerals/themes/palettes/reduced motion | Full-route/dialog capture matrix, navigation/labeled-control checks, real 100%/200% system fonts and narrow/tablet widths | TalkBack, Arabic and final design review pending |
+| Navigation/design | Today/History/Settings, all setup/settings/dialog routes, original geometric marker, bundled fonts, four languages/RTL, time/numerals/themes/palettes/reduced motion | Full-route/dialog capture matrix, navigation/labeled-control checks, real 100%/200% system fonts and narrow/tablet widths | QA 150 seven navigation checks passed and Salman accepted the result. TalkBack and fluent Arabic review remain open. |
 | Alerts/Fajr | Seven-day stable alarms, exact/inexact readiness, best-effort extras, stale/duplicate claims, lifecycle reconciliation, authenticated original-target actions, challenge/emergency stop | Actual idle-capable AlarmManager delivery on APIs26/31/33/37; locked-reboot API37 probe verified active Fajr/bundled audio before unlock and preservation afterward | S23/OEM/overnight/Doze timing unverified |
 | Audio | Three redistributable CC BY recordings, per-prayer/Fajr choices, private bounded validated imports/removal, finite foreground playback, ringer/DND guards, Fajr priority | Actual media preparation/import/corrupt rejection and MediaPlayer/audio-focus pause/regain/priority/emergency stop on all four APIs | Audible/calls/headphones/DND behavior unverified |
 | Focus | Disclosure/consent, selected apps/prayers, metadata-only accessibility, essential exclusions, completion/pause/bypass/expiry, pinned emergency control | Real overlay lifecycle and permission removal passed all four APIs at `5bff9bb` with audio in a separate session | OEM/TalkBack and Play policy review pending |
@@ -109,7 +109,7 @@ Physical acceptance, language review, production signing and publication review 
 
 The [device protocol](DEVICE_QA.md#update-preservation) lists the baseline signed APKs in order.
 All use the same verified QA certificate and increasing version codes.
-Salman reported that records, theme and imported audio persisted through builds 48 → 56 → 74 on his S23 Ultra. ADB confirmed both widget bindings survived 56 → 74. This verifies that update sequence only. The exact Android/One UI build is unrecorded. Arabic review, a physical mid-range tester, overnight alarms/Doze/OEM/Direct Boot/calls/headphones, live Qibla/TalkBack and physical
+Salman reported that records, theme and imported audio persisted through builds 48 → 56 → 74 on his S23 Ultra. ADB confirmed both widget bindings survived 56 → 74. This verifies that update sequence only. The exact OS build was unrecorded for that early update sequence; QA 150 device details are recorded below. Arabic review, a physical mid-range tester, overnight alarms/Doze/OEM/Direct Boot/calls/headphones, live Qibla/TalkBack and physical
 startup/frame/memory/power budgets remain public-release gates. They do not authorize
 publication or excuse leaving independent implementation unfinished.
 
@@ -347,3 +347,82 @@ performance and independent unsigned APK comparison. The S23 launcher and
 update checks, overnight alarms, Qibla, TalkBack, Arabic review, and mid-range
 device acceptance remain open. Public publication and production signing
 require the separate release review.
+
+## Post-merge verification, 26 November 2026
+
+PRs #1–#8 are merged in dependency order. `main` at `e4cb6ee` has the same
+Git tree as PR #8 head `729bcf7`; the merge preserved the reviewed app and icon.
+Both the Dukhan main checkout and the local checkout were clean and synchronized
+to this commit before this documentation follow-up.
+
+[Main Android run 45869770771](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45869770771)
+passed build/lint, screenshots and APIs 26, 31, 33 and 37. Downloaded JUnit reports
+confirm 18 ordinary integration tests per API, with zero failures, errors or skips;
+each separate audio and denied-permission report confirms one passing test. The
+API 37 locked-boot probe reports bundled Fajr audio active before unlock.
+The API 26 job failed resolving the pinned Kotlin plugin before app tests ran.
+The isolated retry passed on attempt 2 without code, dependency or permission
+changes. The overall Android run is successful. The build report also confirms
+24 core tests and one preserved upstream PrayTimes fixture, all passing.
+[Performance](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45869770650) and
+[independent reproducibility](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45869770631)
+passed on the same main source.
+
+[Signed QA build 141](https://github.com/sal0-h/hayya-alal-salah/actions/runs/45869770771/artifacts/15142447273)
+is `org.hayya.salah.qa`, version code 141. The downloaded APK's signature verifies,
+its certificate matches the earlier QA builds, and its SHA-256 matches the artifact:
+`305639a8260f4738544ad94141bf9e98adcb1c3de6768351a3fca6664eb00c3c`.
+The actual main-source launcher sheet was inspected at 144 and 48 pixels across
+circle, rounded square, squircle and light/dark themed variants; its gaps remain
+visible. This verifies the update artifact; physical installation and data
+preservation for this update, Samsung launcher appearance, sensors and overnight
+alarms remain open.
+
+Dukhan had 45 MiB free at takeover. Removing only ignored, regenerable
+`benchmark/build` output recovered 347 MiB; source, signing keys, imported audio
+and test evidence were preserved. No app behavior or dependencies changed in this
+follow-up. Open Dependabot proposals remain separate from the merged app source.
+
+## Repository maintenance, 27 November 2026
+
+Salman authorized resolving all open PRs and cleaning the repository before alarm
+and Focus reliability work. The maintenance branch combines proposals #9, #10,
+#12 and #13 with the documentation from #14, retaining their source attribution.
+It evaluates Compose BOM 2026.11.01 but retains 2026.09.00: the newer animation,
+foundation and UI AARs require compile SDK 37.1 and fail the pinned 37.0 metadata
+check. Proposal #10 is deferred to a dedicated SDK/UI upgrade. The accepted updates
+are setup-java 6.3.0, Gradle 9.9.2 and AGP 9.5.3. Gradle wrapper JAR and distribution
+checksums match the official published values. All 978 existing artifact checksum
+approvals remain unchanged. The 88 new approvals
+were compared with published vendor sidecars (86 SHA-256, two SHA-1 with the cached
+bytes also matching their committed SHA-256); see the dependency-maintenance JSON.
+These same-origin checks do not establish an independent supply-chain audit.
+Runtime dependency graphs are unchanged. The Windows wrapper index is normalized
+under the existing CRLF checkout rule, and the integration report guard requires
+24 ordinary tests with zero skips.
+
+**Automated:** source `d25bea9` passed the strict offline core/upstream/debug build
+on Dukhan (24 core tests and one upstream fixture, zero failures). The serial
+all-variant preflight was deliberately stopped after compilation to run the full
+variant matrix in parallel CI; that cancelled command is not counted as passed.
+[Android CI](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46097403012)
+passed build/lint/privacy, all 24 ordinary integration tests on each API26/31/33/37,
+separate audio/denial tests, API37 locked reboot, and all 816 full-shell/widget
+captures plus the launcher sheet. Downloaded XML confirms zero failures, errors or
+skips; all eight separate audio/denial reports say `OK (1 test)`. Actual English
+and Arabic Today captures were visually reviewed at 100%/200% text in both themes.
+[Performance](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46097403064)
+and [independent reproducibility](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46097403058)
+passed on the same source. The evidence-only follow-up changes Markdown, not app code.
+
+**QA delivery:** signed [build 157](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46097403012/artifacts/15243952747)
+verified as `org.hayya.salah.qa`, with the established QA certificate and artifact
+SHA-256 `ccebe1bb17efa68faff71635bf8bcf224612416fb5ef4012de2c6265fcf2d4a8`.
+It is downloaded but not installed during this maintenance pass; the phone remains
+on accepted QA150. No new physical alarm or blocking acceptance is claimed.
+
+Proposals #9/#12/#13/#14 were closed as superseded by consolidated PR #16;
+#10 was closed as deferred. Their remote branches and the fully merged #15 branch
+were removed and pruned in both checkouts. Original `implement/*` milestone refs,
+source, keys and private device captures were preserved. No tracked APK, keystore
+or build/cache output was found. Repo cleanup does not delete personal QA evidence.
