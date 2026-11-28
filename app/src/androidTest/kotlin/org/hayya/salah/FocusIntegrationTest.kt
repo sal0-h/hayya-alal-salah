@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.os.PowerManager
 import android.os.SystemClock
+import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityWindowInfo
 import android.view.inputmethod.InputMethodManager
@@ -35,6 +36,18 @@ class FocusIntegrationTest {
         val targetPackage = instrumentation.context.packageName
         val automation = instrumentation.getUiAutomation(UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES)
         automation.serviceInfo = automation.serviceInfo.apply { flags = flags or android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS }
+        val windowEvents = ArrayDeque<String>()
+        automation.setOnAccessibilityEventListener { event ->
+            if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED ||
+                event.eventType == AccessibilityEvent.TYPE_WINDOWS_CHANGED) {
+                synchronized(windowEvents) {
+                    if (windowEvents.size == 100) windowEvents.removeFirst()
+                    val changes = if (Build.VERSION.SDK_INT >= 28) event.windowChanges else 0
+                    windowEvents.addLast("${event.eventTime} ${event.packageName} window=${event.windowId} " +
+                        "type=${event.eventType} change=${event.contentChangeTypes} windows=$changes")
+                }
+            }
+        }
         fun shell(command: String) = ParcelFileDescriptor.AutoCloseInputStream(automation.executeShellCommand(command)).bufferedReader().use { it.readText().trim() }
         fun quote(value: String): String {
             require(Regex("[A-Za-z0-9_./:-]+").matches(value))
@@ -117,8 +130,8 @@ class FocusIntegrationTest {
             phase = "clear bypass"; app.settings.update { it.copy(focus = it.focus.copy(bypass = null)) }; overlay(true)
             phase = "own app exclusion"; shell("am start -W -n ${context.packageName}/org.hayya.salah.MainActivity"); overlay(false)
             phase = "settings exclusion"; shell("am start -W -a android.settings.SETTINGS"); overlay(false)
-            phase = "rapid returns"
             repeat(3) {
+                phase = "rapid returns ${it + 1}"
                 shell("am start -W -n ${context.packageName}/org.hayya.salah.MainActivity")
                 launchTarget()
                 shell("am start -W -a android.settings.SETTINGS")
@@ -210,11 +223,13 @@ class FocusIntegrationTest {
                 fun field(name: String) = type.getDeclaredField(name).apply { isAccessible = true }.get(service)
                 val prefs = field("config") as? AppPreferences
                 val view = (field("ownWindow") as? java.lang.ref.WeakReference<*>)?.get() as? android.view.View
-                "foreground=${field("foreground")}; configured=${prefs?.focus?.enabled}; selected=${prefs?.focus?.packages}; ownFocused=${view?.hasWindowFocus()}; overlay=${field("overlay") != null}; connected=${org.hayya.salah.focus.PrayerFocusService.connected.value}"
+                "foreground=${field("foreground")}; configured=${prefs?.focus?.enabled}; selected=${prefs?.focus?.packages}; ownFocused=${view?.hasWindowFocus()}; overlay=${field("overlay") != null}; connected=${PrayerFocusService.connected.value}; lastWindowEvent=${field("lastWindowEventAt")}"
             }.getOrElse { "State unavailable: $it" }
-            directory?.resolve("accessibility.txt")?.writeText("Phase: $phase\n$state\n" + shell("dumpsys accessibility"))
+            val events = synchronized(windowEvents) { windowEvents.joinToString("\n") }
+            directory?.resolve("accessibility.txt")?.writeText("Phase: $phase\n$state\n$events\n" + shell("dumpsys accessibility"))
             throw AssertionError("Focus lifecycle failed during $phase",error)
         } finally {
+            automation.setOnAccessibilityEventListener(null)
             shell("input keyevent KEYCODE_WAKEUP")
             shell("wm dismiss-keyguard")
             app.repository.record(window.target,null,place.zone); app.repository.deletePause(pause)

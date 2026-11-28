@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
@@ -27,6 +28,7 @@ class PrayerFocusService : AccessibilityService() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val handler = Handler(Looper.getMainLooper())
     private var foreground: String? = null
+    private var lastWindowEventAt = 0L
     private var config: AppPreferences? = null
     private var history: HistorySnapshot? = null
     private var observation: Job? = null
@@ -76,9 +78,13 @@ class PrayerFocusService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED || !screenAvailable) return
         val name = event.packageName?.toString() ?: return
-        // Own activity focus comes directly from its window callback. Delayed accessibility
-        // events from that activity or our overlay must not replace a newer external app.
-        if (name == packageName || event.eventTime < ownFocusedAt) return
+        // A pane disappearing can report its old owner after the new window takes focus.
+        if (Build.VERSION.SDK_INT >= 28 &&
+            event.contentChangeTypes and AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_DISAPPEARED != 0) return
+        // Own focus comes directly from our Activity. Ignore older external events
+        // that are dispatched after a newer window was already observed.
+        if (name == packageName || event.eventTime < maxOf(ownFocusedAt, lastWindowEventAt)) return
+        lastWindowEventAt = event.eventTime
         foreground = name
         refresh()
     }
@@ -156,6 +162,7 @@ class PrayerFocusService : AccessibilityService() {
     override fun onInterrupt() {
         cancelRefresh()
         foreground = null
+        lastWindowEventAt = android.os.SystemClock.uptimeMillis()
         hide()
     }
     private fun disconnect() {

@@ -89,7 +89,8 @@ class AlarmRegistrationTest {
                 }
             }
             val place = ManualSetup("Synthetic registration fixture", GeoPoint(40.0, 50.0), ZoneId.of("UTC"), Profile.MWL)
-            app.settings.update { AppPreferences(place, fajr = FajrPreferences(enabled = true, mode = FajrMode.FIXED)) }
+            val fixedTime = LocalTime.now(ZoneOffset.UTC).plusHours(2).withSecond(0).withNano(0)
+            app.settings.update { AppPreferences(place, fajr = FajrPreferences(enabled = true, mode = FajrMode.FIXED, fixedTime = fixedTime)) }
             AlarmCoordinator.reconcile(context)
             assertTrue(registrations("DELIVER").all { alarm -> alarm.lineSequence().take(14).any { it.trim() == "Alarm clock:" } })
             val maintenance = registrations("MAINTAIN").single()
