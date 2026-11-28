@@ -112,3 +112,22 @@ PagerDefaults documents a default 0.5 slow-drag threshold. Use 0.25 for delibera
 shorter day changes, retain the one-page fling limit and native spring settling,
 and keep reduced motion snapping immediate. Regression coverage distinguishes a
 one-third-width slow swipe from a one-tenth-width nudge. [Pager fling behavior](https://developer.android.com/reference/kotlin/androidx/compose/foundation/pager/PagerDefaults)
+
+## November dependency maintenance
+
+The [Gradle 9.9.2 release notes](https://docs.gradle.org/9.9.2/release-notes.html)
+describe security and bug fixes; wrapper bytes and the distribution checksum are
+checked against Gradle's official checksum publications.
+[AGP 9.5 compatibility](https://developer.android.com/build/releases/agp-9-5-0-release-notes)
+requires Gradle 9.6.0 or newer and supports API 37.
+[Compose stable releases](https://developer.android.com/jetpack/androidx/releases/compose)
+list the 1.13 line. The application continues to use the Kotlin Compose compiler
+plugin matching its Kotlin version.
+[setup-java 6.3.0](https://github.com/actions/setup-java/releases/tag/v6.3.0)
+changes compiler problem annotations to opt-in; compiler failures still fail jobs.
+Compatibility acceptance depends on the recorded builds/tests, not these version
+claims alone.
+
+The Compose BOM proposal was tested against the pinned SDK 37.0 and failed AAR
+metadata checks: animation/foundation/UI 1.13.0 require compile SDK 37.1. Keep the
+accepted UI dependency line and review the SDK/UI upgrade together separately.

@@ -1,6 +1,6 @@
 # Implementation and validation ledger
 
-Updated 2026-11-26. Source implementation, automated execution, visual inspection and
+Updated 2026-11-27. Source implementation, automated execution, visual inspection and
 physical acceptance are separate. The full approved v1 scope is implemented in
 PRs #1–#8. See Source consolidation below for merge approval and verification.
 QA baseline `5bff9bb` passed the initial server checks. The S23 review follow-up and its verification are tracked below.
@@ -9,10 +9,10 @@ QA baseline `5bff9bb` passed the initial server checks. The S23 review follow-up
 
 | Area | Implemented | Automated evidence | Physical acceptance |
 | --- | --- | --- | --- |
-| Foundation | Native Compose/API26–37, four modules, pinned tools/engines/dependencies, separate stable QA signing/ID | Clean builds, lint, manifest/privacy checks and signed QA artifacts | Reported in-place S23 preservation for 48 → 56 → 74. Follow-up build pending physical QA. |
+| Foundation | Native Compose/API26–37, four modules, pinned tools/engines/dependencies, separate stable QA signing/ID | Clean builds, lint, manifest/privacy checks and signed QA artifacts | Reported S23 record/theme/import preservation for 48 → 56 → 74. QA 150 installed in place; visible settings/marks and navigation checked. |
 | Calculation | 15 profiles/two reused engines, both Asr rules, advanced controls/corrections, high latitude, confirmed nearest-valid polar policy/manual reference/disabled, provenance, rollover/Ramadan | 21 core tests plus preserved upstream fixture; six seasonal provider references/36 times differ by at most one minute | No local religious-authority signoff |
 | Tracking | Room records/pauses/audio metadata, explicit correction/backfill/deletion, original date/zone, calendar, daily/per-prayer streaks, coverage/insights | Persistence/reopen/concurrency/preferences, UI correction, actual original-target actions and full private-data deletion fixtures | Records reportedly survived the S23 updates to build 74. Process-kill QA pending. |
-| Navigation/design | Today/History/Settings, all setup/settings/dialog routes, original geometric marker, bundled fonts, four languages/RTL, time/numerals/themes/palettes/reduced motion | Full-route/dialog capture matrix, navigation/labeled-control checks, real 100%/200% system fonts and narrow/tablet widths | TalkBack, Arabic and final design review pending |
+| Navigation/design | Today/History/Settings, all setup/settings/dialog routes, original geometric marker, bundled fonts, four languages/RTL, time/numerals/themes/palettes/reduced motion | Full-route/dialog capture matrix, navigation/labeled-control checks, real 100%/200% system fonts and narrow/tablet widths | QA 150 seven navigation checks passed and Salman accepted the result. TalkBack and fluent Arabic review remain open. |
 | Alerts/Fajr | Seven-day stable alarms, exact/inexact readiness, best-effort extras, stale/duplicate claims, lifecycle reconciliation, authenticated original-target actions, challenge/emergency stop | Actual idle-capable AlarmManager delivery on APIs26/31/33/37; locked-reboot API37 probe verified active Fajr/bundled audio before unlock and preservation afterward | S23/OEM/overnight/Doze timing unverified |
 | Audio | Three redistributable CC BY recordings, per-prayer/Fajr choices, private bounded validated imports/removal, finite foreground playback, ringer/DND guards, Fajr priority | Actual media preparation/import/corrupt rejection and MediaPlayer/audio-focus pause/regain/priority/emergency stop on all four APIs | Audible/calls/headphones/DND behavior unverified |
 | Focus | Disclosure/consent, selected apps/prayers, metadata-only accessibility, essential exclusions, completion/pause/bypass/expiry, pinned emergency control | Real overlay lifecycle and permission removal passed all four APIs at `5bff9bb` with audio in a separate session | OEM/TalkBack and Play policy review pending |
@@ -109,7 +109,7 @@ Physical acceptance, language review, production signing and publication review 
 
 The [device protocol](DEVICE_QA.md#update-preservation) lists the baseline signed APKs in order.
 All use the same verified QA certificate and increasing version codes.
-Salman reported that records, theme and imported audio persisted through builds 48 → 56 → 74 on his S23 Ultra. ADB confirmed both widget bindings survived 56 → 74. This verifies that update sequence only. The exact Android/One UI build is unrecorded. Arabic review, a physical mid-range tester, overnight alarms/Doze/OEM/Direct Boot/calls/headphones, live Qibla/TalkBack and physical
+Salman reported that records, theme and imported audio persisted through builds 48 → 56 → 74 on his S23 Ultra. ADB confirmed both widget bindings survived 56 → 74. This verifies that update sequence only. The exact OS build was unrecorded for that early update sequence; QA 150 device details are recorded below. Arabic review, a physical mid-range tester, overnight alarms/Doze/OEM/Direct Boot/calls/headphones, live Qibla/TalkBack and physical
 startup/frame/memory/power budgets remain public-release gates. They do not authorize
 publication or excuse leaving independent implementation unfinished.
 
@@ -382,3 +382,21 @@ Dukhan had 45 MiB free at takeover. Removing only ignored, regenerable
 `benchmark/build` output recovered 347 MiB; source, signing keys, imported audio
 and test evidence were preserved. No app behavior or dependencies changed in this
 follow-up. Open Dependabot proposals remain separate from the merged app source.
+
+## Repository maintenance, 27 November 2026
+
+Salman authorized resolving all open PRs and cleaning the repository before alarm
+and Focus reliability work. The maintenance branch combines proposals #9, #10,
+#12 and #13 with the documentation from #14, retaining their source attribution.
+It evaluates Compose BOM 2026.11.01 but retains 2026.09.00: the newer animation,
+foundation and UI AARs require compile SDK 37.1 and fail the pinned 37.0 metadata
+check. Proposal #10 is deferred to a dedicated SDK/UI upgrade. The accepted updates
+are setup-java 6.3.0, Gradle 9.9.2 and AGP 9.5.3. Gradle wrapper JAR and distribution checksums match the official published
+values. All 978 existing artifact checksum approvals remain unchanged. The 88 new approvals
+were compared with published vendor sidecars (86 SHA-256, two SHA-1 with the cached
+bytes also matching their committed SHA-256); see the dependency-maintenance JSON.
+These same-origin checks do not establish an independent supply-chain audit.
+Runtime dependency graphs are unchanged. The Windows wrapper index is normalized
+under the existing CRLF checkout rule, and the integration report guard requires
+24 ordinary tests with zero skips. Strict preflight, four-API integration,
+screenshot, performance and reproducibility checks are pending. No new physical alarm or blocking acceptance is claimed.
