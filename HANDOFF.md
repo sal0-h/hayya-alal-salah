@@ -23,9 +23,11 @@ All four API integrations, capture, performance and reproducibility jobs passed.
 Seven navigation checks passed physically, and Salman accepted the result. Private
 captures stay local; the original USB stay-awake setting was restored to `0`.
 
-The current task is repository/PR cleanup followed by alarm and Prayer Focus
-reliability. The maintenance branch consolidates the open dependency proposals;
-its acceptance is recorded separately in PROGRESS.md. Do not claim new physical
+Maintenance PR #16 consolidates the compatible dependency proposals, closes the
+superseded queue and refreshes this handoff. Its strict preflight, full Android,
+performance and reproducibility checks passed at `d25bea9`. Signed QA157 is verified
+and available; the phone remains on accepted QA150. See PROGRESS.md for evidence.
+Next is alarm and Prayer Focus reliability. Do not claim new physical
 alarm/Doze/OEM acceptance from existing emulator evidence. Qibla, audible playback,
 TalkBack, Arabic review and physical mid-range/power acceptance remain open.
 

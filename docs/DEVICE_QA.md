@@ -17,6 +17,11 @@ still open. Use higher-version signed QA updates as the maintenance work proceed
 check records, settings, imports and both widgets after each update. Do not uninstall
 or downgrade an installation with records to repeat a historical sequence below.
 
+The compatible maintenance update is [signed QA157](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46097403012/artifacts/15243952747)
+(source `d25bea9`). Its checksum and established QA certificate verified. It has
+not been installed or physically accepted in the maintenance pass. A later
+reliability build may supersede it; always preserve the QA installation and data.
+
 ## Update preservation
 
 Use these three signed builds in order on a QA installation that starts at version

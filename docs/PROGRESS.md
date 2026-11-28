@@ -391,12 +391,38 @@ and Focus reliability work. The maintenance branch combines proposals #9, #10,
 It evaluates Compose BOM 2026.11.01 but retains 2026.09.00: the newer animation,
 foundation and UI AARs require compile SDK 37.1 and fail the pinned 37.0 metadata
 check. Proposal #10 is deferred to a dedicated SDK/UI upgrade. The accepted updates
-are setup-java 6.3.0, Gradle 9.9.2 and AGP 9.5.3. Gradle wrapper JAR and distribution checksums match the official published
-values. All 978 existing artifact checksum approvals remain unchanged. The 88 new approvals
+are setup-java 6.3.0, Gradle 9.9.2 and AGP 9.5.3. Gradle wrapper JAR and distribution
+checksums match the official published values. All 978 existing artifact checksum
+approvals remain unchanged. The 88 new approvals
 were compared with published vendor sidecars (86 SHA-256, two SHA-1 with the cached
 bytes also matching their committed SHA-256); see the dependency-maintenance JSON.
 These same-origin checks do not establish an independent supply-chain audit.
 Runtime dependency graphs are unchanged. The Windows wrapper index is normalized
 under the existing CRLF checkout rule, and the integration report guard requires
-24 ordinary tests with zero skips. Strict preflight, four-API integration,
-screenshot, performance and reproducibility checks are pending. No new physical alarm or blocking acceptance is claimed.
+24 ordinary tests with zero skips.
+
+**Automated:** source `d25bea9` passed the strict offline core/upstream/debug build
+on Dukhan (24 core tests and one upstream fixture, zero failures). The serial
+all-variant preflight was deliberately stopped after compilation to run the full
+variant matrix in parallel CI; that cancelled command is not counted as passed.
+[Android CI](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46097403012)
+passed build/lint/privacy, all 24 ordinary integration tests on each API26/31/33/37,
+separate audio/denial tests, API37 locked reboot, and all 816 full-shell/widget
+captures plus the launcher sheet. Downloaded XML confirms zero failures, errors or
+skips; all eight separate audio/denial reports say `OK (1 test)`. Actual English
+and Arabic Today captures were visually reviewed at 100%/200% text in both themes.
+[Performance](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46097403064)
+and [independent reproducibility](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46097403058)
+passed on the same source. The evidence-only follow-up changes Markdown, not app code.
+
+**QA delivery:** signed [build 157](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46097403012/artifacts/15243952747)
+verified as `org.hayya.salah.qa`, with the established QA certificate and artifact
+SHA-256 `ccebe1bb17efa68faff71635bf8bcf224612416fb5ef4012de2c6265fcf2d4a8`.
+It is downloaded but not installed during this maintenance pass; the phone remains
+on accepted QA150. No new physical alarm or blocking acceptance is claimed.
+
+Proposals #9/#12/#13/#14 were closed as superseded by consolidated PR #16;
+#10 was closed as deferred. Their remote branches and the fully merged #15 branch
+were removed and pruned in both checkouts. Original `implement/*` milestone refs,
+source, keys and private device captures were preserved. No tracked APK, keystore
+or build/cache output was found. Repo cleanup does not delete personal QA evidence.
