@@ -22,6 +22,24 @@ The compatible maintenance update is [signed QA157](https://github.com/sal0-h/ha
 not been installed or physically accepted in the maintenance pass. A later
 reliability build may supersede it; always preserve the QA installation and data.
 
+## S23 alarm and Focus reliability protocol
+
+All rows below are pending physical testing. Start with an in-place update from
+the installed QA build using the signed reliability APK. Verify existing records,
+settings, imported audio and both widgets before changing test settings. Note
+the original settings you temporarily change and restore them after testing.
+
+| Check | What to verify |
+| --- | --- |
+| Primary and optional alerts | Enable one at-time alert and nearby before/after reminders. Note scheduled and observed times with the screen on and with the phone unplugged and idle. Repeat with Samsung's usual battery settings and note any OEM restrictions. Check for late or duplicate notifications. Optional reminders may arrive late or be dropped. |
+| Overnight and locked reboot | Set a real future Fajr wake-up and leave the S23 unplugged overnight with the screen off. In a separate run, reboot and reach the alarm before first unlock. Record when it rang, whether the bundled sound played before unlock, and whether settings and imports return after unlock. |
+| Sound and challenge | Listen on the speaker and with headphones. Check a call, headphone disconnection, silent mode, and the intended DND settings. During a multi-question alarm, rotate after entering a partial answer and check the question, progress and input. Try solve, dismissal and emergency stop separately. Check History for changes. |
+| Focus and essential escape | Select a harmless app and one prayer window. Switch quickly through Hayya, an unselected app, Settings, Home, the dialer and the keyboard. Verify access to emergency calling controls without placing a test emergency call. Lock and wake both before and after expiry, try bypass with an unrecorded prayer, then disable and re-enable accessibility access. Verify bypass and expiry leave History intact. |
+
+Use ordinary app and Android controls. Keep private history and audio local, and
+share only the device/build details, timings and redacted observations needed to
+reproduce a failure.
+
 ## Update preservation
 
 Use these three signed builds in order on a QA installation that starts at version

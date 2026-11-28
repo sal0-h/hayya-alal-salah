@@ -2,8 +2,12 @@
 package org.hayya.salah
 
 import android.Manifest
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Intent
 import android.os.Build
 import android.os.ParcelFileDescriptor
+import androidx.core.net.toUri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.flow.first
@@ -47,12 +51,13 @@ class AlarmRegistrationTest {
         }
 
         fun flags(alarm: String): Int {
-            val details = alarm.lineSequence().firstOrNull { it.trimStart().startsWith("type=") }
-            assertNotNull("Unrecognized alarm details:\n$alarm", details)
-            val result = Regex("flags=0x([0-9a-fA-F]+)").find(checkNotNull(details))
-            // API 26 omits the flags field when the value is zero.
-            if (Build.VERSION.SDK_INT != 26) assertNotNull("Missing alarm flags in: $details", result)
-            return result?.groupValues?.get(1)?.toInt(16) ?: 0
+            // Android 8 prints a separate window/flags line. Later releases put
+            // both fields on the type line.
+            val result = alarm.lineSequence().take(14).firstNotNullOfOrNull {
+                Regex("window=\\S+ .*flags=0x([0-9a-fA-F]+)").find(it)
+            }
+            assertNotNull("Unrecognized alarm details:\n$alarm", result)
+            return checkNotNull(result).groupValues[1].toInt(16)
         }
         try {
             app.settings.update { AppPreferences() }
@@ -64,16 +69,24 @@ class AlarmRegistrationTest {
             val at = Instant.now().plusSeconds(1_800)
             for (kind in listOf(EventKind.AT_TIME, EventKind.BEFORE, EventKind.AFTER)) {
                 val entry = AlarmEntry("registration-$kind", target, kind, at, "UTC", null, ChallengeDifficulty.OFF)
-                AlarmSnapshot(context).replace(listOf(entry))
-                AlarmCoordinator.install(context, entry)
-                val registration = registrations("DELIVER").single()
-                val bits = flags(registration)
-                if (kind == EventKind.AT_TIME) {
-                    assertTrue("Primary prayer has no idle delivery: $registration", bits and (quotaFlags or unrestricted) != 0)
-                } else {
-                    assertEquals("$kind requests idle quota: $registration", 0, bits and quotaFlags)
+                try {
+                    AlarmCoordinator.install(context, entry)
+                    val registration = registrations("DELIVER").single()
+                    val bits = flags(registration)
+                    if (kind == EventKind.AT_TIME) {
+                        assertTrue("Primary prayer has no idle delivery: $registration", bits and (quotaFlags or unrestricted) != 0)
+                    } else {
+                        assertEquals("$kind requests idle quota: $registration", 0, bits and quotaFlags)
+                    }
+                } finally {
+                    // Match the tested operation without modifying the app's live snapshot.
+                    val intent = Intent(context, AlarmReceiver::class.java).setAction("org.hayya.salah.DELIVER")
+                        .setData("hayya://alarm/${entry.id}".toUri())
+                    PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)?.let {
+                        context.getSystemService(AlarmManager::class.java).cancel(it)
+                        it.cancel()
+                    }
                 }
-                AlarmCoordinator.cancelAll(context)
             }
             val place = ManualSetup("Synthetic registration fixture", GeoPoint(40.0, 50.0), ZoneId.of("UTC"), Profile.MWL)
             app.settings.update { AppPreferences(place, fajr = FajrPreferences(enabled = true, mode = FajrMode.FIXED)) }

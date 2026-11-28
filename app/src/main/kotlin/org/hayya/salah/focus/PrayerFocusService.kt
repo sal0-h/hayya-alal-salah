@@ -2,20 +2,23 @@
 package org.hayya.salah.focus
 
 import android.accessibilityservice.AccessibilityService
+import android.app.KeyguardManager
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
-import android.graphics.Color
+import android.content.IntentFilter
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
 import android.view.*
 import android.view.accessibility.AccessibilityEvent
-import android.widget.*
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import org.hayya.core.*
 import org.hayya.salah.*
-import org.hayya.salah.R
 import java.time.Duration
 import java.time.Instant
 
@@ -26,6 +29,7 @@ class PrayerFocusService : AccessibilityService() {
     private var foreground: String? = null
     private var config: AppPreferences? = null
     private var history: HistorySnapshot? = null
+    private var observation: Job? = null
     private var refreshJob: Job? = null
     private var overlay: android.view.View? = null
     private var displayed: FocusWindow? = null
@@ -33,10 +37,31 @@ class PrayerFocusService : AccessibilityService() {
     private var displayedAppearance: AppearancePreferences? = null
     private var sessionBypass: FocusBypass? = null
     private val boundary = Runnable { refresh() }
+    private val screenAvailable get() = getSystemService(PowerManager::class.java).isInteractive &&
+        !getSystemService(KeyguardManager::class.java).isKeyguardLocked
+    private val systemEvents = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == Intent.ACTION_SCREEN_OFF) {
+                cancelRefresh()
+                hide()
+            } else refresh()
+        }
+    }
+    private var observingSystemEvents = false
+
     override fun onServiceConnected() {
         super.onServiceConnected()
+        disconnect()
         instance = java.lang.ref.WeakReference(this)
-        scope.launch {
+        ContextCompat.registerReceiver(this, systemEvents, IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+            addAction(Intent.ACTION_SCREEN_ON)
+            addAction(Intent.ACTION_USER_PRESENT)
+            addAction(Intent.ACTION_TIME_CHANGED)
+            addAction(Intent.ACTION_TIMEZONE_CHANGED)
+        }, ContextCompat.RECEIVER_NOT_EXPORTED)
+        observingSystemEvents = true
+        observation = scope.launch {
             try {
                 combine(appContainer.settings.preferences, appContainer.repository.changes) { prefs, records -> prefs to records }.collect { (prefs, records) ->
                     config = prefs; history = records
@@ -44,11 +69,12 @@ class PrayerFocusService : AccessibilityService() {
                     connection.value = true
                     refresh()
                 }
-            } catch (_: Exception) { hide(); handler.removeCallbacks(boundary) }
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (_: Exception) { disconnect() }
         }
     }
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
+        if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED || !screenAvailable) return
         val name = event.packageName?.toString() ?: return
         // Own activity focus comes directly from its window callback. Delayed accessibility
         // events from that activity or our overlay must not replace a newer external app.
@@ -56,17 +82,25 @@ class PrayerFocusService : AccessibilityService() {
         foreground = name
         refresh()
     }
+    private fun cancelRefresh() {
+        refreshJob?.cancel()
+        handler.removeCallbacks(boundary)
+    }
     private fun refresh() {
-        refreshJob?.cancel(); handler.removeCallbacks(boundary)
+        cancelRefresh()
         val prefs = config ?: return hide()
         val records = history ?: return hide()
         val place = prefs.place ?: return hide()
-        if (ownWindowFocused || !prefs.focus.enabled || foreground !in prefs.focus.packages || foreground in EssentialApps.excluded(this)) return hide()
+        if (!screenAvailable || ownWindowFocused || !prefs.focus.enabled ||
+            foreground !in prefs.focus.packages || foreground in EssentialApps.excluded(this)) return hide()
+        val started = Instant.now()
+        if (displayed?.let { started < it.startsAt || started >= it.expiresAt } == true) hide()
+        val date = started.atZone(place.zone).toLocalDate()
         refreshJob = scope.launch {
-            val now = Instant.now()
             val schedules = withContext(Dispatchers.Default) { (-1L..2L).mapNotNull { day ->
-                (LocalPrayerCalculator().calculate(now.atZone(place.zone).toLocalDate().plusDays(day), place.point, place.zone, place.calculation) as? CalculationResult.Available)?.schedule
+                (LocalPrayerCalculator().calculate(date.plusDays(day), place.point, place.zone, place.calculation) as? CalculationResult.Available)?.schedule
             } }
+            val now = Instant.now()
             // DataStore may commit and emit a newer bypass while schedules are being calculated.
             val bypass = sessionBypass?.takeIf { it.expiresAt > now }
                 ?: appContainer.settings.preferences.catch { emit(prefs) }.first().focus.bypass
@@ -78,7 +112,8 @@ class PrayerFocusService : AccessibilityService() {
             val nextBoundary = (schedules.flatMap { it.prayers.values + it.sunrise } +
                 listOfNotNull(window?.expiresAt, pauseBoundary)).filter { it > now }.minOrNull()
             nextBoundary?.let { handler.postDelayed(boundary, Duration.between(now, it).toMillis().coerceAtLeast(1)) }
-            if (ownWindowFocused || foreground !in prefs.focus.packages || foreground in EssentialApps.excluded(this@PrayerFocusService) || window == null) hide()
+            if (!screenAvailable || ownWindowFocused || foreground !in prefs.focus.packages ||
+                foreground in EssentialApps.excluded(this@PrayerFocusService) || window == null) hide()
             else show(window)
         }
     }
@@ -118,9 +153,35 @@ class PrayerFocusService : AccessibilityService() {
     override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
         super.onConfigurationChanged(newConfig); hide(); refresh()
     }
-    override fun onInterrupt() { hide() }
-    override fun onUnbind(intent: Intent?): Boolean { connection.value = false; hide(); return super.onUnbind(intent) }
-    override fun onDestroy() { connection.value = false; hide(); handler.removeCallbacks(boundary); scope.cancel(); if (instance?.get() === this) instance = null; super.onDestroy() }
+    override fun onInterrupt() {
+        cancelRefresh()
+        foreground = null
+        hide()
+    }
+    private fun disconnect() {
+        if (instance?.get() === this) {
+            connection.value = false
+            instance = null
+        }
+        if (observingSystemEvents) {
+            unregisterReceiver(systemEvents)
+            observingSystemEvents = false
+        }
+        observation?.cancel()
+        observation = null
+        config = null
+        history = null
+        onInterrupt()
+    }
+    override fun onUnbind(intent: Intent?): Boolean {
+        disconnect()
+        return super.onUnbind(intent)
+    }
+    override fun onDestroy() {
+        disconnect()
+        scope.cancel()
+        super.onDestroy()
+    }
     companion object {
         private val connection = kotlinx.coroutines.flow.MutableStateFlow(false)
         val connected: kotlinx.coroutines.flow.StateFlow<Boolean> = connection
@@ -138,7 +199,6 @@ class PrayerFocusService : AccessibilityService() {
                 instance?.get()?.refresh()
             }
         }
-        fun onTimeChanged() { instance?.get()?.refresh() }
         fun releaseOverlay() { instance?.get()?.let { it.hide(); it.disableSelf() } }
     }
 }

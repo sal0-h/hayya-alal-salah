@@ -426,3 +426,25 @@ Proposals #9/#12/#13/#14 were closed as superseded by consolidated PR #16;
 were removed and pruned in both checkouts. Original `implement/*` milestone refs,
 source, keys and private device captures were preserved. No tracked APK, keystore
 or build/cache output was found. Repo cleanup does not delete personal QA evidence.
+
+## Alarm and Prayer Focus reliability
+
+**Implemented.** At-time alerts reserve idle-capable delivery for the primary
+prayer alert. Optional reminders and maintenance use ordinary inexact alarms.
+Dedicated Fajr still uses Android's alarm-clock scheduling, and the alarm
+session token keeps arithmetic questions, progress and input together through
+activity recreation. Focus clears the overlay while locked or screen-off and
+rechecks wall time on wake, unlock and clock changes. Interruptions and unbind
+cancel pending refreshes. The service continues to observe window/package
+metadata only.
+
+**Automated reproduction.** On the previous behavior, the new ringing activity
+test observed a changed question at the saved progress on APIs 26, 31 and 37.
+AlarmManager's actual registrations showed the BEFORE reminder using the idle
+compatibility flag on APIs 31 and 37. The Android 8 dump prints flags on a
+separate line, which the regression parser now handles explicitly.
+[Test-only Android run](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46099708459)
+
+**Physical.** The S23 remains on the previously accepted navigation build.
+Overnight delivery, OEM behavior, audible playback and essential-app escape
+remain pending. [Non-destructive S23 protocol](DEVICE_QA.md#s23-alarm-and-focus-reliability-protocol)

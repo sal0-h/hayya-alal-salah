@@ -29,19 +29,24 @@ object AlarmCoordinator {
         if (entry.claimed || entry.at <= Instant.now()) return
         val alarms = manager(context)
         val operation = pending(context, entry)
+        val trigger = entry.at.toEpochMilli()
         try {
             if (entry.isFajr) {
                 if (!exactAccess(context) || !AlertNotifications.ready(context, true)) return
-                alarms.setAlarmClock(AlarmManager.AlarmClockInfo(entry.at.toEpochMilli(), AlertNotifications.open(context, entry)), operation)
-            } else if (entry.kind == EventKind.AT_TIME && exactAccess(context)) {
-                alarms.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, entry.at.toEpochMilli(), operation)
-            } else alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, entry.at.toEpochMilli(), operation)
+                alarms.setAlarmClock(AlarmManager.AlarmClockInfo(trigger, AlertNotifications.open(context, entry)), operation)
+            } else if (entry.kind == EventKind.AT_TIME) {
+                if (exactAccess(context)) alarms.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, operation)
+                else alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, operation)
+            } else {
+                // Optional reminders can wait for a maintenance window without using the idle quota.
+                alarms.set(AlarmManager.RTC_WAKEUP, trigger, operation)
+            }
         } catch (_: SecurityException) { /* Revoked concurrently; readiness screen reports missing access. */ }
     }
     private fun maintenance(context: Context) = PendingIntent.getBroadcast(context, 0,
         Intent(context, AlarmSystemReceiver::class.java).setAction("org.hayya.salah.MAINTAIN"), PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
     private fun scheduleMaintenance(context: Context) {
-        manager(context).setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, Instant.now().plus(Duration.ofHours(12)).toEpochMilli(), maintenance(context))
+        manager(context).set(AlarmManager.RTC_WAKEUP, Instant.now().plus(Duration.ofHours(12)).toEpochMilli(), maintenance(context))
     }
     suspend fun reconcile(context: Context) = mutex.withLock {
         val store = AlarmSnapshot(context)

@@ -131,3 +131,22 @@ claims alone.
 The Compose BOM proposal was tested against the pinned SDK 37.0 and failed AAR
 metadata checks: animation/foundation/UI 1.13.0 require compile SDK 37.1. Keep the
 accepted UI dependency line and review the SDK/UI upgrade together separately.
+
+## Alarm and Focus lifecycle
+
+Android rate-limits idle-capable alarms. On Android 8 both public idle alarm
+APIs use the same allow-while-idle flag. Primary prayer alerts retain idle
+delivery, using the inexact idle fallback without exact access. Dedicated Fajr
+retains the alarm-clock API. Optional reminders and schedule maintenance use
+ordinary inexact alarms, which Doze can defer. The existing delivery age limits
+apply both before and after unlock.
+[Doze and App Standby](https://developer.android.com/training/monitoring-device-state/doze-standby) ·
+[Alarm scheduling](https://developer.android.com/develop/background-work/services/alarms) ·
+[Android 8 AlarmManager source](https://android.googlesource.com/platform/frameworks/base/+/android-8.0.0_r1/core/java/android/app/AlarmManager.java)
+
+Focus boundary callbacks use Handler uptime, which pauses during deep sleep.
+The connected accessibility service listens for screen, unlock and clock
+broadcasts to reassess the current window against wall time. It removes its
+overlay while the screen is off or the keyguard is active and clears pending
+refreshes when disconnected.
+[Handler timing](https://developer.android.com/reference/android/os/Handler#postDelayed(java.lang.Runnable,%20long))

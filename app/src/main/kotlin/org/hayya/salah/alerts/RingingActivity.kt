@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import org.hayya.core.*
 import org.hayya.salah.*
 import org.hayya.salah.R
+import kotlin.random.Random
 
 class RingingActivity : ComponentActivity() {
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -55,12 +56,11 @@ class RingingActivity : ComponentActivity() {
             if (active?.isFajr != true) {
                 Text(stringResource(R.string.alarm_finished))
                 Button(onClick = { close() }, Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.close)) }
-            } else {
-                val entry = active!!
-                val questions = remember(entry.token) { arithmeticQuestions(entry.difficulty) }
-                var progress by rememberSaveable(entry.token) { mutableIntStateOf(0) }
-                var answer by rememberSaveable(entry.token) { mutableStateOf("") }
-                var incorrect by remember(entry.token) { mutableStateOf(false) }
+            } else key(active.token) {
+                val questions = remember { arithmeticQuestions(active.difficulty, Random(active.token.hashCode())) }
+                var progress by rememberSaveable { mutableIntStateOf(0) }
+                var answer by rememberSaveable { mutableStateOf("") }
+                var incorrect by rememberSaveable { mutableStateOf(false) }
                 if (progress < questions.size) {
                     val q = questions[progress]
                     Text(stringResource(R.string.question_progress, numberLabel(progress + 1), numberLabel(questions.size)))
