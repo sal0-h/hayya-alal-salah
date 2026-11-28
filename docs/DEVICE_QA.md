@@ -22,6 +22,10 @@ The compatible maintenance update is [signed QA157](https://github.com/sal0-h/ha
 not been installed or physically accepted in the maintenance pass. A later
 reliability build may supersede it; always preserve the QA installation and data.
 
+The reliability candidate is [signed QA 164](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46100835918/artifacts/15245049442)
+from source `c6d444a`. Its checksum and existing QA certificate verified.
+Use this candidate for the in-place update when S23 testing resumes.
+
 ## S23 alarm and Focus reliability protocol
 
 All rows below are pending physical testing. Start with an in-place update from
