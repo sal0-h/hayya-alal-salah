@@ -40,10 +40,7 @@ class AlarmSystemReceiver : BroadcastReceiver() {
                 Intent.ACTION_TIMEZONE_CHANGED, "android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED", "org.hayya.salah.MAINTAIN")) return
         background(context) {
             AlarmCoordinator.reconcile(context)
-            if (AlarmCoordinator.unlocked(context)) {
-                context.appContainer.startIntegrations()
-                org.hayya.salah.focus.PrayerFocusService.onTimeChanged()
-            }
+            if (AlarmCoordinator.unlocked(context)) context.appContainer.startIntegrations()
         }
     }
 }

@@ -1,6 +1,6 @@
 # Implementation and validation ledger
 
-Updated 2026-11-27. Source implementation, automated execution, visual inspection and
+Updated 2026-11-28. Source implementation, automated execution, visual inspection and
 physical acceptance are separate. The full approved v1 scope is implemented in
 PRs #1–#8. See Source consolidation below for merge approval and verification.
 QA baseline `5bff9bb` passed the initial server checks. The S23 review follow-up and its verification are tracked below.
@@ -426,3 +426,64 @@ Proposals #9/#12/#13/#14 were closed as superseded by consolidated PR #16;
 were removed and pruned in both checkouts. Original `implement/*` milestone refs,
 source, keys and private device captures were preserved. No tracked APK, keystore
 or build/cache output was found. Repo cleanup does not delete personal QA evidence.
+
+## Alarm and Prayer Focus reliability
+
+**Implemented.** At-time alerts reserve idle-capable delivery for the primary
+prayer alert. Optional reminders and maintenance use ordinary inexact alarms.
+Dedicated Fajr still uses Android's alarm-clock scheduling, and the alarm
+session token keeps arithmetic questions, progress and input together through
+activity recreation. Focus clears the overlay while locked or screen-off and
+rechecks wall time on wake, unlock and clock changes. Interruptions and unbind
+cancel pending refreshes. Focus uses package and window metadata, discards older
+window events after a newer transition and ignores pane-disappearance events.
+
+**Automated reproduction.** On the previous behavior, the new ringing activity
+test observed a changed question at the saved progress on APIs 26, 31 and 37.
+AlarmManager's actual registrations showed the BEFORE reminder using the idle
+compatibility flag on APIs 31 and 37. The Android 8 dump prints flags on a
+separate line, which the regression parser now handles explicitly.
+[Test-only Android run](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46099708459)
+
+The first implementation run showed a separate API 37 race on a rapid
+Settings return. Android showed the selected app focused while the service
+still held the Settings package. The next source passed the same sequence on
+all four APIs. [API 37 failure report](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46100174330/artifacts/15245167919)
+
+**Automated verification.** Source `c6d444a` passed 24 core tests, one upstream
+PrayTimes fixture, Android build, lint and manifest privacy checks. Downloaded
+JUnit XML confirms 26 ordinary integration tests on each of APIs 26, 31, 33
+and 37, with zero failures, errors or skips. The fixtures check actual alarm
+registrations and forced-idle delivery, Fajr activity recreation and explicit
+record semantics, and Focus transitions, bypass, pause, completion, screen-off
+expiry and permission reconnection. APIs 31, 33 and 37 also exercise actual
+system clock and zone changes. All four APIs pass the separate audio and denial
+fixtures. The API 37 locked-reboot report confirms bundled Fajr audio playing
+before first unlock and checks preservation of the test record and imported audio
+after unlocking. [Android run](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46100835918)
+
+All five optimized emulator checks passed. The two downloaded unsigned APKs
+were byte-identical, with SHA-256
+`19c58c2f5f79a9bdc4776bf33befd68e09626478f6ff187f12fddd74c3429113`.
+[Performance](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46100835883) ·
+[Reproducibility](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46100835876)
+
+**Visual review.** Verified all 816 full-shell and widget PNGs in the downloaded
+matrix plus the launcher sheet. Reviewed Today, Fajr with its keyboard, and the
+Focus overlay in English LTR and Arabic RTL at 100% and 200% system font sizes
+in light and dark themes. The next-prayer marker fits at both sizes. Emergency
+controls stay visible. At 200% the Fajr Check answer action and the Focus
+recording action can require scrolling.
+[Capture matrix](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46100835918/artifacts/15245556929)
+
+**Signed QA delivery.** [QA 164](https://github.com/sal0-h/hayya-alal-salah/actions/runs/46100835918/artifacts/15245049442)
+uses `org.hayya.salah.qa` and the established QA certificate. The downloaded
+APK and signature verified. APK SHA-256 is
+`2e16b8ef6ddb65bd483f1d544db021aef3fb87d0e98e131a8ac26698a8bb9aa6`.
+The public certificate SHA-256 is
+`081b779ae9d4f9c1714f212bcb5936fdc239a9941d3c1658920cef1229d08d7f`.
+The reliability branch is open for review. [PR #17](https://github.com/sal0-h/hayya-alal-salah/pull/17)
+
+**Physical.** The S23 remains on the previously accepted navigation build.
+Overnight delivery, OEM behavior, audible playback and essential-app escape
+remain pending. [Non-destructive S23 protocol](DEVICE_QA.md#s23-alarm-and-focus-reliability-protocol)
